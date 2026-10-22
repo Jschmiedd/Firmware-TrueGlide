@@ -25,7 +25,8 @@ import subprocess
 import sys
 
 MODELES = [("truenav_light_", "TRUENAV_LIGHT"), ("truenav_", "TRUENAV"), ("trueglide_", "STANDARD")]
-NOM = re.compile(r"^(?P<version>[0-9][0-9.]*)_(?P<mcu>[A-Z0-9]+)_(?P<carte>[A-Z0-9_]+)\.hex$")
+# le nom de carte peut contenir un tiret (LUXHDAIO-G4)
+NOM = re.compile(r"^(?P<version>[0-9][0-9.]*)_(?P<mcu>[A-Z0-9]+)_(?P<carte>[A-Z0-9_-]+)\.hex$")
 
 
 def analyser_nom(nom):
