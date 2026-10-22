@@ -69,4 +69,14 @@ En attente de Johann :
 
 ## Journal des phases
 
-- (vide)
+- 22 octobre 2026 (deuxième discussion), en attente de validation par Johann, rien de remplacé en ligne :
+  - Logiciel : branche `essai-onglets`, publiée sur `/test/` (gh-pages). Onglet Speeder avec le schéma du V2V 3",
+    onglet Installation avec les vues Profil / Dessus (numéros des moteurs pour le Quad X seulement), environ 40 textes
+    faux ou périmés corrigés (fr et en), TRUENAV_LIGHT reconnu par la commande `version`, « Annuler l'étalonnage »
+    réparé, limites alignées sur le firmware, bouton d'assistance du CLI masqué. Testé sur le simulateur.
+  - Site explicatif (accueil + une page par onglet) : branche `essai-site`, dossier `site/`, publié sur `/site-test/`.
+    Construire : `python3 site/outils/construire.py` ; contrôles : `verifier_liens.py`, `verifier_rendu.cjs` ;
+    captures : `site/outils/captures.cjs` (simulateur neuf à chaque thème).
+  - Firmware : `.hex` SEQURE H743 V2 (3 modèles) compilés, non publiés. ESC SEQURE E160 G2 : pont V → V+ (16 V) et
+    `battery_meter = ESC` nécessaires (voir la discussion).
+  - Phase 2 (F405 Mini à plat) : pas encore faite.
