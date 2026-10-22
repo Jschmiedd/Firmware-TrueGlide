@@ -160,8 +160,8 @@ Ou sur un PC Linux : `make arm_sdk_install`, `make configs`, puis `make CONFIG=N
 
 Le Configurator peut télécharger lui-même le firmware de la carte : tableau de bord, carte **Firmware**, **Chercher la
 mise à jour**, puis **Mettre à jour** ; ou onglet **Flasher le Firmware**, cadre **Mise à jour en ligne**. Le fichier
-est vérifié (somme SHA-256) avant d'être chargé, la configuration est sauvegardée automatiquement avant le flash et
-peut être restaurée après. Rien n'est demandé au réseau tant que le pilote ne clique pas.
+est vérifié (somme SHA-256) avant d'être chargé. Si la carte est branchée et que la sauvegarde avant flash est
+activée (**Sauvegarde activée**), la configuration est sauvegardée avant le flash et peut être restaurée après. Rien n'est demandé au réseau tant que le pilote ne clique pas.
 
 Publier une version (Johann, au moment de « publie ») :
 
@@ -176,8 +176,8 @@ Publier une version (Johann, au moment de « publie ») :
 ## Flasher (première installation)
 
 1. Dans le Configurator, onglet CLI : `diff all`, **enregistrer le texte** (sauvegarde de l'ancienne configuration).
-2. Onglet **Flasher** : choisir la carte, **Charger le firmware [local]**, sélectionner le `.hex` TrueGlide, cocher
-   **Effacement complet**, **Flasher**.
+2. Onglet **Flasher le Firmware** : **Charger un firmware TrueGlide (.hex)**, sélectionner le `.hex` TrueGlide (la
+   carte est lue dans le nom du fichier), cocher **Effacement complet de la puce**, puis **Flasher le Firmware**.
 3. Refaire la configuration de base (ports, récepteur, modes, OSD). Depuis une version 2025.12, ne pas recoller tout
    l'ancien diff : Studio (onglet « Analyser ») dit ce qui a changé.
 
