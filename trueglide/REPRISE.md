@@ -80,3 +80,9 @@ En attente de Johann :
   - Firmware : `.hex` SEQURE H743 V2 (3 modèles) compilés, non publiés. ESC SEQURE E160 G2 : pont V → V+ (16 V) et
     `battery_meter = ESC` nécessaires (voir la discussion).
   - Phase 2 (F405 Mini à plat) : pas encore faite.
+  - Phase 5 (toutes les cartes), révision `1791465a6` : TRUEGLIDE 621/621, TRUENAV 606, TRUENAV_LIGHT 611 (les autres
+    débordent la mémoire, liste dans LISEZMOI). Exclues : 5 cartes RP2350 et 3 SITL. Tous les `.hex` dans les Releases
+    `essai-1791465a6-<MODELE>` du dépôt firmware (workflow `trueglide.yml`, cartes=TOUTES, job `version`).
+    Liste de test `firmware-test/` sur gh-pages (627 fichiers : TRUEGLIDE pour toutes les cartes, les trois modèles
+    pour SPEEDYBEEF405MINI, TMOTORVELOXF7SE, SEQUREH7V2), lue par `/test/` seulement ; `/firmware/` (lu par `/app/`)
+    inchangé. Nom de carte avec tiret (LUXHDAIO-G4) accepté par le publieur et le logiciel. Compilé ≠ testé.
