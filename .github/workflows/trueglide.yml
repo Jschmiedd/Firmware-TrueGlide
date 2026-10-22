@@ -57,7 +57,9 @@ jobs:
             IFLIGHT_H743_AIO_V2 FLYWOOF405PRO FLYWOOF745 BETAFPVF405 BETAFPVF722 BETAFPVH743 AIKONF4V3 SKYSTARSF405V2 \
             DAKEFPVF405 DAKEFPVH743 NEUTRONRCF435 TBS_LUCID_H7"
           if [ "$CARTES" = "TOUTES" ]; then
-            LISTE=$(find src/config/configs -name config.h -printf '%h\n' | xargs -n1 basename | sort)
+            # cartes qui donnent un .hex : ni le simulateur (SITL_*) ni les RP2350 (fichier .uf2, outil picotool)
+            LISTE=$(grep -L 'FC_TARGET_MCU *RP2' $(find src/config/configs -name config.h) | xargs -n1 dirname \
+              | xargs -n1 basename | grep -v '^SITL' | sort)
             N=24
           elif [ "$CARTES" = "COURANTES" ]; then
             LISTE="$COURANTES"; N=2
@@ -100,8 +102,9 @@ jobs:
           mkdir -p hex
           ECHECS=""
           for c in $LISTE; do
-            if make -j"$(nproc)" CONFIG="$c" MODELE="$MODELE" > "build_$c.log" 2>&1; then
-              cp obj/*_"$c".hex hex/ 2>/dev/null || cp obj/*_"$c"*.hex hex/
+            if make -j"$(nproc)" CONFIG="$c" MODELE="$MODELE" > "build_$c.log" 2>&1 \
+                && ls obj/*_"$c".hex > /dev/null 2>&1; then
+              cp obj/*_"$c".hex hex/
               echo "OK    $c"
             else
               ECHECS="$ECHECS $c"; echo "ÉCHEC $c"; tail -20 "build_$c.log"
@@ -116,3 +119,36 @@ jobs:
           name: trueglide-${{ inputs.modele || 'STANDARD' }}-hex-${{ matrix.groupe.n }}
           path: hex/*.hex
           retention-days: 30
+
+  version:
+    name: Version d'essai (page Releases)
+    needs: hex
+    # aussi quand quelques cartes ont échoué : on publie celles qui ont réussi
+    if: ${{ always() && needs.hex.result != 'cancelled' && github.event.inputs.cartes == 'TOUTES' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: trueglide-${{ inputs.modele || 'STANDARD' }}-hex-*
+          path: hex
+          merge-multiple: true
+      - name: Créer la version d'essai
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MODELE: ${{ inputs.modele || 'STANDARD' }}
+        run: |
+          REV=$(git rev-parse --short=9 HEAD)
+          VERSION="essai-$REV-$MODELE"
+          N=$(ls hex/*.hex | wc -l)
+          tar -cJf "trueglide-$MODELE-$REV.tar.xz" -C hex .
+          printf 'Version d essai, non testée en vol : %s fichiers .hex du modèle %s, révision %s.\nFlasher avec « Charger un firmware TrueGlide (.hex) », hélices retirées, après un diff all.\n' \
+            "$N" "$MODELE" "$REV" > notes.md
+          gh release delete "$VERSION" --yes --cleanup-tag 2>/dev/null || true
+          gh release create "$VERSION" --target "$GITHUB_SHA" --prerelease \
+            --title "TrueGlide $MODELE $REV (essai, $N cartes)" --notes-file notes.md
+          gh release upload "$VERSION" "trueglide-$MODELE-$REV.tar.xz"
+          ls hex/*.hex | xargs -n 50 gh release upload "$VERSION" --clobber
+          echo "$(gh release view "$VERSION" --json assets --jq '.assets | length') fichiers publiés"

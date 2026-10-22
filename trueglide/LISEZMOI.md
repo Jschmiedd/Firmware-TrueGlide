@@ -34,8 +34,17 @@ les vraies cartes, y compris les cartes à 512 Ko, où Betaflight ne met même p
 | SPEEDYBEEF405MINI (1 Mo) | 546 | 572 | 566 |
 | MATEKH743 (2 Mo) | — | 612 | 606 |
 
-Le modèle TRUENAV_LIGHT ne gagne que 3 à 7 Ko : les fonctions de course pèsent peu. Le modèle TRUENAV tient déjà partout.
-Sur une F722 à 512 Ko, il reste environ 20 Ko de libre.
+Le modèle TRUENAV_LIGHT ne gagne que 3 à 7 Ko : les fonctions de course pèsent peu.
+
+**Ne tient pas partout** (compilation de toutes les cartes, 22 octobre 2026, révision 2fbdcce) : la mémoire déborde
+sur 15 cartes en TRUENAV et 10 en TRUENAV_LIGHT (dépassement en octets, TRUENAV / TRUENAV_LIGHT) :
+- F722 : ALIENFLIGHTNGF7 (20767 / 16541), ALIENFLIGHTNGF7_RX (19799 / 15557), ALIENFLIGHTNGF7_ELRS (9170 / 4960),
+  IFLIGHT_BLITZ_F7_PRO (14741 / 10483), JBF7 (13917 / 9691), JBF7_DJI (13929 / 9719), ZEEZF7V3 (14297 / 10039) ;
+  en TRUENAV seulement : SPEEDYBEEF7V3 (2821), MATEKF722SE (2397), GEPRCF722_BT_HD_V3 (1353), JBF7_V2 (937) ;
+- F411 : BETAFPVF411RX (5801 / 2721) ; en TRUENAV seulement : GEPRCF411SX1280 (364) ;
+- H750 : SPRACINGH7EXTREME (8531 / 4799).
+Sur ces cartes, utiliser TRUEGLIDE (ou TRUENAV_LIGHT quand il tient). Le tableau ci-dessus date d'une version plus
+ancienne : le firmware a grossi depuis.
 
 Construire : `make CONFIG=<CARTE> MODELE=TRUENAV` (ou `TRUENAV_LIGHT`) ; sur GitHub, **Run workflow**, choix « modele ».
 Dans les modèles TRUENAV, rien ne change en vol tant qu'aucun mode de navigation n'est placé sur un interrupteur.
