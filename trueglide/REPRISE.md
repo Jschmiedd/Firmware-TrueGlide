@@ -96,3 +96,14 @@ En attente de Johann :
     « données du calculateur » (43 tests). CHIRP : pas ajouté, besoins à définir (document de suivi).
   - Fiches de salle blanche envoyées à XPro : 1/4 à 4/4, 5/6, 6/6, navigation 1/3 à 3/3.
   - Phase 2 (F405 Mini à plat) : pas encore faite. Rien n'a volé.
+- 23 octobre 2026 (soir), demandes de Johann :
+  - Batterie basse (firmware a43f068, désactivée par défaut) : `battery_arm_min_cell_voltage` (armement refusé,
+    motif LOW_BATTERY, bit 29 ; ARM_SWITCH passe au bit 30), `battery_rth_cell_voltage` + `battery_rth_delay` (retour
+    GPS RESCUE, annulé au manche > 30 % jusqu'au désarmement, OSD BAT RTH / BAT RTH N/A). Jamais de coupure en vol.
+    7 tests unitaires ; le simulateur n'a pas de batterie : pas encore essayé en vol. Recompilation des cartes à faire
+    pour la prochaine version.
+  - Onglet ESC du logiciel (essai-onglets 47b7507) : iframe de TrueGlide ESC Configurator figé
+    (https://jschmiedd.github.io/TrueGlide-ESC-Configurator/onglet/v1/), sans fusion ; une seule connexion USB.
+    Publié sur /test/ (qui redevient une page d'essai, liste de firmwares officielle) ; messages ready / disconnected
+    vérifiés en ligne ; pas encore essayé avec une vraie carte ni un vrai flash d'ESC.
+  - Analyse des journaux : fichier de retour `talktrue-trueglide-retour` v2 (centrage) pour le calculateur.
