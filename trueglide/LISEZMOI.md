@@ -341,6 +341,34 @@ Le rapport liste, vol par vol : télémétrie DShot figée par moteur, désynchr
 firmware), saturation, bruit gyro, oscillations lentes, avec un conseil sur le protocole DShot et une synthèse par
 moteur. Les outils lisent tous les moteurs du journal (hexacoptère, octocoptère : jusqu'à 8).
 
+### Mesures de vol pour le calculateur (`--retour`)
+
+```
+python3 trueglide/outils/analyse_blackbox.py mon_vol.bbl [autres.bbl] --retour KarRmen_retour_trueglide.json [--nom KarRmen]
+```
+
+Écrit un fichier au format `talktrue-trueglide-retour` (version 1), lu par le calculateur TALKTRUE FPV XRIG. Ce format
+est séparé de celui de XPro. Il ne contient que des mesures faites en vol, jamais d'estimation. Une valeur non
+mesurée, ou hors limites, vaut `null`.
+
+| Mesure (`mesures.…`) | Unité, type | Limites | Comment |
+|---|---|---|---|
+| `poles` | nombre d'aimants, entier | 4 à 64 | vibrations du gyro (voir plus haut) |
+| `poles_exact` | vrai / faux | — | faux : « environ, ±2 » |
+| `tr_min_stationnaire` | tr/min mécaniques, nombre | 500 à 100 000 | télémétrie DShot ; seulement si les pôles sont mesurés |
+| `gaz_stationnaire_pct` | %, nombre | 0 à 100 | commande des gaz |
+| `tension_stationnaire_v` | V batterie, nombre | 1 à 70 | |
+| `courant_stationnaire_a` | A batterie entière, nombre | 0,1 à 500 | capteur de la carte ; étalonnage non vérifié (offset et échelle dans `reglages`) |
+| `duree_stationnaire_s` | s, nombre | 3 et plus | temps de stationnaire retenu |
+| `saturation_pct` | %, nombre | 0 à 100 | moyenne des vols |
+| `desynchronisations` | nombre, entier | 0 et plus | logique du firmware rejouée |
+| `telemetrie_figee_pct_max` | %, nombre | 0 à 100 | pire moteur, pire vol |
+
+Stationnaire : fenêtres d'une seconde, drone armé, gaz stables (écart type sous 1,5 %), manches roulis, tangage et
+lacet au centre, drone stable, moteurs non saturés. Valeur retenue : médiane des fenêtres, s'il y a au moins 3 s.
+`source` donne le firmware, la carte, le nom, la date et les journaux lus. `reglages` donne pour information
+`motor_poles`, `motor_kv`, le protocole moteur, `dshot_bidir` et l'offset et l'échelle du capteur de courant.
+
 Pour régler les PID à partir de mesures, Betaflight 2026.6 a aussi un onglet **Réglage automatique** (Autotune, excitation « chirp ») :
 il reste disponible dans TrueGlide Configurator, à côté de l'Assistant de réglage.
 

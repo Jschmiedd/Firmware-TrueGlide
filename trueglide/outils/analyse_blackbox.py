@@ -10,9 +10,12 @@ Pour chaque vol : configuration (firmware, carte, protocole DShot, boucle PID), 
   ralenti dynamique.
 
 Usage : python3 trueglide/outils/analyse_blackbox.py journal.bbl [autres.bbl] [-o rapport.md]
+        [--retour nom_retour_trueglide.json]
+--retour écrit les mesures faites en vol pour le calculateur TALKTRUE FPV XRIG (format talktrue-trueglide-retour,
+séparé de celui de XPro) : voir LISEZMOI.md, « Mesures de vol pour le calculateur ».
 Dépendances : orangebox (pip install orangebox), numpy, gcc (pour la détection de désynchronisation).
 """
-import argparse, os, sys
+import argparse, datetime, json, os, sys
 import numpy as np
 from orangebox import Parser
 
@@ -181,6 +184,120 @@ def analyser_vol(lib, chemin, idx):
     return r
 
 
+# Stationnaire : fenêtres d'une seconde, armé, gaz stables, manches roulis / tangage / lacet au centre, drone stable
+# et moteurs non saturés. Le stationnaire n'est retenu qu'avec au moins 3 s de telles fenêtres.
+FENETRE_S = 1.0
+STAT_GAZ_ECART = 15          # écart type des gaz (rcCommand, 1000 à 2000) : 1,5 %
+STAT_MANCHE = 40             # |rcCommand| roulis / tangage / lacet (±500) : manches au centre
+STAT_GYRO = 40.0             # écart type du gyro filtré roulis / tangage (°/s)
+STAT_MIN_S = 3.0
+
+
+def stationnaire(H, c, A, poles):
+    """Mesures en stationnaire d'un vol : liste de fenêtres {gaz_pct, tr_min, tension_v, courant_a}."""
+    if 'rcCommand[3]' not in c:
+        return []
+    t = (A[:, c['time']] - A[0, c['time']]) * 1e-6
+    dt = float(np.median(np.diff(t)))
+    n = int(FENETRE_S / dt)
+    if n < 10:
+        return []
+    lo, hi = H.get('motorOutput', [48, 2047])[:2]
+    mot = A[:, [c[f'motor[{i}]'] for i in range(rj.nb_moteurs(c))]]
+    arme = (np.nan_to_num(A[:, c['flightModeFlags']]).astype(int) & 1) == 1
+    champs = rj.colonnes_erpm(list(c), H)
+    res = []
+    for s in range(0, len(A) - n, n):
+        sl = slice(s, s + n)
+        gaz = A[sl, c['rcCommand[3]']]
+        if not arme[sl].all() or gaz.mean() < 1100 or gaz.std() > STAT_GAZ_ECART:
+            continue
+        if max(np.abs(A[sl, c[f'rcCommand[{k}]']]).max() for k in range(3)) > STAT_MANCHE:
+            continue
+        if max(A[sl, c[f'gyroADC[{k}]']].std() for k in range(2)) > STAT_GYRO or (mot[sl] >= hi - 1).any():
+            continue
+        w = {'gaz_pct': (gaz.mean() - 1000) / 10}
+        if champs and poles:
+            w['tr_min'] = float(A[sl][:, [c[k] for k in champs]].mean() * 100 * 2 / poles)
+        if 'vbatLatest' in c:
+            w['tension_v'] = float(A[sl, c['vbatLatest']].mean() / 100)
+        if 'amperageLatest' in c:
+            w['courant_a'] = float(A[sl, c['amperageLatest']].mean() / 100)
+        res.append(w)
+    return res
+
+
+# Limites des mesures du fichier retour : une valeur hors limites est remplacée par null (jamais inventée)
+LIMITES_RETOUR = {
+    'poles': (4, 64), 'tr_min_stationnaire': (500, 100000), 'gaz_stationnaire_pct': (0, 100),
+    'tension_stationnaire_v': (1.0, 70.0), 'courant_stationnaire_a': (0.1, 500.0), 'duree_stationnaire_s': (STAT_MIN_S, 100000),
+    'saturation_pct': (0, 100), 'desynchronisations': (0, 100000), 'telemetrie_figee_pct_max': (0, 100),
+}
+
+
+def retour(chemins, lib, nom=None):
+    """Mesures faites en vol, pour le calculateur (format talktrue-trueglide-retour, version 1)."""
+    vols, fenetres, H0 = [], [], None
+    for chemin in chemins:
+        for i in range(1, Parser.load(chemin).reader.log_count + 1):
+            v = analyser_vol(lib, chemin, i)
+            if v:
+                vols.append(v)
+    if not vols:
+        raise SystemExit('Aucun vol lisible dans les journaux donnés.')
+    H0 = vols[0]['H']
+    conc = conclure_poles([v['poles'] for v in vols if 'poles' in v])
+    poles = int(conc[0]) if conc else None
+    for chemin in chemins:
+        for i in range(1, Parser.load(chemin).reader.log_count + 1):
+            d = charger(chemin, i)
+            if d:
+                fenetres += stationnaire(d[0], d[1], d[2], poles or d[0].get('motor_poles'))
+    duree = len(fenetres) * FENETRE_S
+
+    def med(cle):
+        x = [w[cle] for w in fenetres if cle in w]
+        return round(float(np.median(x)), 2) if duree >= STAT_MIN_S and len(x) >= STAT_MIN_S / FENETRE_S else None
+    sat = [v['mesures']['saturation'] for v in vols if 'saturation' in v['mesures']]
+    fig = [max(v['mesures']['figee']) for v in vols if 'figee' in v['mesures']]
+    capteur = H0.get('currentSensor')
+    m = {
+        'poles': poles,
+        'poles_exact': bool(conc[1]) if conc else None,
+        # vitesse mécanique : avec les pôles MESURÉS seulement (avec un motor_poles faux elle serait fausse)
+        'tr_min_stationnaire': med('tr_min') if poles else None,
+        'gaz_stationnaire_pct': med('gaz_pct'),
+        'tension_stationnaire_v': med('tension_v'),
+        'courant_stationnaire_a': med('courant_a') if capteur else None,
+        'duree_stationnaire_s': round(duree, 1) if duree >= STAT_MIN_S else None,
+        'saturation_pct': round(float(np.mean(sat)), 2) if sat else None,
+        'desynchronisations': int(sum(len(v.get('relances', [])) for v in vols)) if lib is not None and fig else None,
+        'telemetrie_figee_pct_max': round(float(max(fig)), 2) if fig else None,
+    }
+    refuses = []
+    for k, (a, b) in LIMITES_RETOUR.items():
+        if m[k] is not None and not a <= m[k] <= b:
+            refuses.append(f'{k} = {m[k]}')
+            m[k] = None
+    proto = H0.get('motor_pwm_protocol')
+    return {
+        'format': 'talktrue-trueglide-retour', 'version': 1,
+        'source': {'logiciel': 'TrueGlide analyse_blackbox', 'firmware': H0.get('Firmware revision'),
+                   'carte': H0.get('Board information'), 'nom': nom or H0.get('Craft name'),
+                   'date': datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat(),
+                   'vol': ', '.join(os.path.basename(x) for x in chemins) + f' ({len(vols)} vols lus)'},
+        'mesures': m,
+        'reglages': {'motor_poles': H0.get('motor_poles'), 'motor_kv': H0.get('motor_kv'),
+                     'motor_pwm_protocol': PROTOCOLES[proto] if isinstance(proto, int) and proto < len(PROTOCOLES) else None,
+                     'dshot_bidir': bool(H0['dshot_bidir']) if 'dshot_bidir' in H0 else None,
+                     'capteur_courant_offset_echelle': capteur},
+        'notes': ([f'Hors limites, remplacé par null : {", ".join(refuses)}.'] if refuses else []) +
+                 ['Stationnaire : fenêtres de 1 s armé, gaz stables (écart type < 1,5 %), manches au centre, drone stable, '
+                  'moteurs non saturés ; valeurs = médiane des fenêtres.',
+                  'Courant : capteur de la carte avec l\'offset et l\'échelle notés dans reglages (étalonnage non vérifié).'],
+    }
+
+
 def conseils_dshot(H):
     proto = PROTOCOLES[H['motor_pwm_protocol']] if isinstance(H.get('motor_pwm_protocol'), int) and H['motor_pwm_protocol'] < len(PROTOCOLES) else '?'
     boucle = 1e6 / (H.get('looptime', 125) * H.get('pid_process_denom', 1))
@@ -251,12 +368,21 @@ def rapport(chemins, lib):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('journaux', nargs='+'); ap.add_argument('-o', '--sortie')
+    ap.add_argument('--retour', help='écrit les mesures de vol pour le calculateur (talktrue-trueglide-retour)')
+    ap.add_argument('--nom', help='nom de la configuration dans le fichier retour (par défaut : nom du drone du journal)')
     a = ap.parse_args()
     try:
         lib = rj.bibliotheque()
     except Exception as ex:   # pas de gcc : analyse sans détection de désynchronisation
         print('Détection de désynchronisation indisponible :', ex, file=sys.stderr)
         lib = None
+    if a.retour:
+        r = retour(a.journaux, lib, a.nom)
+        with open(a.retour, 'w') as f:
+            json.dump(r, f, ensure_ascii=False, indent=2)
+            f.write('\n')
+        print(json.dumps(r['mesures'], ensure_ascii=False, indent=2))
+        return
     texte = rapport(a.journaux, lib)
     if a.sortie:
         open(a.sortie, 'w').write(texte + '\n')
