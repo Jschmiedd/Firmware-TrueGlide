@@ -136,9 +136,9 @@
     <h2>Fichier drone</h2>
     <p class="petit">Un seul fichier garde tout : ce formulaire, les ports et la configuration de la carte (<code>diff all</code>).
       Pour le créer avec la carte : dans le Configurator, onglet CLI, taper <code>diff all</code>, « Enregistrer » le texte, puis
-      l'ouvrir ici. Ensuite tout se prépare sans la carte ; on colle les commandes dans l'onglet CLI une fois le drone branché.</p>
+      l'ouvrir ici. Un fichier du calculateur TALKTRUE FPV XRIG (format <code>talktrue-trueglide-studio</code>) remplit le formulaire. Ensuite tout se prépare sans la carte ; on colle les commandes dans l'onglet CLI une fois le drone branché.</p>
     <div class="boutons">
-      <button class="second" id="ouvrir-drone">Ouvrir un fichier drone ou un diff all</button>
+      <button class="second" id="ouvrir-drone">Ouvrir un fichier drone, du calculateur ou un diff all</button>
       <button class="second" id="enregistrer-drone">Enregistrer le fichier drone</button>
       <input id="fichier-drone" type="file" accept=".json,.txt,text/plain,application/json" hidden>
     </div>
@@ -477,12 +477,14 @@
       Object.keys(o.drone).forEach(function (k) { if (CHAMPS.indexOf(k) >= 0) { if ($(k).type === 'checkbox') $(k).checked = !!o.drone[k]; else $(k).value = o.drone[k]; } });
       if (o.carte) $('carte').value = o.carte;
       if (o.configuration) $('diff').value = o.configuration;
-      choixPorts = o.ports || {}; memoriserPorts(); memoriser();
+      if (o.configuration || Object.keys(o.ports || {}).length) { choixPorts = o.ports || {}; memoriserPorts(); }
+      memoriser();
       majCarteEsc(); majSpeeder(); dessinerPorts();
       var k = carteChoisie();
       $('info-drone').innerHTML = messages([f.name + ' ouvert : carte ' + (k ? k.nom : (o.carte || 'non trouvée')) +
         (o.configuration ? ', configuration de ' + o.configuration.split(/\r?\n/).length + ' lignes (onglet « Analyser ma configuration »)' : '') + '.'], k ? 'ok' : 'conseil') +
-        (k ? '' : messages(['Carte non reconnue : la choisir dans la liste « Carte de vol (FC) ».'], 'conseil'));
+        (k ? '' : messages(['Carte non reconnue : la choisir dans la liste « Carte de vol (FC) ».'], 'conseil')) +
+        (o.messages || []).map(function (m) { return messages([m.texte], m.niveau); }).join('');
     };
     lecteur.readAsText(f);
   });

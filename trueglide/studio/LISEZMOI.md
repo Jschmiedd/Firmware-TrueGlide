@@ -28,6 +28,9 @@ d'Internet ; sans connexion, le tableau des points fonctionne seul.
 - **Fichier drone** : un fichier `.json` garde le formulaire, les ports et la configuration de la carte (`diff all`).
   On l'enregistre, on le rouvre plus tard sans la carte ; un `diff all` enregistré depuis le Configurator s'ouvre
   aussi (carte et nombre de pôles repris). Les commandes se collent ensuite dans l'onglet CLI, drone branché.
+- **Fichier du calculateur TALKTRUE FPV XRIG** : le calculateur exporte un `.json` au format propre à TrueGlide
+  `talktrue-trueglide-studio` (séparé du format de XPro, qui est refusé). Studio l'ouvre comme un fichier drone et
+  remplit le formulaire (voir « Format du calculateur » plus bas).
 - **Navigation GPS** : mission par points (mode AUTOPILOT de Betaflight 2026.6), retour GPS, barrière virtuelle.
   Il produit les commandes `waypoint` exactes du firmware (altitudes converties au-dessus du niveau de la mer).
 
@@ -56,7 +59,7 @@ dépôt officiel `betaflight/firmware-presets` (firmware 2025.12) :
 
 ## Vérifications
 
-- `node --test trueglide/studio/test/studio.test.js` : 41 tests (bornes de tous les réglages pour 2 à 15", 5 styles, 3 châssis ;
+- `node --test trueglide/studio/test/studio.test.js` : 42 tests (bornes de tous les réglages pour 2 à 15", 5 styles, 3 châssis ;
   format des commandes de mission ; analyse d'un diff).
 - `python3 trueglide/studio/tools/valider_sitl.py` (après `make TARGET=SITL`) : colle les commandes générées pour 40
   drones et une mission dans le firmware compilé pour PC. Résultat du 11 octobre 2026 : toutes acceptées, PID calculés
@@ -69,6 +72,30 @@ dépôt officiel `betaflight/firmware-presets` (firmware 2025.12) :
 - `tools/extract_cartes.py` régénère `js/cartes.js` (les 629 cartes, avec leurs ports série) après `make configs`.
 - `tools/extract_settings.py` régénère `js/settings_db.js` (les 828 réglages du firmware, y compris les textes et tableaux, bornes et choix) après une
   mise à jour du firmware.
+
+## Format du calculateur (`talktrue-trueglide-studio`, version 1)
+
+Exemple complet : `exemples/calculateur_exemple.json`. Une donnée inconnue vaut `null` (jamais une valeur supposée) :
+Studio laisse alors son champ tel quel et le signale. Une valeur hors limites n'est pas reprise et est signalée.
+
+| Champ (`drone.…`) | Unité, valeurs | Champ de Studio | Obligatoire |
+|---|---|---|---|
+| `helice_pouces` | pouces, 1,2 à 15 | Taille d'hélice | oui |
+| `kv` | tr/min/V, 100 à 30 000 | KV des moteurs | oui |
+| `cellules` | nombre de S, 1 à 14 | Batterie | oui |
+| `masse_g` | grammes, batterie comprise, 15 à 20 000 | Masse en vol | oui |
+| `poles` | nombre d'aimants, pair, 4 à 64 | Pôles des moteurs | oui |
+| `disposition` | `quadx`, `hexa`, `x8`, `quadx_pusher` | Type de châssis | oui |
+| `esc_firmware` | `bluejay`, `blheli_s`, `am32`, `blheli_32`, `kiss`, `blheli`, `pwm` | Firmware des ESC | oui |
+| `esc_calibre_a_par_voie` | ampères en continu, par voie | Calibre ESC | non |
+| `esc_pwm_khz` | 24 ou 48 | Fréquence PWM des ESC | non |
+| `carte` | nom exact de la carte Betaflight | Carte de vol | non |
+| `capteur_courant` | vrai / faux | Capteur de courant sur la FC | non |
+| `telemetrie_serie_esc` | vrai / faux | Fil de télémétrie série branché | non |
+
+Autres champs : `format`, `version` (1), `source`, `date`, `nom` ; `valeurs_supposees` (liste des champs supposés par le
+calculateur, affichés « à vérifier ») ; `etude.poussee_max_g_par_moteur` et `etude.courant_stationnaire_a`, affichés
+pour information, non utilisés par le réglage.
 
 ## Limites
 

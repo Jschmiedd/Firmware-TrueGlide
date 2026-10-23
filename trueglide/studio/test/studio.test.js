@@ -440,7 +440,7 @@ test('ports : contrôles (GPS absent, broche manquante, deux récepteurs, ancien
 
 test('fichier drone : enregistré puis relu à l\'identique ; un diff all donne la carte', () => {
   const f = P.fichierDrone({ carte: 'SPEEDYBEEF405MINI', drone: { pouces: '5' }, ports: { UART3: 'gps' }, configuration: 'diff', date: 'x' });
-  assert.deepEqual(P.ouvrir(f), { carte: 'SPEEDYBEEF405MINI', drone: { pouces: '5' }, ports: { UART3: 'gps' }, configuration: 'diff' });
+  assert.deepEqual(P.ouvrir(f), { carte: 'SPEEDYBEEF405MINI', drone: { pouces: '5' }, ports: { UART3: 'gps' }, configuration: 'diff', messages: [] });
   const d = P.ouvrir('# Betaflight / STM32F405 (S405) 2025.12.2\nboard_name SPEEDYBEEF405MINI\nset motor_poles = 12');
   assert.equal(d.carte, 'SPEEDYBEEF405MINI');
   assert.equal(d.drone.poles, '12');
@@ -452,4 +452,20 @@ test('chaque carte décrite a des ports valides et ses fonctions par défaut sur
     for (const [port, b] of Object.entries(c.p || {})) assert.match(port + ':' + b, /^(LP)?UART\d+:(TR|T|R)$/, nom);
     for (const port of Object.keys(c.d || {})) assert.ok(c.p && c.p[port], `${nom} : ${port} par défaut sans broche`);
   }
+});
+
+test('fichier du calculateur (talktrue-trueglide-studio) : champs repris, inconnus et hors limites signalés', () => {
+  const ex = require('fs').readFileSync(require('path').join(__dirname, '..', 'exemples', 'calculateur_exemple.json'), 'utf8');
+  const o = P.ouvrir(ex);
+  assert.equal(o.carte, 'SPEEDYBEEF405MINI');
+  assert.deepEqual(o.drone, { pouces: 5.1, kv: 1950, cellules: 6, masse: 650, poles: 14, chassis: 'quadx', esc: 'bluejay',
+    courantEsc: 45, pwmEsc: '48', carte: 'SPEEDYBEEF405MINI', capteurCourant: true });
+  assert.ok(o.messages.some(m => m.niveau === 'conseil' && /telemetrie_serie_esc/.test(m.texte)));   // null = inconnu
+  assert.ok(o.messages.some(m => /supposées.*poles/.test(m.texte)));
+  assert.ok(o.messages.some(m => m.niveau === 'note' && /1450 g/.test(m.texte)));
+  const faux = P.ouvrir(JSON.stringify({ format: 'talktrue-trueglide-studio', version: 1, drone: { helice_pouces: 40, disposition: 'tri' } }));
+  assert.deepEqual(faux.drone, {});
+  assert.ok(faux.messages.some(m => m.niveau === 'alerte' && /helice_pouces = 40/.test(m.texte) && /disposition/.test(m.texte)));
+  assert.throws(() => P.ouvrir(JSON.stringify({ format: 'talktrue-trueglide-studio', version: 2 })));
+  assert.throws(() => P.ouvrir(JSON.stringify({ format: 'talktrue-xpro-drone', version: 1 })));   // format XPro : refusé
 });

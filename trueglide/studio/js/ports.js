@@ -168,23 +168,63 @@
     return JSON.stringify({ format: FORMAT, version: 1, date: o.date || new Date().toISOString(), carte: o.carte || '',
       drone: o.drone || {}, ports: o.ports || {}, configuration: o.configuration || '' }, null, 2);
   }
-  // Ouvre un fichier drone (JSON) ou un texte de CLI (diff all / dump all).
+  // Format du calculateur TALKTRUE FPV XRIG pour Studio (format propre à TrueGlide, séparé de celui de XPro).
+  // Une donnée inconnue vaut null : le champ de Studio est alors laissé tel quel.
+  var FORMAT_CALCULATEUR = 'talktrue-trueglide-studio';
+  var CHAMPS_CALCULATEUR = [
+    // [nom dans le fichier, champ de Studio, contrôle]
+    ['helice_pouces', 'pouces', function (v) { return typeof v === 'number' && v >= 1.2 && v <= 15; }],
+    ['kv', 'kv', function (v) { return typeof v === 'number' && v >= 100 && v <= 30000; }],
+    ['cellules', 'cellules', function (v) { return Number.isInteger(v) && v >= 1 && v <= 14; }],
+    ['masse_g', 'masse', function (v) { return typeof v === 'number' && v >= 15 && v <= 20000; }],
+    ['poles', 'poles', function (v) { return Number.isInteger(v) && v >= 4 && v <= 64 && v % 2 === 0; }],
+    ['disposition', 'chassis', function (v) { return ['quadx', 'hexa', 'x8', 'quadx_pusher'].indexOf(v) >= 0; }],
+    ['esc_firmware', 'esc', function (v) { return ['bluejay', 'blheli_s', 'am32', 'blheli_32', 'kiss', 'blheli', 'pwm'].indexOf(v) >= 0; }],
+    ['esc_calibre_a_par_voie', 'courantEsc', function (v) { return typeof v === 'number' && v > 0 && v <= 300; }],
+    ['esc_pwm_khz', 'pwmEsc', function (v) { return v === 24 || v === 48; }],
+    ['carte', 'carte', function (v) { return typeof v === 'string' && /^[A-Z0-9_-]+$/.test(v); }],
+    ['capteur_courant', 'capteurCourant', function (v) { return typeof v === 'boolean'; }],
+    ['telemetrie_serie_esc', 'serieBranchee', function (v) { return typeof v === 'boolean'; }]
+  ];
+  function depuisCalculateur(o) {
+    if (o.version !== 1) throw new Error(tr('Version du fichier du calculateur non prise en charge : ' + o.version + '.', 'Unsupported calculator file version: ' + o.version + '.'));
+    var d = o.drone || {}, drone = {}, inconnus = [], refuses = [], messages = [];
+    CHAMPS_CALCULATEUR.forEach(function (c) {
+      var v = d[c[0]];
+      if (v === null || v === undefined) { inconnus.push(c[0]); return; }
+      if (!c[2](v)) { refuses.push(c[0] + ' = ' + JSON.stringify(v)); return; }
+      drone[c[1]] = c[1] === 'pwmEsc' ? String(v) : v;
+    });
+    var supposees = (o.valeurs_supposees || []).filter(function (n) { return n in d && d[n] !== null; });
+    if (refuses.length) messages.push({ niveau: 'alerte', texte: tr('Valeurs hors limites, non reprises : ', 'Out-of-range values, not used: ') + refuses.join(', ') + '.' });
+    if (inconnus.length) messages.push({ niveau: 'conseil', texte: tr('Inconnues dans le fichier (champ laissé tel quel, à remplir) : ', 'Unknown in the file (field left as is, fill it in): ') + inconnus.join(', ') + '.' });
+    if (supposees.length) messages.push({ niveau: 'conseil', texte: tr('Valeurs supposées par le calculateur, à vérifier : ', 'Values assumed by the calculator, to check: ') + supposees.join(', ') + '.' });
+    var e = o.etude || {};
+    if (typeof e.poussee_max_g_par_moteur === 'number' || typeof e.courant_stationnaire_a === 'number')
+      messages.push({ niveau: 'note', texte: tr('Étude du calculateur (pour information, non utilisée par le réglage) : ', 'Calculator study (for information, not used by the tune): ') +
+        [typeof e.poussee_max_g_par_moteur === 'number' ? tr('poussée max ', 'max thrust ') + e.poussee_max_g_par_moteur + ' g/moteur' : '',
+          typeof e.courant_stationnaire_a === 'number' ? tr('courant au stationnaire ', 'hover current ') + e.courant_stationnaire_a + ' A' : ''].filter(Boolean).join(', ') + '.' });
+    return { carte: drone.carte || '', drone: drone, ports: {}, configuration: '', nom: o.nom || '', messages: messages };
+  }
+
+  // Ouvre un fichier drone (JSON), un fichier du calculateur ou un texte de CLI (diff all / dump all).
   function ouvrir(texte) {
     var t = String(texte || '');
     if (/^\s*\{/.test(t)) {
       var o;
       try { o = JSON.parse(t); } catch (err) { throw new Error(tr('Fichier drone illisible (JSON abîmé).', 'Unreadable drone file (damaged JSON).')); }
+      if (o.format === FORMAT_CALCULATEUR) return depuisCalculateur(o);
       if (o.format !== FORMAT) throw new Error(tr('Ce fichier JSON n\'est pas un fichier drone TrueGlide.', 'This JSON file is not a TrueGlide drone file.'));
-      return { carte: o.carte || '', drone: o.drone || {}, ports: o.ports || {}, configuration: o.configuration || '' };
+      return { carte: o.carte || '', drone: o.drone || {}, ports: o.ports || {}, configuration: o.configuration || '', messages: [] };
     }
     var carte = (t.match(/^\s*board_name\s+(\S+)/m) || [])[1] || (t.match(/^#\s*\S+\s*\/\s*\S+\s*\((\S+)\)/m) || [])[1] || '';
     var poles = (t.match(/^\s*set\s+motor_poles\s*=\s*(\d+)/m) || [])[1];
     var drone = {};
     if (poles) drone.poles = poles;
-    return { carte: carte.toUpperCase(), drone: drone, ports: {}, configuration: t };
+    return { carte: carte.toUpperCase(), drone: drone, ports: {}, configuration: t, messages: [] };
   }
 
-  var API = { COMPOSANTS: COMPOSANTS, BAUDS_DEFAUT: BAUDS_DEFAUT, composant: composant, depuisMasque: depuisMasque, lireSerial: lireSerial,
+  var API = { COMPOSANTS: COMPOSANTS, BAUDS_DEFAUT: BAUDS_DEFAUT, FORMAT_CALCULATEUR: FORMAT_CALCULATEUR, composant: composant, depuisMasque: depuisMasque, lireSerial: lireSerial,
     etatInitial: etatInitial, generer: generer, versCli: versCli, fichierDrone: fichierDrone, ouvrir: ouvrir,
     langue: function (l) { LANGUE = (l === 'en') ? 'en' : 'fr'; } };
   if (typeof module !== 'undefined') module.exports = API; else root.TFPorts = API;
