@@ -350,7 +350,7 @@ il reste disponible dans TrueGlide Configurator, à côté de l'Assistant de ré
 - Construction pour 42 cartes courantes (F405, F411, F722, F745, H743, AT32F435) et pour le simulateur (SITL).
 - Simulateur : réglages acceptés et sauvegardés, mode SPEEDER annoncé au Configurator, transition suivie
   (`trueglide/sitl_bench`).
-- Studio : 22 tests (dont les 7 types d'ESC sur les 629 cartes) ; 40 drones et une mission collés dans le firmware, toutes les commandes acceptées et PID
+- Studio : 34 tests (dont les 7 types d'ESC sur les 629 cartes) ; 40 drones et une mission collés dans le firmware, toutes les commandes acceptées et PID
   identiques (`trueglide/studio/tools/valider_sitl.py`).
 
 ## Licence
