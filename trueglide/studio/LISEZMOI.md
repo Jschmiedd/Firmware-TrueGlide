@@ -96,6 +96,10 @@ Studio laisse alors son champ tel quel et le signale. Une valeur hors limites n'
 Autres champs : `format`, `version` (1), `source`, `date`, `nom` ; `valeurs_supposees` (liste des champs supposés par le
 calculateur, affichés « à vérifier ») ; `etude.poussee_max_g_par_moteur` et `etude.courant_stationnaire_a`, affichés
 repris dans « Poussée max par moteur, calculée » et « Courant au stationnaire, calculé ».
+Définitions du calculateur : poussée statique d'un moteur seul avec son hélice, à pleins gaz, en grammes, tirée du banc
+d'essai du fabricant et ramenée à l'hélice, au nombre de cellules (tension nominale) et à la densité de l'air ; sans
+perte coaxiale (Studio l'applique en X8). Courant au stationnaire : courant total de la batterie, estimé par le modèle du
+calculateur (pas une mesure).
 
 **Base du réglage** (formulaire Mon drone) : « Estimations de Studio » (par défaut) ou « Données du calculateur ».
 Avec les données du calculateur :
