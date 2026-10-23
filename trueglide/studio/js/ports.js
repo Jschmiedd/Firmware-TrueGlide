@@ -200,8 +200,10 @@
     if (inconnus.length) messages.push({ niveau: 'conseil', texte: tr('Inconnues dans le fichier (champ laissé tel quel, à remplir) : ', 'Unknown in the file (field left as is, fill it in): ') + inconnus.join(', ') + '.' });
     if (supposees.length) messages.push({ niveau: 'conseil', texte: tr('Valeurs supposées par le calculateur, à vérifier : ', 'Values assumed by the calculator, to check: ') + supposees.join(', ') + '.' });
     var e = o.etude || {};
+    if (typeof e.poussee_max_g_par_moteur === 'number' && e.poussee_max_g_par_moteur > 0) drone.pousseeCalc = e.poussee_max_g_par_moteur;
+    if (typeof e.courant_stationnaire_a === 'number' && e.courant_stationnaire_a > 0) drone.courantCalc = e.courant_stationnaire_a;
     if (typeof e.poussee_max_g_par_moteur === 'number' || typeof e.courant_stationnaire_a === 'number')
-      messages.push({ niveau: 'note', texte: tr('Étude du calculateur (pour information, non utilisée par le réglage) : ', 'Calculator study (for information, not used by the tune): ') +
+      messages.push({ niveau: 'note', texte: tr('Étude du calculateur reprise (utilisée si « Base du réglage » = données du calculateur) : ', 'Calculator study loaded (used when "Tuning basis" = calculator data): ') +
         [typeof e.poussee_max_g_par_moteur === 'number' ? tr('poussée max ', 'max thrust ') + e.poussee_max_g_par_moteur + ' g/moteur' : '',
           typeof e.courant_stationnaire_a === 'number' ? tr('courant au stationnaire ', 'hover current ') + e.courant_stationnaire_a + ' A' : ''].filter(Boolean).join(', ') + '.' });
     return { carte: drone.carte || '', drone: drone, ports: {}, configuration: '', nom: o.nom || '', messages: messages };

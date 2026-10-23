@@ -4,6 +4,8 @@ const cas = [];
 const drones = [
   { pouces: 3, kv: 2800, cellules: 4, masse: 300, style: 'speeder', speeder: { angle: 60, vitesse: 30, mix: true } },
   { pouces: 5, kv: 1950, cellules: 6, masse: 700, style: 'freestyle' },
+  // données du calculateur : ajoute ap_hover_throttle
+  { pouces: 5, kv: 1950, cellules: 6, masse: 650, style: 'freestyle', base: 'calcul', calcul: { pousseeG: 1450, courantStationnaireA: 12.5 } },
   { pouces: 7, kv: 1300, cellules: 6, masse: 1300, style: 'longue_portee', capteurCourant: true, courantEsc: 45 },
   { pouces: 10, kv: 925, cellules: 6, masse: 1550, style: 'cinema' },
   { pouces: 13, kv: 500, cellules: 8, masse: 4000, style: 'cinema' },

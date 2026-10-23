@@ -125,6 +125,14 @@
       <datalist id="liste-cartes"></datalist>
       <p class="petit" id="info-carte" style="grid-column:1/-1;margin:0"></p>
     </div>
+    <div class="grille" style="margin-top:12px">
+      <label>Base du réglage<select id="base">
+        <option value="estimation">Estimations de Studio</option>
+        <option value="calcul">Données du calculateur</option>
+      </select></label>
+      <label>Poussée max par moteur, calculée (g)<input id="pousseeCalc" type="number" min="1" max="100000" step="1" placeholder="fichier du calculateur"></label>
+      <label>Courant au stationnaire, calculé (A, total)<input id="courantCalc" type="number" min="0" max="2000" step="0.1" placeholder="fichier du calculateur"></label>
+    </div>
     <div class="grille" id="bloc-speeder" hidden style="margin-top:12px">
       <label>Angle de croisière (°, 10 à 80)<input id="spAngle" type="number" min="10" max="80" value="60"></label>
       <label>Vitesse de transition (°/s)<input id="spVitesse" type="number" min="5" max="180" value="30"></label>
@@ -303,7 +311,7 @@
   $('carte').addEventListener('input', majCarteEsc);
   $('esc').addEventListener('change', majCarteEsc);
 
-  var CHAMPS = ['pouces', 'kv', 'cellules', 'masse', 'poles', 'chassis', 'style', 'qualite', 'pwmEsc', 'courantEsc', 'carte', 'esc', 'serieBranchee', 'capteurCourant', 'spAngle', 'spVitesse', 'spMix'];
+  var CHAMPS = ['pouces', 'kv', 'cellules', 'masse', 'poles', 'chassis', 'style', 'qualite', 'pwmEsc', 'courantEsc', 'carte', 'esc', 'serieBranchee', 'capteurCourant', 'spAngle', 'spVitesse', 'spMix', 'base', 'pousseeCalc', 'courantCalc'];
   try {
     var memo = JSON.parse(localStorage.getItem('tf-drone') || '{}');
     CHAMPS.forEach(function (k) { if (k in memo) { if ($(k).type === 'checkbox') $(k).checked = memo[k]; else $(k).value = memo[k]; } });
@@ -319,7 +327,8 @@
       chassis: $('chassis').value, style: $('style').value, qualite: $('qualite').value, pwmEsc: Number($('pwmEsc').value),
       esc: $('esc').value, carte: (carteChoisie() || {}).c || null, serieBranchee: $('serieBranchee').checked,
       capteurCourant: $('capteurCourant').checked, courantEsc: nombre('courantEsc') || 0,
-      speeder: { angle: nombre('spAngle'), vitesse: nombre('spVitesse'), mix: $('spMix').checked }
+      speeder: { angle: nombre('spAngle'), vitesse: nombre('spVitesse'), mix: $('spMix').checked },
+      base: $('base').value, calcul: { pousseeG: nombre('pousseeCalc') || 0, courantStationnaireA: nombre('courantCalc') || 0 }
     };
   }
   function majSpeeder() { $('bloc-speeder').hidden = $('style').value !== 'speeder'; }
@@ -361,7 +370,9 @@
       (r.protocole.boucle ? '<div><span class="petit">Boucle PID</span><b>' + (r.protocole.boucle / 1000).toFixed(1).replace('.0', '') + ' kHz</b></div>' : '') +
       '<div><span class="petit">Correction puissance</span><b>' + (ph.puissanceRelative === null ? 'sans' : '× ' + ph.facteur.toFixed(2)) + '</b></div>' +
       (ph.puissanceRelative === null ? '' : '<div><span class="petit">Puissance / référence ' + e.pouces + '" (estim.)</span><b>' + (ph.puissanceRelative > 0 ? '+' : '') + ph.puissanceRelative + ' %</b></div>') +
-      '<div><span class="petit">Points d\'appui</span><b>' + (ph.extrapole ? 'extrapolé' : 'interpolé') + '</b></div></div>';
+      '<div><span class="petit">Points d\'appui</span><b>' + (ph.extrapole ? 'extrapolé' : 'interpolé') + '</b></div>' +
+      (ph.rapportCalcule === null ? '' : '<div><span class="petit">Poussée / poids (calcul)</span><b>' + String(ph.rapportCalcule).replace('.', ',') + '</b></div>' +
+        '<div><span class="petit">Gaz de stationnaire (calcul)</span><b>' + ph.gazStationnaire + '</b></div>') + '</div>';
     h += '<div class="tableau"><table><thead><tr><th>Axe</th><th>P</th><th>I</th><th>D</th><th>D max</th><th>FF</th></tr></thead><tbody>';
     [['Roulis', p.roll], ['Tangage', p.pitch], ['Lacet', p.yaw]].forEach(function (x) {
       h += '<tr><td>' + x[0] + '</td><td class="num">' + x[1].P + '</td><td class="num">' + x[1].I + '</td><td class="num">' + x[1].D + '</td><td class="num">' + x[1].Dmax + '</td><td class="num">' + x[1].F + '</td></tr>';

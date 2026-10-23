@@ -459,7 +459,7 @@ test('fichier du calculateur (talktrue-trueglide-studio) : champs repris, inconn
   const o = P.ouvrir(ex);
   assert.equal(o.carte, 'SPEEDYBEEF405MINI');
   assert.deepEqual(o.drone, { pouces: 5.1, kv: 1950, cellules: 6, masse: 650, poles: 14, chassis: 'quadx', esc: 'bluejay',
-    courantEsc: 45, pwmEsc: '48', carte: 'SPEEDYBEEF405MINI', capteurCourant: true });
+    courantEsc: 45, pwmEsc: '48', carte: 'SPEEDYBEEF405MINI', capteurCourant: true, pousseeCalc: 1450, courantCalc: 12.5 });
   assert.ok(o.messages.some(m => m.niveau === 'conseil' && /telemetrie_serie_esc/.test(m.texte)));   // null = inconnu
   assert.ok(o.messages.some(m => /supposées.*poles/.test(m.texte)));
   assert.ok(o.messages.some(m => m.niveau === 'note' && /1450 g/.test(m.texte)));
@@ -468,4 +468,24 @@ test('fichier du calculateur (talktrue-trueglide-studio) : champs repris, inconn
   assert.ok(faux.messages.some(m => m.niveau === 'alerte' && /helice_pouces = 40/.test(m.texte) && /disposition/.test(m.texte)));
   assert.throws(() => P.ouvrir(JSON.stringify({ format: 'talktrue-trueglide-studio', version: 2 })));
   assert.throws(() => P.ouvrir(JSON.stringify({ format: 'talktrue-xpro-drone', version: 1 })));   // format XPro : refusé
+});
+
+test('réglage avec les données du calculateur : PID inchangés, gaz de stationnaire et contrôles', () => {
+  const e = { pouces: 5.1, kv: 1950, cellules: 6, masse: 650, poles: 14, chassis: 'quadx', style: 'freestyle', esc: 'bluejay',
+    courantEsc: 45, carte: CARTES.SPEEDYBEEF405MINI, capteurCourant: true };
+  const est = T.recommander(e);
+  const cal = T.recommander({ ...e, base: 'calcul', calcul: { pousseeG: 1450, courantStationnaireA: 12.5 } });
+  assert.deepEqual(cal.pids, est.pids);                         // la correction des PID reste sur l'estimation
+  assert.equal(cal.physique.rapportCalcule, 8.9);
+  const h = cal.reglages.find(r => r.nom === 'ap_hover_throttle');
+  assert.ok(h && Number(h.valeur) > 1200 && Number(h.valeur) < 1400, h && h.valeur);
+  assert.deepEqual(T.verifier(cal.reglages, DB), []);
+  assert.equal(est.reglages.find(r => r.nom === 'ap_hover_throttle'), undefined);   // estimation : rien de nouveau
+  const faible = T.recommander({ ...e, base: 'calcul', calcul: { pousseeG: 150, courantStationnaireA: 120 } });
+  assert.ok(faible.avertissements.some(a => /sous 2/.test(a)));
+  assert.ok(faible.avertissements.some(a => /moitié du calibre/.test(a)));
+  assert.ok(T.recommander({ ...e, base: 'calcul', calcul: {} }).avertissements.some(a => /pas de poussée calculée/.test(a)));
+  // X8 : la perte coaxiale s'applique aussi à la poussée calculée
+  const x8 = T.recommander({ ...e, chassis: 'x8', masse: 1300, base: 'calcul', calcul: { pousseeG: 1450 } });
+  assert.equal(x8.physique.rapportCalcule, Math.round(8 * 0.8 * 1450 / 1300 * 10) / 10);
 });

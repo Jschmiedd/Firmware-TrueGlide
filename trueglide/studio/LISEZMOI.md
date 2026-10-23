@@ -59,7 +59,7 @@ dépôt officiel `betaflight/firmware-presets` (firmware 2025.12) :
 
 ## Vérifications
 
-- `node --test trueglide/studio/test/studio.test.js` : 42 tests (bornes de tous les réglages pour 2 à 15", 5 styles, 3 châssis ;
+- `node --test trueglide/studio/test/studio.test.js` : 43 tests (bornes de tous les réglages pour 2 à 15", 5 styles, 3 châssis ;
   format des commandes de mission ; analyse d'un diff).
 - `python3 trueglide/studio/tools/valider_sitl.py` (après `make TARGET=SITL`) : colle les commandes générées pour 40
   drones et une mission dans le firmware compilé pour PC. Résultat du 11 octobre 2026 : toutes acceptées, PID calculés
@@ -95,7 +95,19 @@ Studio laisse alors son champ tel quel et le signale. Une valeur hors limites n'
 
 Autres champs : `format`, `version` (1), `source`, `date`, `nom` ; `valeurs_supposees` (liste des champs supposés par le
 calculateur, affichés « à vérifier ») ; `etude.poussee_max_g_par_moteur` et `etude.courant_stationnaire_a`, affichés
-pour information, non utilisés par le réglage.
+repris dans « Poussée max par moteur, calculée » et « Courant au stationnaire, calculé ».
+
+**Base du réglage** (formulaire Mon drone) : « Estimations de Studio » (par défaut) ou « Données du calculateur ».
+Avec les données du calculateur :
+- la correction des PID reste sur l'estimation : elle compare le drone à des drones de référence dont on n'a que
+  l'estimation ; une poussée calculée d'un seul côté fausserait la comparaison (les PID sont donc les mêmes) ;
+- Studio affiche le rapport poussée / poids calculé (perte coaxiale de 20 % comprise en X8) et prévient sous 2 ;
+- il propose `ap_hover_throttle` (gaz de stationnaire des maintiens et du retour GPS), estimé à partir de la poussée
+  calculée (poussée proportionnelle au carré de la commande, ralenti moteur 5,5 %) : à vérifier dans le journal du
+  premier vol ;
+- il prévient si le courant au stationnaire par moteur dépasse la moitié du calibre des ESC.
+Pour que la correction des PID utilise aussi le calcul, il faudrait que le calculateur calcule les mêmes valeurs pour
+les drones de référence (tableau « D'où viennent les chiffres »).
 
 ## Limites
 
