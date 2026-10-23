@@ -227,6 +227,136 @@ def stationnaire(H, c, A, poles):
     return res
 
 
+# Centrage (protocole « centrage_v1 », commun avec le calculateur) : stationnaire calme sur deux caps opposés.
+# Ordre des moteurs du Quad X de Betaflight : 1 arrière droit, 2 avant droit, 3 arrière gauche, 4 avant gauche.
+POSITIONS_QUADX = ['arriere_droit', 'avant_droit', 'arriere_gauche', 'avant_gauche']
+CENTRAGE = {
+    'marge_bord_s': 2.0,          # écarté après l'armement et avant le désarmement
+    'manche_moyen': 10,           # |rcCommand| moyen roulis / tangage (±500) : 2 % de la course
+    'manche_max': 50,             # coup de manche : 10 %
+    'lacet_max_dps': 20.0,        # rotation en lacet au-delà : segment écarté
+    'cellule_min_v': 3.7,
+    'gaz_ecart': 15,              # écart type des gaz : 1,5 %
+    'cap_tolerance_deg': 30.0,    # demi-tour : 180 ± 30°
+    'duree_min_s': 20.0,
+    'cap_min_s': 5.0,             # chaque cap doit compter
+    'inclinaison_max_deg': 3.0,
+    'dispersion_max_pct': 5.0,    # écart type des régimes d'un moteur entre fenêtres (vent, rafales)
+}
+
+
+def segments_centrage(t, arme, rc, gaz, rpm, sortie, vbat, lacet_dps, acc, cellules, sat):
+    """Fenêtres d'une seconde valides pour le centrage. Tableaux par échantillon : t (s), arme (bool), rc (n, 2)
+    roulis / tangage en rcCommand, gaz (rcCommand 1000-2000), rpm (n, m) tr/min mécaniques, sortie (n, m) en %,
+    vbat (V), lacet_dps (°/s), acc (n, 3) accéléromètre, sat (bool : un moteur saturé). Retourne une liste de
+    fenêtres {t, cap_deg, rpm, sortie, inclinaison_deg, vbat}."""
+    dt = float(np.median(np.diff(t)))
+    n = max(10, int(FENETRE_S / dt))
+    cap = np.cumsum(lacet_dps) * dt                       # cap intégré depuis le début du journal (°)
+    # écarter le début et la fin de chaque période armée
+    marge = np.zeros(len(t), bool)
+    bords = np.flatnonzero(np.diff(arme.astype(int))) + 1
+    debuts = [0] + list(bords); fins = list(bords) + [len(t)]
+    for d, f in zip(debuts, fins):
+        if arme[d]:
+            marge[d:f] = (t[d:f] >= t[d] + CENTRAGE['marge_bord_s']) & (t[d:f] <= t[f - 1] - CENTRAGE['marge_bord_s'])
+    ok = marge & ~sat & (np.abs(lacet_dps) <= CENTRAGE['lacet_max_dps']) & (rpm > 0).all(axis=1) \
+        & (vbat / cellules >= CENTRAGE['cellule_min_v'])
+    res = []
+    for s in range(0, len(t) - n, n):
+        sl = slice(s, s + n)
+        if not ok[sl].all() or gaz[sl].std() > CENTRAGE['gaz_ecart']:
+            continue
+        a = np.abs(rc[sl])
+        if a.mean(axis=0).max() > CENTRAGE['manche_moyen'] or a.max() > CENTRAGE['manche_max']:
+            continue
+        g = acc[sl].mean(axis=0)
+        incl = float(np.degrees(np.arctan2(np.hypot(g[0], g[1]), abs(g[2]))))
+        res.append({'t': float(t[s]), 'cap_deg': float(cap[sl].mean()), 'rpm': rpm[sl].mean(axis=0),
+                    'sortie': sortie[sl].mean(axis=0), 'inclinaison_deg': incl, 'vbat': float(vbat[sl].mean())})
+    return res
+
+
+def bloc_centrage(fenetres, positions, cellules):
+    """Bloc « centrage » d'un vol à partir de ses fenêtres valides. Les deux caps sont regroupés autour du cap de
+    la première fenêtre (cap A) et du cap opposé (cap B) ; le régime retenu par moteur est la moyenne des deux caps,
+    ce qui retire l'effet du vent et d'un accéléromètre légèrement décalé (pas celui d'un moteur plus faible)."""
+    refus = []
+    if positions is None:
+        return {'protocole': None, 'refus': ['disposition non prise en charge (Quad X seulement en version 2)']}
+    if not fenetres:
+        return {'protocole': None, 'refus': ['aucune fenêtre de stationnaire calme']}
+    a0 = fenetres[0]['cap_deg']
+    tol = CENTRAGE['cap_tolerance_deg']
+
+    def ecart(c, ref):
+        return abs((c - ref + 180.0) % 360.0 - 180.0)
+    caps = {'A': [w for w in fenetres if ecart(w['cap_deg'], a0) <= tol],
+            'B': [w for w in fenetres if ecart(w['cap_deg'], a0 + 180.0) <= tol]}
+
+    def resume(lst):
+        if not lst:
+            return None
+        r = np.array([w['rpm'] for w in lst]); o = np.array([w['sortie'] for w in lst])
+        return {'duree_s': round(len(lst) * FENETRE_S, 1),
+                'tr_min': {p: round(float(np.median(r[:, i])), 1) for i, p in enumerate(positions)},
+                'tr_min_ecart_type': {p: round(float(r[:, i].std()), 1) for i, p in enumerate(positions)},
+                'sortie_pct': {p: round(float(np.median(o[:, i])), 2) for i, p in enumerate(positions)},
+                'inclinaison_deg': round(float(np.mean([w['inclinaison_deg'] for w in lst])), 2),
+                'inclinaison_ecart_type_deg': round(float(np.std([w['inclinaison_deg'] for w in lst])), 2)}
+    ca, cb = resume(caps['A']), resume(caps['B'])
+    duree = (ca['duree_s'] if ca else 0) + (cb['duree_s'] if cb else 0)
+    if duree < CENTRAGE['duree_min_s']:
+        refus.append(f"{duree:.0f} s de stationnaire valide, il en faut {CENTRAGE['duree_min_s']:.0f}")
+    if not cb or cb['duree_s'] < CENTRAGE['cap_min_s'] or ca['duree_s'] < CENTRAGE['cap_min_s']:
+        refus.append(f"un seul cap (pas de demi-tour de 180 ± {tol:.0f}° avec au moins {CENTRAGE['cap_min_s']:.0f} s de chaque côté)")
+    for nom, c in (('A', ca), ('B', cb)):
+        if c and c['inclinaison_deg'] > CENTRAGE['inclinaison_max_deg']:
+            refus.append(f"cap {nom} : inclinaison moyenne {c['inclinaison_deg']}° (plus de {CENTRAGE['inclinaison_max_deg']:.0f}°)")
+        if c:
+            disp = max(c['tr_min_ecart_type'][p] / c['tr_min'][p] * 100 for p in positions)
+            if disp > CENTRAGE['dispersion_max_pct']:
+                refus.append(f"cap {nom} : régimes trop dispersés ({disp:.1f} %, vent ou rafales)")
+    tr_min = None
+    if ca and cb:
+        tr_min = {p: round((ca['tr_min'][p] + cb['tr_min'][p]) / 2, 1) for p in positions}
+    tous = [w['vbat'] for w in sorted(caps['A'] + caps['B'], key=lambda w: w['t'])]
+    return {
+        'protocole': 'centrage_v1' if not refus else None,
+        'disposition': 'quadx',
+        'ordre_moteurs': {str(i + 1): p for i, p in enumerate(positions)},
+        'tr_min': tr_min,
+        'caps': {'A': ca, 'B': cb},
+        'tension_debut_v': round(tous[0], 2) if tous else None,
+        'tension_fin_v': round(tous[-1], 2) if tous else None,
+        'cellules': cellules,
+        'refus': refus,
+    }
+
+
+def centrage_vol(H, c, A, poles):
+    """Bloc centrage d'un vol (journal chargé)."""
+    nm = rj.nb_moteurs(c)
+    champs = rj.colonnes_erpm(list(c), H)
+    besoin = ['rcCommand[0]', 'rcCommand[1]', 'rcCommand[3]', 'gyroADC[2]', 'accSmooth[0]', 'vbatLatest']
+    if not champs or not poles or any(k not in c for k in besoin):
+        return {'protocole': None, 'refus': ['journal sans régime des moteurs, accéléromètre ou tension (ou pôles non mesurés)']}
+    t = (A[:, c['time']] - A[0, c['time']]) * 1e-6
+    lo, hi = H.get('motorOutput', [48, 2047])[:2]
+    mot = A[:, [c[f'motor[{i}]'] for i in range(nm)]]
+    arme = (np.nan_to_num(A[:, c['flightModeFlags']]).astype(int) & 1) == 1
+    vbat = A[:, c['vbatLatest']] / 100
+    v0 = vbat[arme][:50].mean() if arme.any() else vbat[:50].mean()
+    cellules = int(np.ceil(v0 / 4.35)) if v0 > 0 else None
+    if not cellules:
+        return {'protocole': None, 'refus': ['tension de batterie absente']}
+    fen = segments_centrage(t, arme, A[:, [c['rcCommand[0]'], c['rcCommand[1]']]], A[:, c['rcCommand[3]']],
+                            A[:, [c[k] for k in champs]] * 100 * 2 / poles, np.clip((mot - lo) / (hi - lo), 0, 1) * 100,
+                            vbat, A[:, c['gyroADC[2]']], A[:, [c[f'accSmooth[{k}]'] for k in range(3)]], cellules,
+                            (mot >= hi - 1).any(axis=1) | (mot <= lo).any(axis=1))
+    return bloc_centrage(fen, POSITIONS_QUADX if nm == 4 else None, cellules)
+
+
 # Limites des mesures du fichier retour : une valeur hors limites est remplacée par null (jamais inventée)
 LIMITES_RETOUR = {
     'poles': (4, 64), 'tr_min_stationnaire': (500, 100000), 'gaz_stationnaire_pct': (0, 100),
@@ -236,7 +366,7 @@ LIMITES_RETOUR = {
 
 
 def retour(chemins, lib, nom=None):
-    """Mesures faites en vol, pour le calculateur (format talktrue-trueglide-retour, version 1)."""
+    """Mesures faites en vol, pour le calculateur (format talktrue-trueglide-retour, version 2 : version 1 + centrage)."""
     vols, fenetres, H0 = [], [], None
     for chemin in chemins:
         for i in range(1, Parser.load(chemin).reader.log_count + 1):
@@ -248,11 +378,15 @@ def retour(chemins, lib, nom=None):
     H0 = vols[0]['H']
     conc = conclure_poles([v['poles'] for v in vols if 'poles' in v])
     poles = int(conc[0]) if conc else None
+    centrage = []
     for chemin in chemins:
         for i in range(1, Parser.load(chemin).reader.log_count + 1):
             d = charger(chemin, i)
             if d:
                 fenetres += stationnaire(d[0], d[1], d[2], poles or d[0].get('motor_poles'))
+                b = centrage_vol(d[0], d[1], d[2], poles)
+                b['vol'] = f'{os.path.basename(chemin)} n° {i}'
+                centrage.append(b)
     duree = len(fenetres) * FENETRE_S
 
     def med(cle):
@@ -281,12 +415,14 @@ def retour(chemins, lib, nom=None):
             m[k] = None
     proto = H0.get('motor_pwm_protocol')
     return {
-        'format': 'talktrue-trueglide-retour', 'version': 1,
+        'format': 'talktrue-trueglide-retour', 'version': 2,
         'source': {'logiciel': 'TrueGlide analyse_blackbox', 'firmware': H0.get('Firmware revision'),
                    'carte': H0.get('Board information'), 'nom': nom or H0.get('Craft name'),
                    'date': datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat(),
                    'vol': ', '.join(os.path.basename(x) for x in chemins) + f' ({len(vols)} vols lus)'},
         'mesures': m,
+        # un bloc par vol lu ; protocole = "centrage_v1" seulement si le vol remplit le protocole, sinon null + refus
+        'centrage': centrage,
         'reglages': {'motor_poles': H0.get('motor_poles'), 'motor_kv': H0.get('motor_kv'),
                      'motor_pwm_protocol': PROTOCOLES[proto] if isinstance(proto, int) and proto < len(PROTOCOLES) else None,
                      'dshot_bidir': bool(H0['dshot_bidir']) if 'dshot_bidir' in H0 else None,

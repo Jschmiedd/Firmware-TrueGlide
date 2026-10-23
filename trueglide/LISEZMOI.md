@@ -347,7 +347,7 @@ moteur. Les outils lisent tous les moteurs du journal (hexacoptère, octocoptèr
 python3 trueglide/outils/analyse_blackbox.py mon_vol.bbl [autres.bbl] --retour KarRmen_retour_trueglide.json [--nom KarRmen]
 ```
 
-Écrit un fichier au format `talktrue-trueglide-retour` (version 1), lu par le calculateur TALKTRUE FPV XRIG. Ce format
+Écrit un fichier au format `talktrue-trueglide-retour` (version 2 = version 1 + bloc `centrage`), lu par le calculateur TALKTRUE FPV XRIG. Ce format
 est séparé de celui de XPro. Il ne contient que des mesures faites en vol, jamais d'estimation. Une valeur non
 mesurée, ou hors limites, vaut `null`.
 
@@ -368,6 +368,23 @@ Stationnaire : fenêtres d'une seconde, drone armé, gaz stables (écart type so
 lacet au centre, drone stable, moteurs non saturés. Valeur retenue : médiane des fenêtres, s'il y a au moins 3 s.
 `source` donne le firmware, la carte, le nom, la date et les journaux lus. `reglages` donne pour information
 `motor_poles`, `motor_kv`, le protocole moteur, `dshot_bidir` et l'offset et l'échelle du capteur de courant.
+
+**Centrage (version 2, protocole `centrage_v1` commun avec le calculateur)** : un bloc par vol lu dans `centrage`.
+Vol de mesure : mode Angle, dehors sans vent, 1,5 à 3 m de haut, hélices neuves du même lot, `acc_trim_roll` et
+`acc_trim_pitch` à 0, batterie au-dessus de 3,7 V par élément ; au moins 10 s de stationnaire calme, demi-tour en lacet,
+encore au moins 10 s (20 s valides au total, 30 conseillées). Fenêtres d'une seconde retenues : armé (sans les 2 s
+du début et de la fin), manches roulis / tangage à moins de 2 % en moyenne et jamais au-delà de 10 %, gaz stables,
+lacet sous 20 °/s, aucun moteur saturé, régime de chaque moteur connu. Le cap vient du gyro de lacet ; cap A = celui
+de la première fenêtre, cap B = A + 180 ± 30°.
+
+| Champ (`centrage[i].…`) | Contenu |
+|---|---|
+| `protocole` | `"centrage_v1"` si le vol remplit le protocole, sinon `null` |
+| `disposition`, `ordre_moteurs` | `quadx` ; 1 arrière droit, 2 avant droit, 3 arrière gauche, 4 avant gauche (Quad X Betaflight) |
+| `tr_min` | tr/min mécaniques par position, moyenne des deux caps (retire le vent, pas un moteur plus faible) |
+| `caps.A` / `caps.B` | `duree_s`, `tr_min` et `tr_min_ecart_type` par position, `sortie_pct` par position, `inclinaison_deg` (accéléromètre, sans signe) et son écart type |
+| `tension_debut_v`, `tension_fin_v`, `cellules` | batterie pendant les fenêtres retenues |
+| `refus` | raisons : moins de 20 s, un seul cap ou moins de 5 s d'un côté, inclinaison moyenne au-delà de 3°, régimes dispersés de plus de 5 % (vent), disposition autre que Quad X |
 
 Pour régler les PID à partir de mesures, Betaflight 2026.6 a aussi un onglet **Réglage automatique** (Autotune, excitation « chirp ») :
 il reste disponible dans TrueGlide Configurator, à côté de l'Assistant de réglage.
