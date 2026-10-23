@@ -380,3 +380,24 @@ test('Tiny Whoop : point d\'appui 1,2" (UAV Tech Whoop, AOS 65mm), réglages dan
   assert.deepEqual(T.verifier(r75.reglages, DB), []);
   assert.throws(() => T.recommander({ ...whoop, pouces: 1.1 }));
 });
+
+test('la base connaît tous les réglages du firmware, textes et tableaux compris', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const src = path.join(__dirname, '..', '..', '..', 'src', 'main');
+  const settings = fs.readFileSync(path.join(src, 'cli', 'settings.c'), 'utf8');
+  const noms = Object.fromEntries([...fs.readFileSync(path.join(src, 'fc', 'parameter_names.h'), 'utf8')
+    .matchAll(/#define (PARAM_NAME_\w+)\s+"([^"]+)"/g)].map(m => [m[1], m[2]]));
+  const manquants = [...settings.matchAll(/^\s*\{\s*(PARAM_NAME_\w+|"[a-z0-9_]+")\s*,\s*VAR_/gm)]
+    .map(m => noms[m[1]] || m[1].replace(/"/g, '')).filter(n => !(n in DB));
+  assert.deepEqual(manquants, []);
+});
+
+test('la conversion garde les noms, l\'étalonnage et les réglages radio', () => {
+  const diff = '# Betaflight / STM32F405 (S405) 2025.12.2\nset acc_calibration = 0,9,12,1\nset craft_name = KarRmen\n' +
+    'set pilot_name = SLAYER\nset expresslrs_uid = 1,2,3,4,5,6\nprofile 0\nset profile_name = LAUNCH';
+  const r = A.migrer(diff, DB);
+  assert.deepEqual(r.retires, []);
+  for (const l of ['set acc_calibration = 0,9,12,1', 'set craft_name = KarRmen', 'set pilot_name = SLAYER',
+    'set expresslrs_uid = 1,2,3,4,5,6', 'set profile_name = LAUNCH']) assert.ok(r.lignes.includes(l), l);
+});

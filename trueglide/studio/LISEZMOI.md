@@ -47,7 +47,7 @@ dépôt officiel `betaflight/firmware-presets` (firmware 2025.12) :
 
 ## Vérifications
 
-- `node --test trueglide/studio/test/studio.test.js` : 34 tests (bornes de tous les réglages pour 2 à 15", 5 styles, 3 châssis ;
+- `node --test trueglide/studio/test/studio.test.js` : 36 tests (bornes de tous les réglages pour 2 à 15", 5 styles, 3 châssis ;
   format des commandes de mission ; analyse d'un diff).
 - `python3 trueglide/studio/tools/valider_sitl.py` (après `make TARGET=SITL`) : colle les commandes générées pour 40
   drones et une mission dans le firmware compilé pour PC. Résultat du 11 octobre 2026 : toutes acceptées, PID calculés
@@ -55,7 +55,7 @@ dépôt officiel `betaflight/firmware-presets` (firmware 2025.12) :
   de DShot : `dshot_bidir`, `dyn_idle_min_rpm` et `rpm_filter_min_hz` y sont vérifiés seulement contre les bornes du
   code source.)
 - `tools/extract_cartes.py` régénère `js/cartes.js` (les 629 cartes) après `make configs`.
-- `tools/extract_settings.py` régénère `js/settings_db.js` (les 795 réglages du firmware, bornes et choix) après une
+- `tools/extract_settings.py` régénère `js/settings_db.js` (les 828 réglages du firmware, y compris les textes et tableaux, bornes et choix) après une
   mise à jour du firmware.
 
 ## Limites

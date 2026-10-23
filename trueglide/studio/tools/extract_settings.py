@@ -50,7 +50,7 @@ def main():
             return None
 
     db = {}
-    for m in re.finditer(r'\{\s*(PARAM_NAME_\w+|"[a-z0-9_]+")\s*,\s*([^,]+?)\s*,\s*\.config\.(minmaxUnsigned|minmax|lookup|u32Max|array|bitpos)\s*=\s*(\{[^}]*\}|[^,]+)', settings_c):
+    for m in re.finditer(r'\{\s*(PARAM_NAME_\w+|"[a-z0-9_]+")\s*,\s*([^,]+?)\s*,\s*\.config\.(minmaxUnsigned|minmax|lookup|u32Max|d32Max|array|bitpos|string)(?:\.length)?\s*=\s*(\{[^}]*\}|[^,]+)', settings_c):
         n = noms.get(m.group(1), m.group(1)).strip('"')
         kind, corps = m.group(3), m.group(4)
         e = db.setdefault(n, {})
@@ -66,6 +66,8 @@ def main():
                 e['values'] = tabs[t]
         elif kind == 'array':
             e['array'] = True
+        elif kind == 'string':
+            e['string'] = True
     if len(sys.argv) > 1:   # valeurs par défaut lues sur un SITL
         cur = None
         for l in Path(sys.argv[1]).read_text(errors='replace').splitlines():
