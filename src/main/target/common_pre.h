@@ -321,6 +321,8 @@
 // TrueGlide: ESC temperature / battery current throttle guard (off by default).
 // Small (about 1 KB), so it is built for every target, whatever the flash size.
 #define USE_POWER_GUARD
+// TrueGlide: battery guard (arming refused below a cell voltage, return home on a low battery), off by default
+#define USE_BATTERY_GUARD
 
 // TrueGlide: speeder forward transition in ANGLE mode (only active with a SPEEDER switch)
 #define USE_SPEEDER

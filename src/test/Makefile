@@ -266,6 +266,18 @@ power_guard_unittest_DEFINES := \
 		USE_ESC_SENSOR=
 
 
+battery_guard_unittest_SRC := \
+		$(USER_DIR)/flight/battery_guard.c \
+		$(USER_DIR)/pg/battery_guard.c \
+		$(USER_DIR)/pg/pg.c \
+		$(USER_DIR)/common/crc.c \
+		$(USER_DIR)/common/streambuf.c \
+		$(USER_DIR)/common/maths.c
+
+battery_guard_unittest_DEFINES := \
+		USE_BATTERY_GUARD=
+
+
 gps_conversion_unittest_SRC := \
 		$(USER_DIR)/common/gps_conversion.c
 

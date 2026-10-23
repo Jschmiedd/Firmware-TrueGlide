@@ -48,6 +48,7 @@ PG_SRC = \
             pg/serial_uart.c \
             pg/stats.c \
             pg/power_guard.c \
+            pg/battery_guard.c \
             pg/speeder.c \
             pg/tf_telemetry.c \
             pg/mav_mission.c \
@@ -182,6 +183,7 @@ COMMON_SRC = \
             flight/imu.c \
             flight/mixer.c \
             flight/power_guard.c \
+            flight/battery_guard.c \
             flight/speeder.c \
             flight/motor_health.c \
             flight/mixer_init.c \

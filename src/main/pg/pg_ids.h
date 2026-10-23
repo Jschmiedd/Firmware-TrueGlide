@@ -174,6 +174,7 @@
 #define PG_MAV_MISSION_CONFIG       3003
 // 3004: former TrueGlide pusher configuration (removed), not to be reused
 #define PG_TF_TELEMETRY_CONFIG      3005
+#define PG_BATTERY_GUARD_CONFIG     3006
 
 // TODO TBC
 #define PG_DISPLAY_PORT_FBOSD_CONFIG 566

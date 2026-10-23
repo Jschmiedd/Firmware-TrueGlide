@@ -120,6 +120,7 @@
 #include "pg/sdio.h"
 #include "pg/rcdevice.h"
 #include "pg/power_guard.h"
+#include "pg/battery_guard.h"
 #include "pg/speeder.h"
 #include "pg/tf_telemetry.h"
 #include "pg/mav_mission.h"
@@ -1989,6 +1990,11 @@ const clivalue_t valueTable[] = {
     { "power_guard_esc_temp",       VAR_UINT8  | MASTER_VALUE, .config.minmaxUnsigned = { 0, 150 }, PG_POWER_GUARD_CONFIG, offsetof(powerGuardConfig_t, esc_temp_limit) },
     { "power_guard_current",        VAR_UINT16 | MASTER_VALUE, .config.minmaxUnsigned = { 0, 1000 }, PG_POWER_GUARD_CONFIG, offsetof(powerGuardConfig_t, current_limit) },
     { "power_guard_min_throttle",   VAR_UINT8  | MASTER_VALUE, .config.minmaxUnsigned = { 20, 100 }, PG_POWER_GUARD_CONFIG, offsetof(powerGuardConfig_t, min_throttle) },
+#endif
+#ifdef USE_BATTERY_GUARD
+    { "battery_arm_min_cell_voltage", VAR_UINT16 | MASTER_VALUE, .config.minmaxUnsigned = { 0, 450 }, PG_BATTERY_GUARD_CONFIG, offsetof(batteryGuardConfig_t, arm_min_cell_voltage) },
+    { "battery_rth_cell_voltage",   VAR_UINT16 | MASTER_VALUE, .config.minmaxUnsigned = { 0, 450 }, PG_BATTERY_GUARD_CONFIG, offsetof(batteryGuardConfig_t, rth_cell_voltage) },
+    { "battery_rth_delay",          VAR_UINT8  | MASTER_VALUE, .config.minmaxUnsigned = { 1, 60 }, PG_BATTERY_GUARD_CONFIG, offsetof(batteryGuardConfig_t, rth_delay) },
 #endif
 
 #if ENABLE_TELEMETRY_MAVLINK_MISSION

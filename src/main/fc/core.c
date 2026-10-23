@@ -61,6 +61,7 @@
 
 #include "flight/failsafe.h"
 #include "flight/gps_rescue.h"
+#include "flight/battery_guard.h"
 #include "flight/alt_hold.h"
 #include "flight/pos_hold.h"
 
@@ -405,6 +406,15 @@ if (crashFlipModeActive) {
         } else {
             unsetArmingDisabled(ARMING_DISABLED_CALIBRATING);
         }
+
+#ifdef USE_BATTERY_GUARD
+        // TrueGlide: no take-off on a low battery (battery_arm_min_cell_voltage, 0 = off)
+        if (batteryGuardArmingDisabled()) {
+            setArmingDisabled(ARMING_DISABLED_LOW_BATTERY);
+        } else {
+            unsetArmingDisabled(ARMING_DISABLED_LOW_BATTERY);
+        }
+#endif
 
         if (isModeActivationConditionPresent(BOXPREARM)) {
             if (IS_RC_MODE_ACTIVE(BOXPREARM) && (!ARMING_FLAG(WAS_ARMED_WITH_PREARM) || armingConfig()->prearm_allow_rearm) ) {
@@ -1059,11 +1069,19 @@ void processRxModes(timeUs_t currentTimeUs)
         DISABLE_FLIGHT_MODE(ANGLE_MODE); // failsafe support
     }
 
+    // TrueGlide: return home on a low battery (battery_rth_cell_voltage, 0 = off), handled like the rescue switch
+    bool batteryRthRequested = false;
+#ifdef USE_BATTERY_GUARD
+    batteryGuardUpdate(currentTimeUs);
+    batteryRthRequested = batteryGuardRthRequested();
+#endif
+    UNUSED(batteryRthRequested);
+
 #if defined(USE_GPS_RESCUE) && !ENABLE_RESCUE_PLAN
     // Legacy: the pilot's switch and the failsafe procedure both fly the legacy
     // GPS_RESCUE_MODE controller. (With ENABLE_RESCUE_PLAN both are flown as an
     // autopilot rescue mission instead - staged below and in failsafe.c.)
-    if (ARMING_FLAG(ARMED) && (IS_RC_MODE_ACTIVE(BOXGPSRESCUE)
+    if (ARMING_FLAG(ARMED) && (IS_RC_MODE_ACTIVE(BOXGPSRESCUE) || batteryRthRequested
         || (failsafeIsActive() && failsafeConfig()->failsafe_procedure == FAILSAFE_PROCEDURE_GPS_RESCUE))) {
         if (!FLIGHT_MODE(GPS_RESCUE_MODE)) {
             ENABLE_FLIGHT_MODE(GPS_RESCUE_MODE);
@@ -1101,7 +1119,7 @@ void processRxModes(timeUs_t currentTimeUs)
     bool rescueDescentRequest = false;
     static bool rescueSwitchStaged = false;
     static bool rescueSwitchDescending = false;
-    if (ARMING_FLAG(ARMED) && IS_RC_MODE_ACTIVE(BOXGPSRESCUE) && !failsafeIsActive()) {
+    if (ARMING_FLAG(ARMED) && (IS_RC_MODE_ACTIVE(BOXGPSRESCUE) || batteryRthRequested) && !failsafeIsActive()) {
         if (!rescueSwitchStaged) {
             rescueSwitchStaged = flightPlanNavStageRescuePlan();
         }

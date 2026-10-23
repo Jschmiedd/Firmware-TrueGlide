@@ -69,7 +69,8 @@ typedef enum {
     ARMING_DISABLED_ALTHOLD         = (1 << 26),
     ARMING_DISABLED_POSHOLD         = (1 << 27),
     ARMING_DISABLED_AUTOPILOT       = (1 << 28),
-    ARMING_DISABLED_ARM_SWITCH      = (1 << 29) // Needs to be the last element, since it's always activated if one of the others is active when arming
+    ARMING_DISABLED_LOW_BATTERY     = (1 << 29), // TrueGlide: battery_arm_min_cell_voltage
+    ARMING_DISABLED_ARM_SWITCH      = (1 << 30) // Needs to be the last element, since it's always activated if one of the others is active when arming
 } armingDisableFlags_e;
 
 #define ARMING_DISABLE_FLAGS_COUNT (LOG2(ARMING_DISABLED_ARM_SWITCH) + 1)

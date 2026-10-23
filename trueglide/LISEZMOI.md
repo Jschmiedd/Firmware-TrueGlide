@@ -6,6 +6,7 @@ Firmware de contrôleur de vol basé sur **Betaflight 2026.6.2**, avec en plus :
 |---|---|---|
 | **Protection anti-surchauffe** (`power_guard_*`) | Limite les gaz si un ESC chauffe trop ou si le courant batterie dépasse une limite | Désactivée |
 | **Mode SPEEDER** (`speeder_*`, mode 120) | Transition progressive du stationnaire (fuselage vertical) au vol rapide, en mode ANGLE | Inactif sans interrupteur |
+| **Batterie basse** (`battery_arm_min_cell_voltage`, `battery_rth_*`) | Décollage refusé sous une tension par élément ; retour au départ (GPS RESCUE) si la tension reste basse en vol. Jamais de coupure en vol | Désactivée |
 | **Santé moteurs** (`motor_desync_recovery`, `dshot_telemetry_fallback`) | Relance un moteur désynchronisé ou calé ; vitesse juste pour le filtre RPM quand la télémétrie DShot se perd | Désactivée |
 | **Analyse de journaux** (`trueglide/outils/analyse_blackbox.py`) | Rapport en français des défauts d'un fichier blackbox | — |
 | **TrueGlide Studio** (`trueglide/studio/index.html`) | Réglage de départ selon le drone (Tiny Whoop 1,2" à 15"), analyse de configuration, ports (UART) et fichier drone préparés sans la carte, missions GPS (modèles TRUENAV) | — |
@@ -231,6 +232,31 @@ transition.
 **Prudence** : la logique est vérifiée (tests unitaires, simulateur), pas encore le comportement en vol réel.
 Commencer avec `speeder_cruise_angle = 20`, en altitude, puis monter par pas de 10°.
 
+## Batterie basse
+
+Les moteurs ne sont **jamais coupés en vol** pour une batterie basse : le pilote décide, prévenu par l'OSD
+(`BAT LOW`, `LAND NOW`) et les bips, comme dans Betaflight. La radio peut aussi alerter à la voix avec la tension
+reçue par la télémétrie. En plus, désactivé par défaut :
+
+| Réglage | Rôle | Défaut |
+|---|---|---|
+| `battery_arm_min_cell_voltage` | sous cette tension par élément (0,01 V, ex. 370 = 3,70 V), au repos, l'armement est refusé (motif `LOW_BATTERY`) | 0 (arrêt) |
+| `battery_rth_cell_voltage` | en vol, sous cette tension par élément pendant tout le délai : retour au départ avec le GPS RESCUE | 0 (arrêt) |
+| `battery_rth_delay` | durée (s) pendant laquelle la tension doit rester sous le seuil ; une chute brève sur un coup de gaz remet le compte à zéro | 10 |
+
+- Sans batterie mesurée (nombre d'éléments inconnu), rien n'est bloqué ni déclenché.
+- Le retour ne part que si le GPS RESCUE est disponible à ce moment (point de départ, GPS, cap) ; sinon l'OSD affiche
+  `BAT RTH N/A` et le pilote garde la main. Pendant le retour : `BAT RTH`.
+- Le pilote reprend la main en bougeant le manche de roulis ou de tangage au-delà de 30 % : le retour ne se relance
+  plus avant le prochain désarmement.
+- Retour au départ seulement avec le GPS RESCUE : **TRUENAV**, **TRUENAV_LIGHT**, et **TRUEGLIDE** sur les cartes à
+  1 Mo et plus.
+
+Vérifié : 7 tests unitaires (seuils, délai, chute brève, reprise en main, GPS indisponible, arrêt) ; réglages acceptés
+par le simulateur ; cartes SPEEDYBEEF405MINI (TRUEGLIDE, TRUENAV) et MATEKF411 compilées. Le simulateur n'a pas de
+batterie : le déclenchement en vol n'a **pas encore été essayé** (à faire sur la carte, hélices retirées pour le refus
+d'armement, puis en vol prudent pour le retour).
+
 ## Température des ESC sur la radio (`crsf_tlm_esc_temp`)
 
 Optionnel, **désactivé par défaut**. Activé, la carte envoie toutes les 2 s une trame de température CRSF (type 0x0D,
@@ -391,7 +417,7 @@ il reste disponible dans TrueGlide Configurator, à côté de l'Assistant de ré
 
 ## Vérifications faites
 
-- Tests unitaires Betaflight + TrueGlide : 70 suites, en mode strict (`make EXTRA_FLAGS=-Werror test-all`).
+- Tests unitaires Betaflight + TrueGlide : 71 suites, en mode strict (`make EXTRA_FLAGS=-Werror test-all`).
 - Construction pour 42 cartes courantes (F405, F411, F722, F745, H743, AT32F435) et pour le simulateur (SITL).
 - Simulateur : réglages acceptés et sauvegardés, mode SPEEDER annoncé au Configurator, transition suivie
   (`trueglide/sitl_bench`).

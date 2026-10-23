@@ -55,6 +55,7 @@
 #include "flight/flight_plan_nav.h"
 #include "flight/pos_hold.h"
 #include "flight/power_guard.h"
+#include "flight/battery_guard.h"
 #include "flight/motor_health.h"
 
 #include "io/beeper.h"
@@ -281,6 +282,19 @@ void renderOsdWarning(char *warningText, bool *blinking, uint8_t *displayAttr)
         if (motor >= 0) {
             tfp_sprintf(warningText, "M%d RESTART", motor + 1);
             *displayAttr = DISPLAYPORT_SEVERITY_WARNING;
+            *blinking = true;
+            return;
+        }
+    }
+#endif
+
+#ifdef USE_BATTERY_GUARD
+    // TrueGlide: return home on a low battery (battery_rth_cell_voltage); shown with the battery warnings
+    if (osdWarnGetState(OSD_WARNING_BATTERY_WARNING) && ARMING_FLAG(ARMED)) {
+        const batteryRthState_e rth = batteryGuardRthState();
+        if (rth == BATTERY_RTH_ACTIVE || rth == BATTERY_RTH_UNAVAILABLE) {
+            tfp_sprintf(warningText, rth == BATTERY_RTH_ACTIVE ? "BAT RTH" : "BAT RTH N/A");
+            *displayAttr = DISPLAYPORT_SEVERITY_CRITICAL;
             *blinking = true;
             return;
         }
