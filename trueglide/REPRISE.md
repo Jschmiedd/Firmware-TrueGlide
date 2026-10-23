@@ -7,8 +7,9 @@ Une conversation par phase de test. Lire ce fichier, puis seulement les fichiers
 - Firmware : `Jschmiedd/Firmware-TrueGlide` (public), base Betaflight 2026.6.2.
   Trois modèles : **TRUEGLIDE** (base), **TRUENAV** (combiné), **TRUENAV_LIGHT** (navigation).
 - Logiciel : `Jschmiedd/TrueGlide-Configurator` (public), base Betaflight App 2026.6.2.
-- En ligne : https://jschmiedd.github.io/TrueGlide-Configurator/ (vitrine), `/app/` (logiciel),
-  `/firmware/` (manifeste de la mise à jour en ligne). Branche `gh-pages` du dépôt du logiciel.
+- En ligne : https://jschmiedd.github.io/TrueGlide-Configurator/ (site explicatif : accueil + `docs/`, une page par
+  onglet), `/app/` (logiciel), `/firmware/` (manifeste de la mise à jour en ligne). Branche `gh-pages` du dépôt du
+  logiciel. `/test/` et `/site-test/` redirigent vers les versions officielles depuis le 23 octobre 2026.
 - Produit privé réécrit : `TrueGlide-XPro`, traité dans ses propres conversations (ne pas mélanger).
 
 ## Règles
@@ -86,3 +87,12 @@ En attente de Johann :
     Liste de test `firmware-test/` sur gh-pages (627 fichiers : TRUEGLIDE pour toutes les cartes, les trois modèles
     pour SPEEDYBEEF405MINI, TMOTORVELOXF7SE, SEQUREH7V2), lue par `/test/` seulement ; `/firmware/` (lu par `/app/`)
     inchangé. Nom de carte avec tiret (LUXHDAIO-G4) accepté par le publieur et le logiciel. Compilé ≠ testé.
+- 23 octobre 2026 : publication décidée par Johann (« oui tu peux tout remplacer »).
+  - `/app/` construit depuis la branche `essai-onglets` (f7bd6da) du logiciel ; `main` du logiciel n'a pas été modifié.
+  - `/firmware/` = l'ancienne liste de test : révision 1791465a6, TRUEGLIDE pour 621 cartes, les trois modèles pour
+    SPEEDYBEEF405MINI, TMOTORVELOXF7SE, SEQUREH7V2. `firmware-test/` supprimé.
+  - Page d'accueil = site explicatif (branche `essai-site`, dossier `site/`, construit par `site/outils/construire.py`).
+  - Studio : onglet Ports (UART), fichier drone, fichier du calculateur `talktrue-trueglide-studio`, base du réglage
+    « données du calculateur » (43 tests). CHIRP : pas ajouté, besoins à définir (document de suivi).
+  - Fiches de salle blanche envoyées à XPro : 1/4 à 4/4, 5/6, 6/6, navigation 1/3 à 3/3.
+  - Phase 2 (F405 Mini à plat) : pas encore faite. Rien n'a volé.
