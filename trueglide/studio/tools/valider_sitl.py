@@ -47,6 +47,23 @@ try:
     if not ok:
         for e in erreurs: print('      ', e)
         for a, b in zip(attendu, relu): print('       généré :', a, '\n       relu   :', b)
+    # ports : commandes « serial », « feature » et « set » acceptées, puis relues par la commande « serial ».
+    # Le SITL n'a ni récepteur série, ni OSD, ni VTX : ces réglages et la fonction VTX_MSP (131072) y sont absents.
+    cmds = [l for l in donnees['ports']['commandes'] if not l.startswith('set ') or l.split()[1] in connus]
+    absents = sorted(l.split()[1] for l in donnees['ports']['commandes'] if l.startswith('set ') and l.split()[1] not in connus)
+    sortie = sitl.cli(*(cmds + ['serial']))
+    erreurs = [l for l in sortie.splitlines() if 'ERROR' in l]
+    relu = {m[0]: int(m[1]) for m in re.findall(r'^serial (UART\d+) (\d+) ', sortie, re.M)}
+    sans_vtx = [k for k, v in donnees['ports']['attendu'].items() if relu.get(k) != v and relu.get(k) == v & ~131072]
+    diff = {k: (v, relu.get(k)) for k, v in donnees['ports']['attendu'].items() if relu.get(k) != v and k not in sans_vtx}
+    ok = not erreurs and not diff
+    echecs += not ok
+    print(('OK    ' if ok else 'ÉCHEC ') + f"ports : {len(cmds)} commandes acceptées, "
+          f"{len(donnees['ports']['attendu']) - len(sans_vtx)} ports relus avec la bonne fonction"
+          + (f" ; absents du SITL : {', '.join(absents)}" if absents else '')
+          + (f" ; VTX_MSP absent du SITL sur {', '.join(sans_vtx)}" if sans_vtx else ''))
+    for e in erreurs: print('      ', e)
+    for k, (a, b) in diff.items(): print(f'       {k} : Studio {a}, firmware {b}')
 finally:
     sitl.close()
 sys.exit(1 if echecs else 0)

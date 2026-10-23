@@ -401,3 +401,55 @@ test('la conversion garde les noms, l\'étalonnage et les réglages radio', () =
   for (const l of ['set acc_calibration = 0,9,12,1', 'set craft_name = KarRmen', 'set pilot_name = SLAYER',
     'set expresslrs_uid = 1,2,3,4,5,6', 'set profile_name = LAUNCH']) assert.ok(r.lignes.includes(l), l);
 });
+
+const P = require('../js/ports.js');
+
+test('ports : état lu sur la carte et le diff, aucune commande sans changement', () => {
+  const c = CARTES.SPEEDYBEEF405MINI;
+  assert.deepEqual(c.p, { UART1: 'TR', UART2: 'TR', UART3: 'TR', UART4: 'TR', UART5: 'TR', UART6: 'TR' });
+  assert.deepEqual(c.d, { UART2: 64, UART4: 1 });          // SERIALRX_UART et MSP_UART de la carte
+  const diff = 'board_name SPEEDYBEEF405MINI\nserial UART1 131073 115200 57600 0 115200';
+  const ini = P.etatInitial(c, diff);
+  assert.equal(ini.UART1.id, 'vtx_hd');
+  assert.equal(ini.UART2.id, 'rx_crsf');                    // CRSF par défaut (src/main/pg/rx.c)
+  assert.equal(ini.UART4.id, 'msp');
+  assert.deepEqual(P.generer(c, {}, ini, {}).commandes, []);
+});
+
+test('ports : commandes serial et réglages des composants ajoutés', () => {
+  const c = CARTES.SPEEDYBEEF405MINI;
+  const r = P.generer(c, { UART3: 'gps', UART5: 'esc_tlm', UART2: 'rx_ghst' }, P.etatInitial(c, ''), {});
+  assert.deepEqual(r.alertes, []);
+  for (const l of ['serial UART3 2 115200 57600 0 115200', 'serial UART5 1024 115200 57600 0 115200', 'feature GPS',
+    'set gps_provider = UBLOX', 'feature ESC_SENSOR', 'set serialrx_provider = GHST']) assert.ok(r.commandes.includes(l), l);
+  assert.ok(!r.commandes.some(l => l.startsWith('serial UART2')));   // même fonction (récepteur), autre protocole
+  assert.ok(P.versCli(r).endsWith('\nsave'));
+});
+
+test('ports : contrôles (GPS absent, broche manquante, deux récepteurs, ancienne numérotation)', () => {
+  const f411 = Object.values(CARTES).find(c => c.mcu === 'STM32F411' && c.p && c.p.UART1);
+  assert.ok(P.generer(f411, { UART1: 'gps' }, P.etatInitial(f411, ''), {}).alertes.some(a => /n'a pas le GPS/.test(a)));
+  assert.deepEqual(P.generer(f411, { UART1: 'gps' }, P.etatInitial(f411, ''), { modele: 'TRUENAV' }).alertes, []);
+  const c = CARTES.SPEEDYBEEF405MINI;
+  assert.ok(P.generer(c, { UART3: 'rx_crsf' }, P.etatInitial(c, ''), {}).alertes.some(a => /Plusieurs ports/.test(a)));
+  const seulRx = { mcu: 'STM32H743', p: { UART1: 'R' } };
+  assert.ok(P.generer(seulRx, { UART1: 'vtx_sa' }, P.etatInitial(seulRx, ''), {}).alertes.some(a => /pas de broche TX/.test(a)));
+  assert.equal(P.lireSerial('serial 0 64 115200 57600 0 115200').ports.UART1.masque, 64);
+  assert.equal(P.depuisMasque(5, 'CRSF'), 'autre:5');       // fonctions inconnues gardées telles quelles
+});
+
+test('fichier drone : enregistré puis relu à l\'identique ; un diff all donne la carte', () => {
+  const f = P.fichierDrone({ carte: 'SPEEDYBEEF405MINI', drone: { pouces: '5' }, ports: { UART3: 'gps' }, configuration: 'diff', date: 'x' });
+  assert.deepEqual(P.ouvrir(f), { carte: 'SPEEDYBEEF405MINI', drone: { pouces: '5' }, ports: { UART3: 'gps' }, configuration: 'diff' });
+  const d = P.ouvrir('# Betaflight / STM32F405 (S405) 2025.12.2\nboard_name SPEEDYBEEF405MINI\nset motor_poles = 12');
+  assert.equal(d.carte, 'SPEEDYBEEF405MINI');
+  assert.equal(d.drone.poles, '12');
+  assert.throws(() => P.ouvrir('{"format":"autre"}'));
+});
+
+test('chaque carte décrite a des ports valides et ses fonctions par défaut sur un port existant', () => {
+  for (const [nom, c] of Object.entries(CARTES)) {
+    for (const [port, b] of Object.entries(c.p || {})) assert.match(port + ':' + b, /^(LP)?UART\d+:(TR|T|R)$/, nom);
+    for (const port of Object.keys(c.d || {})) assert.ok(c.p && c.p[port], `${nom} : ${port} par défaut sans broche`);
+  }
+});

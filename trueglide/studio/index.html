@@ -79,6 +79,7 @@
 <nav class="onglets" role="tablist">
   <button role="tab" aria-selected="true" data-page="reglage">Réglage du drone</button>
   <button role="tab" aria-selected="false" data-page="analyse">Analyser ma configuration</button>
+  <button role="tab" aria-selected="false" data-page="ports">Ports (UART)</button>
   <button role="tab" aria-selected="false" data-page="navigation">Navigation GPS</button>
   <button role="tab" aria-selected="false" data-page="aide">Mode d'emploi</button>
 </nav>
@@ -131,6 +132,18 @@
     </div>
     <div class="boutons"><button class="action" id="calculer">Calculer le réglage</button></div>
   </div>
+  <div class="carte">
+    <h2>Fichier drone</h2>
+    <p class="petit">Un seul fichier garde tout : ce formulaire, les ports et la configuration de la carte (<code>diff all</code>).
+      Pour le créer avec la carte : dans le Configurator, onglet CLI, taper <code>diff all</code>, « Enregistrer » le texte, puis
+      l'ouvrir ici. Ensuite tout se prépare sans la carte ; on colle les commandes dans l'onglet CLI une fois le drone branché.</p>
+    <div class="boutons">
+      <button class="second" id="ouvrir-drone">Ouvrir un fichier drone ou un diff all</button>
+      <button class="second" id="enregistrer-drone">Enregistrer le fichier drone</button>
+      <input id="fichier-drone" type="file" accept=".json,.txt,text/plain,application/json" hidden>
+    </div>
+    <div id="info-drone"></div>
+  </div>
   <div id="resultat"></div>
 </section>
 
@@ -144,6 +157,28 @@
     <div class="boutons"><button class="action" id="analyser">Analyser</button></div>
   </div>
   <div id="resultat-analyse"></div>
+</section>
+
+<!-- ====================== PORTS ====================== -->
+<section class="page" id="page-ports">
+  <div class="carte">
+    <h2>Ports série (UART)</h2>
+    <p class="petit">Choisir ce qui est branché sur chaque port, sans la carte. La carte vient de l'onglet « Réglage du drone » ;
+      l'état actuel des ports vient de la configuration collée dans « Analyser ma configuration » (ou d'un fichier drone),
+      sinon des réglages d'usine de la carte. Vérifier le câblage sur le schéma de la carte : un composant intégré
+      (récepteur, Bluetooth) peut déjà occuper un port.</p>
+    <div class="grille">
+      <label>Firmware<select id="modele">
+        <option value="STANDARD">TRUEGLIDE</option><option value="TRUENAV">TRUENAV</option><option value="TRUENAV_LIGHT">TRUENAV_LIGHT</option>
+      </select></label>
+    </div>
+    <p class="petit" id="info-ports"></p>
+    <div class="tableau"><table id="table-ports">
+      <thead><tr><th>Port</th><th>Broches</th><th>Actuel</th><th>Composant</th></tr></thead>
+      <tbody></tbody></table></div>
+    <div class="boutons"><button class="action" id="generer-ports">Générer les commandes</button></div>
+  </div>
+  <div id="resultat-ports"></div>
 </section>
 
 <!-- ====================== NAVIGATION ====================== -->
@@ -189,8 +224,10 @@
   <div class="carte">
     <h2>Mode d'emploi</h2>
     <ol>
-      <li>Flasher le firmware TrueGlide avec Betaflight Configurator (onglet « Flasher », « Charger le firmware [local] », fichier <code>trueglide_…hex</code>, case « Effacement complet »).</li>
-      <li>Refaire la configuration de base : ports, récepteur, modes (dont <b>SPEEDER</b> si besoin), OSD.</li>
+      <li>Avant le flash, dans le Configurator, onglet CLI : <code>diff all</code>, puis enregistrer le texte. L'ouvrir dans Studio (« Fichier drone ») : la carte, la configuration et les ports sont repris.</li>
+      <li>Flasher le firmware TrueGlide avec TrueGlide Configurator (onglet « Flasher le Firmware », « Charger un firmware TrueGlide (.hex) », case « Effacement complet de la puce »).</li>
+      <li>Sans la carte : onglet « Analyser ma configuration » (conversion d'une ancienne version), onglet « Ports (UART) » (récepteur, VTX, GPS…), puis « Enregistrer le fichier drone ».</li>
+      <li>Refaire le reste de la configuration de base : modes (dont <b>SPEEDER</b> si besoin), OSD.</li>
       <li>Dans Studio : décrire le drone, « Calculer le réglage », « Copier », puis coller dans l'onglet CLI du Configurator et valider avec Entrée (la commande <code>save</code> est incluse).</li>
       <li><b>Premier essai sans hélices</b> : onglet Moteurs, vérifier l'ordre et le sens des moteurs. Puis hélices, stationnaire court, et toucher les moteurs.</li>
       <li>Ajuster avec les curseurs de l'onglet PID du Configurator (le curseur maître d'abord, par pas de 5).</li>
@@ -226,6 +263,7 @@
 <script src="js/tune.js"></script>
 <script src="js/analyse.js"></script>
 <script src="js/nav.js"></script>
+<script src="js/ports.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
 (function () {
@@ -373,6 +411,82 @@
     out.innerHTML = h + '</div>';
   });
 
+  // ---- ports ----
+  var choixPorts = {};
+  try { choixPorts = JSON.parse(localStorage.getItem('tf-ports') || '{}'); } catch (e) { choixPorts = {}; }
+  function memoriserPorts() { try { localStorage.setItem('tf-ports', JSON.stringify(choixPorts)); } catch (e) { } }
+  function nomComposant(id) {
+    if (String(id).indexOf('autre:') === 0) return 'Autre (fonctions ' + id.slice(6) + ')';
+    var c = TFPorts.composant(id); return c ? c.nom : id;
+  }
+  function dessinerPorts() {
+    var k = carteChoisie(), corps = $('table-ports').querySelector('tbody');
+    $('resultat-ports').innerHTML = '';
+    if (!k || !k.c.p) {
+      corps.innerHTML = '';
+      $('info-ports').textContent = k ? 'Les ports de cette carte ne sont pas décrits dans le firmware.' : 'Choisir d\'abord la carte dans l\'onglet « Réglage du drone ».';
+      return;
+    }
+    var ini = TFPorts.etatInitial(k.c, $('diff').value);
+    $('info-ports').textContent = k.nom + ' : ' + Object.keys(k.c.p).length + ' ports. État actuel lu ' +
+      (/^\s*serial\s/m.test($('diff').value) ? 'dans la configuration collée.' : 'dans les réglages d\'usine de la carte (pas de configuration collée).') +
+      (k.c.rxspi ? ' Récepteur intégré : ' + k.c.rxspi + '.' : '');
+    corps.innerHTML = Object.keys(k.c.p).map(function (port) {
+      var actuel = ini[port].id, choisi = choixPorts[port] || actuel;
+      var options = TFPorts.COMPOSANTS.map(function (c) { return c.id; });
+      if (options.indexOf(actuel) < 0) options.unshift(actuel);
+      if (options.indexOf(choisi) < 0) choisi = actuel;
+      var broches = k.c.p[port] === 'TR' ? 'TX et RX' : (k.c.p[port] === 'T' ? 'TX seul' : 'RX seul');
+      return '<tr><td>' + port + '</td><td>' + broches + '</td><td>' + echap(nomComposant(actuel)) + '</td><td><select data-port="' + port + '">' +
+        options.map(function (id) { return '<option value="' + id + '"' + (id === choisi ? ' selected' : '') + '>' + echap(nomComposant(id)) + '</option>'; }).join('') +
+        '</select></td></tr>';
+    }).join('');
+  }
+  $('table-ports').addEventListener('change', function (ev) {
+    var port = ev.target.dataset.port; if (!port) return;
+    choixPorts[port] = ev.target.value; memoriserPorts();
+  });
+  $('generer-ports').addEventListener('click', function () {
+    var k = carteChoisie(); if (!k) { dessinerPorts(); return; }
+    var ini = TFPorts.etatInitial(k.c, $('diff').value);
+    var r = TFPorts.generer(k.c, choixPorts, ini, { modele: $('modele').value });
+    var h = '<div class="carte"><h2>Commandes des ports</h2>' + messages(r.alertes, 'alerte') + messages(r.conseils, 'conseil') + messages(r.notes, 'note');
+    h += r.commandes.length ? blocCli(TFPorts.versCli(r, 'TrueGlide Studio : ports ' + k.nom), 'trueglide_ports.txt') :
+      '<div class="msg ok">Aucun changement : les ports correspondent déjà à la configuration actuelle.</div>';
+    $('resultat-ports').innerHTML = h + '</div>';
+  });
+  $('carte').addEventListener('change', function () { choixPorts = {}; memoriserPorts(); });
+  document.querySelector('nav.onglets button[data-page="ports"]').addEventListener('click', dessinerPorts);
+
+  // ---- fichier drone ----
+  function valeurs() { var o = {}; CHAMPS.forEach(function (k) { o[k] = $(k).type === 'checkbox' ? $(k).checked : $(k).value; }); return o; }
+  $('enregistrer-drone').addEventListener('click', function () {
+    var k = carteChoisie(), nom = (k ? k.nom : 'drone') + '_' + new Date().toISOString().slice(0, 10) + '.json';
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([TFPorts.fichierDrone({ carte: k ? k.nom : $('carte').value, drone: valeurs(), ports: choixPorts, configuration: $('diff').value }) + '\n'], { type: 'application/json' }));
+    a.download = nom; a.click(); URL.revokeObjectURL(a.href);
+    $('info-drone').innerHTML = messages(['Fichier drone enregistré : ' + nom + '.'], 'ok');
+  });
+  $('ouvrir-drone').addEventListener('click', function () { $('fichier-drone').value = ''; $('fichier-drone').click(); });
+  $('fichier-drone').addEventListener('change', function () {
+    var f = this.files[0]; if (!f) return;
+    var lecteur = new FileReader();
+    lecteur.onload = function () {
+      var o;
+      try { o = TFPorts.ouvrir(lecteur.result); } catch (err) { $('info-drone').innerHTML = messages([err.message], 'alerte'); return; }
+      Object.keys(o.drone).forEach(function (k) { if (CHAMPS.indexOf(k) >= 0) { if ($(k).type === 'checkbox') $(k).checked = !!o.drone[k]; else $(k).value = o.drone[k]; } });
+      if (o.carte) $('carte').value = o.carte;
+      if (o.configuration) $('diff').value = o.configuration;
+      choixPorts = o.ports || {}; memoriserPorts(); memoriser();
+      majCarteEsc(); majSpeeder(); dessinerPorts();
+      var k = carteChoisie();
+      $('info-drone').innerHTML = messages([f.name + ' ouvert : carte ' + (k ? k.nom : (o.carte || 'non trouvée')) +
+        (o.configuration ? ', configuration de ' + o.configuration.split(/\r?\n/).length + ' lignes (onglet « Analyser ma configuration »)' : '') + '.'], k ? 'ok' : 'conseil') +
+        (k ? '' : messages(['Carte non reconnue : la choisir dans la liste « Carte de vol (FC) ».'], 'conseil'));
+    };
+    lecteur.readAsText(f);
+  });
+
   // ---- navigation ----
   var points = [], carte = null, couche = null;
   function ligneType(i, v) { return '<select data-i="' + i + '" data-k="type">' + TFNav.TYPES.map(function (t) { return '<option value="' + t + '"' + (t === v ? ' selected' : '') + '>' + TFNav.NOMS_TYPES[t] + '</option>'; }).join('') + '</select>'; }
@@ -435,7 +549,7 @@
   $('sources').innerHTML = '<div class="tableau"><table><thead><tr><th>Taille</th><th>P</th><th>I</th><th>D</th><th>FF</th><th>Préréglages (Betaflight firmware-presets, 2025.12)</th></tr></thead><tbody>' +
     TFTune.REFERENCES.map(function (r) { return '<tr><td>' + r.pouces + '"</td><td class="num">' + r.P + '</td><td class="num">' + r.I + '</td><td class="num">' + r.D + '</td><td class="num">' + r.F + '</td><td>' + echap(r.sources.join(', ')) + '</td></tr>'; }).join('') +
     '</tbody></table></div><p class="petit">Entre deux tailles : interpolation. Au-delà de 10" : prolongement de la tendance 7" → 10", 15 % plus bas, signalé « extrapolé ». ' +
-    'Correction de puissance (± 20 % au plus) entre 3,5" et 10" seulement, par comparaison avec la référence de même taille.</p>';
+    'Correction de puissance (± 20 % au plus) entre 1,2" et 10" seulement, par comparaison avec la référence de même taille.</p>';
 })();
 </script>
 </body>

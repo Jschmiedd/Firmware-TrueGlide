@@ -1,5 +1,5 @@
 // Produit, en JSON, des cas de réglage et une mission pour tools/valider_sitl.py
-const T = require('../js/tune.js'), N = require('../js/nav.js');
+const T = require('../js/tune.js'), N = require('../js/nav.js'), P = require('../js/ports.js');
 const cas = [];
 const drones = [
   { pouces: 3, kv: 2800, cellules: 4, masse: 300, style: 'speeder', speeder: { angle: 60, vitesse: 30, mix: true } },
@@ -29,4 +29,9 @@ const m = N.genererMission({ altitudeSolAmsl: 152.4, points: [
   { lat: 46.2044, lon: -6.1432, hauteur: 0, vitesse: 3, type: 'LAND', duree: 0 }] });
 const reg = N.genererReglages({ vitesseMax: 12, angleMax: 45, rayonArrivee: 4, retourAlt: 50, vitesseRetour: 10,
   satellitesMin: 10, failsafeGps: true, barriereM: 800, actionBarriere: 'RTH', perteRadio: 'CONTINUE' });
-console.log(JSON.stringify({ cas, mission: m.lignes, nav: reg.map(r => 'set ' + r.nom + ' = ' + r.valeur) }));
+// ports : chaque composant sur un port du SITL (UART1 à UART8, tous avec TX et RX)
+const sitl = { mcu: 'SITL', p: { UART1: 'TR', UART2: 'TR', UART3: 'TR', UART4: 'TR', UART5: 'TR', UART6: 'TR', UART7: 'TR', UART8: 'TR' } };
+const choix = { UART1: 'vtx_hd', UART2: 'rx_ghst', UART3: 'gps', UART4: 'vtx_sa', UART5: 'esc_tlm', UART6: 'msp', UART7: 'gimbal', UART8: 'vtx_tramp' };
+const rp = P.generer(sitl, choix, P.etatInitial(sitl, ''), { modele: 'TRUENAV' });
+const ports = { commandes: rp.commandes, attendu: Object.fromEntries(Object.entries(choix).map(([k, v]) => [k, P.COMPOSANTS.find(c => c.id === v).masque])) };
+console.log(JSON.stringify({ cas, mission: m.lignes, nav: reg.map(r => 'set ' + r.nom + ' = ' + r.valeur), ports }));

@@ -8,7 +8,7 @@ Firmware de contrôleur de vol basé sur **Betaflight 2026.6.2**, avec en plus :
 | **Mode SPEEDER** (`speeder_*`, mode 120) | Transition progressive du stationnaire (fuselage vertical) au vol rapide, en mode ANGLE | Inactif sans interrupteur |
 | **Santé moteurs** (`motor_desync_recovery`, `dshot_telemetry_fallback`) | Relance un moteur désynchronisé ou calé ; vitesse juste pour le filtre RPM quand la télémétrie DShot se perd | Désactivée |
 | **Analyse de journaux** (`trueglide/outils/analyse_blackbox.py`) | Rapport en français des défauts d'un fichier blackbox | — |
-| **TrueGlide Studio** (`trueglide/studio/index.html`) | Réglage de départ selon le drone (Tiny Whoop 1,2" à 15"), analyse de configuration, missions GPS (modèles TRUENAV) | — |
+| **TrueGlide Studio** (`trueglide/studio/index.html`) | Réglage de départ selon le drone (Tiny Whoop 1,2" à 15"), analyse de configuration, ports (UART) et fichier drone préparés sans la carte, missions GPS (modèles TRUENAV) | — |
 
 Sans réglage TrueGlide, le firmware vole **exactement comme Betaflight 2026.6.2** : les ajouts ne font rien tant
 qu'on ne les active pas.
@@ -350,7 +350,7 @@ il reste disponible dans TrueGlide Configurator, à côté de l'Assistant de ré
 - Construction pour 42 cartes courantes (F405, F411, F722, F745, H743, AT32F435) et pour le simulateur (SITL).
 - Simulateur : réglages acceptés et sauvegardés, mode SPEEDER annoncé au Configurator, transition suivie
   (`trueglide/sitl_bench`).
-- Studio : 36 tests (dont les 7 types d'ESC sur les 629 cartes) ; 40 drones et une mission collés dans le firmware, toutes les commandes acceptées et PID
+- Studio : 41 tests (dont les 7 types d'ESC sur les 629 cartes) ; 40 drones et une mission collés dans le firmware, toutes les commandes acceptées et PID
   identiques (`trueglide/studio/tools/valider_sitl.py`).
 
 ## Licence

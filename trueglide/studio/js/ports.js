@@ -1,0 +1,191 @@
+// TrueGlide Studio : ports série (UART) préparés sans la carte, et fichier drone.
+// TrueGlide - Copyright (C) 2026 TalkTrueFPV. Derived from Betaflight.
+// Free software under the GPL-3.0 license, WITHOUT ANY WARRANTY; see the LICENSE file.
+// Produit les commandes CLI exactes du firmware :
+//   serial <UARTn> <fonctions> <msp baud> <gps baud> <télémétrie baud, 0 = auto> <blackbox baud>
+// Fonctions (src/main/io/serial.h) : MSP 1, GPS 2, RX_SERIAL 64, ESC_SENSOR 1024, VTX_SMARTAUDIO 2048, VTX_TRAMP 8192,
+// VTX_MSP 131072, GIMBAL 262144.
+(function (root) {
+  'use strict';
+
+  // Langue des textes produits ('fr' par défaut, 'en') : évaluée à chaque appel, jamais au chargement.
+  var LANGUE = 'fr';
+  function tr(fr, en) { return LANGUE === 'en' ? en : fr; }
+
+  var BAUDS_DEFAUT = [115200, 57600, 0, 115200];   // pgResetFn_serialConfig : MSP, GPS, télémétrie (auto), blackbox
+
+  // broches : ce que le composant utilise ("TR" : les deux fils, "T" : TX seul, "R" : RX seul)
+  var COMPOSANTS = [
+    { id: 'aucun', masque: 0, broches: '', get nom() { return tr('Rien', 'Nothing'); } },
+    { id: 'rx_crsf', masque: 64, broches: 'TR', rx: 'CRSF', telemetrie: true, get nom() { return tr('Récepteur ExpressLRS / Crossfire (CRSF)', 'ExpressLRS / Crossfire receiver (CRSF)'); } },
+    { id: 'rx_ghst', masque: 64, broches: 'TR', rx: 'GHST', telemetrie: true, get nom() { return tr('Récepteur ImmersionRC Ghost (GHST)', 'ImmersionRC Ghost receiver (GHST)'); } },
+    { id: 'rx_sbus', masque: 64, broches: 'R', rx: 'SBUS', get nom() { return tr('Récepteur SBUS (FrSky, Futaba…)', 'SBUS receiver (FrSky, Futaba…)'); } },
+    { id: 'rx_ibus', masque: 64, broches: 'R', rx: 'IBUS', get nom() { return tr('Récepteur FlySky IBUS', 'FlySky IBUS receiver'); } },
+    { id: 'gps', masque: 2, broches: 'TR', get nom() { return tr('GPS (u-blox)', 'GPS (u-blox)'); } },
+    { id: 'vtx_hd', masque: 131073, broches: 'TR', get nom() { return tr('Vidéo numérique DJI / Walksnail / HDZero (OSD MSP)', 'DJI / Walksnail / HDZero digital video (MSP OSD)'); } },
+    { id: 'vtx_sa', masque: 2048, broches: 'T', get nom() { return tr('VTX analogique SmartAudio (TBS)', 'Analog VTX SmartAudio (TBS)'); } },
+    { id: 'vtx_tramp', masque: 8192, broches: 'T', get nom() { return tr('VTX analogique Tramp (ImmersionRC)', 'Analog VTX Tramp (ImmersionRC)'); } },
+    { id: 'esc_tlm', masque: 1024, broches: 'R', get nom() { return tr('Télémétrie série des ESC (fil TLM)', 'ESC serial telemetry (TLM wire)'); } },
+    { id: 'msp', masque: 1, broches: 'TR', get nom() { return tr('MSP (Bluetooth, module, ordinateur de bord)', 'MSP (Bluetooth, module, companion computer)'); } },
+    { id: 'gimbal', masque: 262144, broches: 'TR', get nom() { return tr('Nacelle Caddx GM3', 'Caddx GM3 gimbal'); } }
+  ];
+  function composant(id) { return COMPOSANTS.filter(function (c) { return c.id === id; })[0] || null; }
+
+  // Composant correspondant à un masque de fonctions ; un récepteur série se distingue par serialrx_provider.
+  // Un masque inconnu reste « autre:<masque> » pour être gardé tel quel.
+  function depuisMasque(masque, fournisseurRx) {
+    if (masque === 64) {
+      var rx = COMPOSANTS.filter(function (c) { return c.rx && c.rx === fournisseurRx; })[0];
+      return rx ? rx.id : 'autre:64';
+    }
+    var c = COMPOSANTS.filter(function (x) { return x.masque === masque && !x.rx; })[0];
+    return c ? c.id : 'autre:' + masque;
+  }
+  function masqueDe(id) {
+    if (String(id).indexOf('autre:') === 0) return Number(id.slice(6));
+    var c = composant(id); return c ? c.masque : 0;
+  }
+
+  // Lignes « serial » et serialrx_provider d'un diff all ou d'un dump.
+  function lireSerial(texte) {
+    var ports = {}, fournisseur = null;
+    String(texte || '').split(/\r?\n/).forEach(function (l) {
+      var m = l.trim().match(/^serial\s+(\S+)\s+(\d+)(?:\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+))?/i);
+      if (m) {
+        var nom = m[1].toUpperCase();
+        if (/^\d+$/.test(nom)) nom = 'UART' + (Number(nom) + 1);   // ancienne numérotation : 0 = UART1
+        ports[nom] = { masque: Number(m[2]), bauds: m[3] ? [m[3], m[4], m[5], m[6]].map(Number) : BAUDS_DEFAUT.slice() };
+      }
+      var p = l.trim().match(/^set\s+serialrx_provider\s*=\s*(\S+)/i);
+      if (p) fournisseur = p[1].toUpperCase();
+    });
+    return { ports: ports, fournisseurRx: fournisseur };
+  }
+
+  // État de départ des ports d'une carte : fonctions par défaut de la carte, puis celles de la configuration lue.
+  function etatInitial(carte, texteConfig) {
+    var lu = lireSerial(texteConfig), etat = {};
+    // sans serialrx_provider dans le diff, la carte garde son fournisseur par défaut : CRSF (src/main/pg/rx.c), sauf
+    // carte qui en déclare un autre
+    var fournisseur = lu.fournisseurRx || (carte && carte.rx) || 'CRSF';
+    Object.keys((carte && carte.p) || {}).forEach(function (port) {
+      var masque = lu.ports[port] ? lu.ports[port].masque : ((carte.d || {})[port] || 0);
+      etat[port] = { id: depuisMasque(masque, fournisseur), masque: masque, bauds: lu.ports[port] ? lu.ports[port].bauds : BAUDS_DEFAUT.slice() };
+    });
+    return etat;
+  }
+
+  // choix : { UART1: 'vtx_hd', ... } ; initial : etatInitial(...) ; e : { modele: 'STANDARD' | 'TRUENAV' | 'TRUENAV_LIGHT' }
+  function generer(carte, choix, initial, e) {
+    e = e || {};
+    var modele = e.modele || 'STANDARD';
+    var alertes = [], conseils = [], notes = [], commandes = [], suite = [];
+    if (!carte || !carte.p) return { commandes: [], alertes: [tr('Carte inconnue ou sans port série décrit : choisir la carte dans la liste.', 'Unknown board or no serial port described: pick the board from the list.')], conseils: [], notes: [] };
+    // nouveaux : composants qui changent de port ; seules leurs commandes « feature » et « set » sont produites
+    var ports = Object.keys(carte.p), par = {}, nouveaux = {};
+    ports.forEach(function (port) {
+      var id = choix[port] || (initial[port] && initial[port].id) || 'aucun';
+      (par[id] = par[id] || []).push(port);
+      if (!initial[port] || initial[port].id !== id) nouveaux[id] = true;
+      var c = composant(id), broches = carte.p[port];
+      if (c && c.broches) {
+        c.broches.split('').forEach(function (b) {
+          if (broches.indexOf(b) < 0) alertes.push(port + tr(' n\'a pas de broche ' + (b === 'T' ? 'TX' : 'RX') + ' sur cette carte : « ' + c.nom + ' » en a besoin.',
+            ' has no ' + (b === 'T' ? 'TX' : 'RX') + ' pin on this board: "' + c.nom + '" needs it.'));
+        });
+      }
+      var masque = masqueDe(id), avant = initial[port] ? initial[port].masque : 0;
+      if (masque !== avant) {
+        var bauds = initial[port] ? initial[port].bauds : BAUDS_DEFAUT;
+        commandes.push('serial ' + port + ' ' + masque + ' ' + bauds.join(' '));
+      }
+    });
+    function ports_(id) { return par[id] || []; }
+    var rx = COMPOSANTS.filter(function (c) { return c.rx && ports_(c.id).length; });
+    var nbRx = rx.reduce(function (n, c) { return n + ports_(c.id).length; }, 0);
+    if (nbRx > 1) alertes.push(tr('Plusieurs ports ont un récepteur : le firmware n\'en utilise qu\'un.', 'Several ports have a receiver: the firmware uses only one.'));
+    if (rx.length && nouveaux[rx[0].id]) {
+      suite.push('feature RX_SERIAL', 'set serialrx_provider = ' + rx[0].rx);
+      if (rx[0].telemetrie) suite.push('feature TELEMETRY');
+      if (carte.rxspi) {
+        suite.push('feature -RX_SPI');
+        notes.push(tr('Cette carte a un récepteur intégré (' + carte.rxspi + ') : choisir un récepteur sur un port le désactive (feature -RX_SPI).',
+          'This board has a built-in receiver (' + carte.rxspi + '): choosing a receiver on a port disables it (feature -RX_SPI).'));
+      }
+      if (rx[0].id === 'rx_sbus' && /F4|F411|F405|G474/.test(carte.mcu || '') && !/F7|H7/.test(carte.mcu || ''))
+        conseils.push(tr('SBUS sur processeur F4 : le signal SBUS est inversé et l\'UART du F4 ne sait pas l\'inverser. Brancher sur le plot « SBUS » de la carte (avec inverseur) ou utiliser un récepteur CRSF.',
+          'SBUS on an F4 processor: the SBUS signal is inverted and the F4 UART cannot invert it. Use the board\'s "SBUS" pad (with inverter) or a CRSF receiver.'));
+    } else if (rx.length) {
+      // récepteur déjà en place : rien à changer
+    } else if (carte.rxspi) {
+      notes.push(tr('Aucun récepteur sur un port : la carte garde son récepteur intégré (' + carte.rxspi + ').', 'No receiver on a port: the board keeps its built-in receiver (' + carte.rxspi + ').'));
+    } else {
+      conseils.push(tr('Aucun récepteur choisi : sans récepteur, le drone ne pourra pas être piloté.', 'No receiver chosen: without a receiver the quad cannot be flown.'));
+    }
+    if (ports_('gps').length > 1) alertes.push(tr('Un seul GPS est géré : le mettre sur un seul port.', 'Only one GPS is supported: put it on a single port.'));
+    if (ports_('gps').length) {
+      if (modele === 'STANDARD' && carte.gps === false)
+        alertes.push(tr('Le firmware TRUEGLIDE de cette carte (' + carte.mcu + ') n\'a pas le GPS (mémoire trop petite) : prendre TRUENAV ou TRUENAV_LIGHT.',
+          'The TRUEGLIDE firmware for this board (' + carte.mcu + ') has no GPS (memory too small): use TRUENAV or TRUENAV_LIGHT.'));
+      if (nouveaux.gps) suite.push('feature GPS', 'set gps_provider = UBLOX');
+    }
+    if (ports_('vtx_hd').length > 1) alertes.push(tr('Une seule vidéo numérique peut afficher l\'OSD : la mettre sur un seul port.', 'Only one digital video system can show the OSD: put it on a single port.'));
+    if (ports_('vtx_hd').length && nouveaux.vtx_hd) {
+      suite.push('feature OSD', 'set osd_displayport_device = MSP', 'set vcd_video_system = HD');
+      notes.push(tr('Vidéo numérique : l\'OSD passe par le même fil (MSP DisplayPort). Placer ensuite les éléments dans l\'onglet OSD.',
+        'Digital video: the OSD goes over the same wire (MSP DisplayPort). Then place the elements in the OSD tab.'));
+    }
+    if (ports_('vtx_sa').length || ports_('vtx_tramp').length) {
+      if (ports_('vtx_sa').length + ports_('vtx_tramp').length > 1) alertes.push(tr('Un seul VTX analogique peut être commandé.', 'Only one analog VTX can be controlled.'));
+      notes.push(tr('VTX analogique : charger la table du VTX (fichier du fabricant) dans l\'onglet Émetteur vidéo pour avoir les canaux et puissances.',
+        'Analog VTX: load the VTX table (manufacturer file) in the Video Transmitter tab to get channels and power levels.'));
+    }
+    if (ports_('esc_tlm').length) {
+      if (nouveaux.esc_tlm) suite.push('feature ESC_SENSOR');
+      if (ports_('esc_tlm').length > 1) alertes.push(tr('La télémétrie série des ESC ne se lit que sur un port.', 'ESC serial telemetry is read on one port only.'));
+      notes.push(tr('Télémétrie série des ESC : relier le fil TLM de l\'ESC au RX du port. Elle donne la température et, si la carte n\'a pas de capteur, le courant (set current_meter = ESC).',
+        'ESC serial telemetry: connect the ESC TLM wire to the port RX. It gives temperature and, if the board has no sensor, current (set current_meter = ESC).'));
+    }
+    if (ports_('gimbal').length) {
+      if (/F411/.test(carte.mcu || '') || modele === 'TRUENAV_LIGHT')
+        alertes.push(tr('La nacelle Caddx GM3 n\'est pas dans le firmware ' + (modele === 'TRUENAV_LIGHT' ? 'TRUENAV_LIGHT' : 'des cartes F411') + ' (place en mémoire).',
+          'The Caddx GM3 gimbal is not in the ' + (modele === 'TRUENAV_LIGHT' ? 'TRUENAV_LIGHT' : 'F411') + ' firmware (memory space).'));
+      notes.push(tr('Nacelle Caddx GM3 : 115 200 bauds ; réglages gimbal_* pour les gains et limites.', 'Caddx GM3 gimbal: 115200 baud; gimbal_* settings for gains and limits.'));
+    }
+    var vus = {};
+    suite = suite.filter(function (l) { return vus[l] ? false : (vus[l] = true); });
+    return { commandes: commandes.concat(suite), alertes: alertes, conseils: conseils, notes: notes };
+  }
+
+  function versCli(r, titre) {
+    return ['# ' + (titre || 'TrueGlide Studio : ports')].concat(r.commandes, ['save']).join('\n');
+  }
+
+  // Fichier drone : formulaire « Mon drone », choix des ports et configuration lue sur la carte (diff all), dans un
+  // seul fichier JSON que Studio rouvre sans la carte.
+  var FORMAT = 'trueglide-drone';
+  function fichierDrone(o) {
+    return JSON.stringify({ format: FORMAT, version: 1, date: o.date || new Date().toISOString(), carte: o.carte || '',
+      drone: o.drone || {}, ports: o.ports || {}, configuration: o.configuration || '' }, null, 2);
+  }
+  // Ouvre un fichier drone (JSON) ou un texte de CLI (diff all / dump all).
+  function ouvrir(texte) {
+    var t = String(texte || '');
+    if (/^\s*\{/.test(t)) {
+      var o;
+      try { o = JSON.parse(t); } catch (err) { throw new Error(tr('Fichier drone illisible (JSON abîmé).', 'Unreadable drone file (damaged JSON).')); }
+      if (o.format !== FORMAT) throw new Error(tr('Ce fichier JSON n\'est pas un fichier drone TrueGlide.', 'This JSON file is not a TrueGlide drone file.'));
+      return { carte: o.carte || '', drone: o.drone || {}, ports: o.ports || {}, configuration: o.configuration || '' };
+    }
+    var carte = (t.match(/^\s*board_name\s+(\S+)/m) || [])[1] || (t.match(/^#\s*\S+\s*\/\s*\S+\s*\((\S+)\)/m) || [])[1] || '';
+    var poles = (t.match(/^\s*set\s+motor_poles\s*=\s*(\d+)/m) || [])[1];
+    var drone = {};
+    if (poles) drone.poles = poles;
+    return { carte: carte.toUpperCase(), drone: drone, ports: {}, configuration: t };
+  }
+
+  var API = { COMPOSANTS: COMPOSANTS, BAUDS_DEFAUT: BAUDS_DEFAUT, composant: composant, depuisMasque: depuisMasque, lireSerial: lireSerial,
+    etatInitial: etatInitial, generer: generer, versCli: versCli, fichierDrone: fichierDrone, ouvrir: ouvrir,
+    langue: function (l) { LANGUE = (l === 'en') ? 'en' : 'fr'; } };
+  if (typeof module !== 'undefined') module.exports = API; else root.TFPorts = API;
+})(this);

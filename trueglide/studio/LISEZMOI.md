@@ -19,6 +19,15 @@ d'Internet ; sans connexion, le tableau des points fonctionne seul.
   l'ancien diff.
 - **Analyser ma configuration** : coller un `diff all` ; il signale les problèmes (DShot bidirectionnel, failsafe,
   protection TrueGlide…) et donne seulement les commandes qui changent.
+- **Ports (UART)** : sans la carte, choisir ce qui est branché sur chaque port (récepteur ExpressLRS/Crossfire, Ghost,
+  SBUS, IBUS ; GPS ; vidéo numérique DJI/Walksnail/HDZero ; VTX SmartAudio ou Tramp ; télémétrie série des ESC ; MSP ;
+  nacelle Caddx GM3). Studio connaît les ports de chacune des 629 cartes et leurs fonctions d'usine (lus dans le
+  firmware), part de la configuration collée s'il y en a une, et ne produit que les commandes qui changent
+  (`serial`, `feature`, `set`). Il signale un port sans la broche nécessaire, deux récepteurs, et le GPS absent du
+  firmware **TRUEGLIDE** des cartes à petite mémoire (F411, F722, G474, H750 : prendre **TRUENAV**).
+- **Fichier drone** : un fichier `.json` garde le formulaire, les ports et la configuration de la carte (`diff all`).
+  On l'enregistre, on le rouvre plus tard sans la carte ; un `diff all` enregistré depuis le Configurator s'ouvre
+  aussi (carte et nombre de pôles repris). Les commandes se collent ensuite dans l'onglet CLI, drone branché.
 - **Navigation GPS** : mission par points (mode AUTOPILOT de Betaflight 2026.6), retour GPS, barrière virtuelle.
   Il produit les commandes `waypoint` exactes du firmware (altitudes converties au-dessus du niveau de la mer).
 
@@ -47,14 +56,17 @@ dépôt officiel `betaflight/firmware-presets` (firmware 2025.12) :
 
 ## Vérifications
 
-- `node --test trueglide/studio/test/studio.test.js` : 36 tests (bornes de tous les réglages pour 2 à 15", 5 styles, 3 châssis ;
+- `node --test trueglide/studio/test/studio.test.js` : 41 tests (bornes de tous les réglages pour 2 à 15", 5 styles, 3 châssis ;
   format des commandes de mission ; analyse d'un diff).
 - `python3 trueglide/studio/tools/valider_sitl.py` (après `make TARGET=SITL`) : colle les commandes générées pour 40
   drones et une mission dans le firmware compilé pour PC. Résultat du 11 octobre 2026 : toutes acceptées, PID calculés
   par le firmware identiques au chiffre près à ceux affichés par Studio, mission relue à l'identique. (Le SITL n'a pas
   de DShot : `dshot_bidir`, `dyn_idle_min_rpm` et `rpm_filter_min_hz` y sont vérifiés seulement contre les bornes du
   code source.)
-- `tools/extract_cartes.py` régénère `js/cartes.js` (les 629 cartes) après `make configs`.
+- `python3 trueglide/studio/tools/valider_sitl.py` vérifie aussi les ports : chaque composant placé sur un port du SITL,
+  commandes acceptées et fonctions relues par la commande `serial` (le SITL n'a ni récepteur série, ni OSD, ni VTX :
+  ces réglages y sont signalés absents ; ils existent dans le firmware des cartes).
+- `tools/extract_cartes.py` régénère `js/cartes.js` (les 629 cartes, avec leurs ports série) après `make configs`.
 - `tools/extract_settings.py` régénère `js/settings_db.js` (les 828 réglages du firmware, y compris les textes et tableaux, bornes et choix) après une
   mise à jour du firmware.
 
