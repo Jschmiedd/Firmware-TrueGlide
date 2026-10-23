@@ -70,7 +70,7 @@ dépôt officiel `betaflight/firmware-presets` (firmware 2025.12) :
   commandes acceptées et fonctions relues par la commande `serial` (le SITL n'a ni récepteur série, ni OSD, ni VTX :
   ces réglages y sont signalés absents ; ils existent dans le firmware des cartes).
 - `tools/extract_cartes.py` régénère `js/cartes.js` (les 629 cartes, avec leurs ports série) après `make configs`.
-- `tools/extract_settings.py` régénère `js/settings_db.js` (les 828 réglages du firmware, y compris les textes et tableaux, bornes et choix) après une
+- `tools/extract_settings.py` régénère `js/settings_db.js` (les 831 réglages du firmware, y compris les textes et tableaux, bornes et choix) après une
   mise à jour du firmware.
 
 ## Format du calculateur (`talktrue-trueglide-studio`, version 1)
