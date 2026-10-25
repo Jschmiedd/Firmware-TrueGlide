@@ -25,6 +25,13 @@ d'Internet ; sans connexion, le tableau des points fonctionne seul.
   firmware), part de la configuration collée s'il y en a une, et ne produit que les commandes qui changent
   (`serial`, `feature`, `set`). Il signale un port sans la broche nécessaire, deux récepteurs, et le GPS absent du
   firmware **TRUEGLIDE** des cartes à petite mémoire (F411, F722, G474, H750 : prendre **TRUENAV**).
+- **Lecture des broches (sécurité)** : Studio connaît les broches d'usine de chaque carte (ports série, moteurs, LED,
+  buzzer, PPM, PINIO, I2C, mesures de tension et de courant…). Si la configuration collée contient des lignes
+  `resource` (un `dump all` les donne toutes, un `diff all` seulement celles changées), il en tient compte : port
+  dont une broche est passée à `NONE`, port ajouté sur d'autres broches, et surtout **broche d'un port utilisé
+  donnée aussi à autre chose** (par exemple le TX du récepteur réaffecté à un moteur : drone non pilotable). Un
+  partage qui existe déjà en usine (PPM et RX d'un port sur certaines cartes) n'est pas signalé. Sans ligne
+  `resource`, rien ne change. Studio n'écrit jamais de commande `resource` : il dit quoi corriger.
 - **Fichier drone** : un fichier `.json` garde le formulaire, les ports et la configuration de la carte (`diff all`).
   On l'enregistre, on le rouvre plus tard sans la carte ; un `diff all` enregistré depuis le Configurator s'ouvre
   aussi (carte et nombre de pôles repris). Les commandes se collent ensuite dans l'onglet CLI, drone branché.
@@ -59,8 +66,9 @@ dépôt officiel `betaflight/firmware-presets` (firmware 2025.12) :
 
 ## Vérifications
 
-- `node --test trueglide/studio/test/studio.test.js` : 43 tests (bornes de tous les réglages pour 2 à 15", 5 styles, 3 châssis ;
-  format des commandes de mission ; analyse d'un diff).
+- `node --test trueglide/studio/test/studio.test.js` : 45 tests (bornes de tous les réglages pour 2 à 15", 5 styles, 3 châssis ;
+  format des commandes de mission ; analyse d'un diff ; broches lues, dont un `dump all` des broches d'usine des 629
+  cartes sans aucune fausse alerte).
 - `python3 trueglide/studio/tools/valider_sitl.py` (après `make TARGET=SITL`) : colle les commandes générées pour 40
   drones et une mission dans le firmware compilé pour PC. Résultat du 11 octobre 2026 : toutes acceptées, PID calculés
   par le firmware identiques au chiffre près à ceux affichés par Studio, mission relue à l'identique. (Le SITL n'a pas

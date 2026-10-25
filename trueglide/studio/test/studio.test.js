@@ -438,6 +438,54 @@ test('ports : contrôles (GPS absent, broche manquante, deux récepteurs, ancien
   assert.equal(P.depuisMasque(5, 'CRSF'), 'autre:5');       // fonctions inconnues gardées telles quelles
 });
 
+test('broches : lignes resource lues, port libéré, broche donnée à un moteur, partage d\'usine non signalé', () => {
+  const c = CARTES.SPEEDYBEEF405MINI;
+  assert.equal(c.b.A09, 'SERIAL_TX 1');
+  assert.equal(c.b.B06, 'MOTOR 1');
+  // sans ligne resource : la carte telle quelle, rien ne change
+  assert.equal(P.carteLue(c, 'serial UART1 64 115200 57600 0 115200'), c);
+  assert.deepEqual(P.lireResources('resource SERIAL_TX 3 NONE\nresource MOTOR 5 C10\nresource LED_STRIP 1 pa8\n# resource x'),
+    { 'SERIAL_TX 3': null, 'MOTOR 5': 'C10', 'LED_STRIP 1': 'A08' });
+  // dump all : toutes les broches d'usine relues, aucune alerte (A03 est partagée PPM / UART2 RX en usine)
+  const dump = Object.entries(c.b).flatMap(([b, noms]) => noms.split('|').map(n => `resource ${n} ${b}`)).join('\n');
+  const u = P.carteLue(c, dump);
+  assert.deepEqual(u.p, c.p);
+  assert.deepEqual(u.conflits, []);
+  // UART3 TX donnée au moteur 5 (C10) : le port garde ses broches mais la broche TX est partagée
+  const m = P.carteLue(c, 'resource MOTOR 5 C10');
+  assert.deepEqual(m.conflits, [{ port: 'UART3', lettre: 'T', broche: 'C10', autres: ['MOTOR 5'] }]);
+  const rx = P.generer(m, { UART3: 'rx_crsf', UART2: 'aucun' }, P.etatInitial(m, ''), {});
+  assert.ok(rx.alertes.some(a => /UART3 : la broche TX \(C10\) sert aussi à MOTOR 5/.test(a)), rx.alertes.join(' / '));
+  // SBUS n'utilise que le RX : le partage du TX n'est pas une alerte
+  assert.ok(!P.generer(m, { UART3: 'rx_sbus', UART2: 'aucun' }, P.etatInitial(m, ''), {}).alertes.some(a => /sert aussi/.test(a)));
+  // port non utilisé : pas d'alerte
+  assert.ok(!P.generer(m, {}, P.etatInitial(m, ''), {}).alertes.some(a => /sert aussi/.test(a)));
+  // broche libérée (NONE) : le port n'a plus de TX
+  const l = P.carteLue(c, 'resource SERIAL_TX 1 NONE');
+  assert.equal(l.p.UART1, 'R');
+  assert.ok(P.generer(l, { UART1: 'vtx_hd' }, P.etatInitial(l, ''), {}).alertes.some(a => /UART1 n'a pas de broche TX/.test(a)));
+  // port ajouté par resource, et port déplacé sur la broche d'un autre port
+  const a = P.carteLue(c, 'resource SERIAL_TX 6 A00');
+  assert.deepEqual(a.conflits.map(k => k.port).sort(), ['UART4', 'UART6']);
+  const n = P.carteLue({ mcu: 'STM32H743', p: {}, b: {} }, 'resource SERIAL_TX 7 E08\nresource SERIAL_RX 7 E07');
+  assert.deepEqual(n.p, { UART7: 'TR' });
+});
+
+test('chaque carte : broches d\'usine au format du CLI et cohérentes avec ses ports', () => {
+  for (const [nom, c] of Object.entries(CARTES)) {
+    for (const [b, noms] of Object.entries(c.b || {})) {
+      assert.match(b, /^[A-K]\d\d$/, nom);
+      for (const n of noms.split('|')) assert.match(n, /^[A-Z0-9_]+ \d+$/, nom);
+    }
+    // un dump all des broches d'usine ne change ni les ports ni ne donne d'alerte
+    if (!c.b) continue;
+    const dump = Object.entries(c.b).flatMap(([b, noms]) => noms.split('|').map(n => `resource ${n} ${b}`)).join('\n');
+    const u = P.carteLue(c, dump);
+    assert.deepEqual(u.conflits, [], nom);
+    assert.deepEqual(u.p, c.p || {}, nom);
+  }
+});
+
 test('fichier drone : enregistré puis relu à l\'identique ; un diff all donne la carte', () => {
   const f = P.fichierDrone({ carte: 'SPEEDYBEEF405MINI', drone: { pouces: '5' }, ports: { UART3: 'gps' }, configuration: 'diff', date: 'x' });
   assert.deepEqual(P.ouvrir(f), { carte: 'SPEEDYBEEF405MINI', drone: { pouces: '5' }, ports: { UART3: 'gps' }, configuration: 'diff', messages: [] });

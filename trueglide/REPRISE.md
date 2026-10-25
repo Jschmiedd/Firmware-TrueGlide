@@ -107,3 +107,9 @@ En attente de Johann :
     Publié sur /test/ (qui redevient une page d'essai, liste de firmwares officielle) ; messages ready / disconnected
     vérifiés en ligne ; pas encore essayé avec une vraie carte ni un vrai flash d'ESC.
   - Analyse des journaux : fichier de retour `talktrue-trueglide-retour` v2 (centrage) pour le calculateur.
+- 25 octobre 2026, demande de Johann (« la lecture des broches c'est un point sécurité ? si oui intègre-le ») :
+  - Studio lit les lignes `resource` d'un dump all / diff all : broches d'usine des 629 cartes dans `cartes.js`
+    (champ `b`, `tools/extract_cartes.py`), `TFPorts.lireResources` et `TFPorts.carteLue` ; alertes « broche
+    partagée » et « pas de broche » dans l'onglet Ports. 45 tests ; essayé dans la page (Chromium). Pas mis en
+    ligne : la publication de Studio attend que les produits soient bien séparés (XPro / TrueGlide).
+

@@ -438,16 +438,17 @@
       $('info-ports').textContent = k ? 'Les ports de cette carte ne sont pas décrits dans le firmware.' : 'Choisir d\'abord la carte dans l\'onglet « Réglage du drone ».';
       return;
     }
-    var ini = TFPorts.etatInitial(k.c, $('diff').value);
-    $('info-ports').textContent = k.nom + ' : ' + Object.keys(k.c.p).length + ' ports. État actuel lu ' +
+    var c = TFPorts.carteLue(k.c, $('diff').value), ini = TFPorts.etatInitial(c, $('diff').value);
+    $('info-ports').textContent = k.nom + ' : ' + Object.keys(c.p).length + ' ports. État actuel lu ' +
       (/^\s*serial\s/m.test($('diff').value) ? 'dans la configuration collée.' : 'dans les réglages d\'usine de la carte (pas de configuration collée).') +
-      (k.c.rxspi ? ' Récepteur intégré : ' + k.c.rxspi + '.' : '');
-    corps.innerHTML = Object.keys(k.c.p).map(function (port) {
+      (c.ressourcesLues ? ' Broches lues dans la configuration collée (lignes « resource »).' : ' Broches : celles d\'usine de la carte ; coller un « dump all » pour vérifier les broches réelles.') +
+      (c.rxspi ? ' Récepteur intégré : ' + c.rxspi + '.' : '');
+    corps.innerHTML = Object.keys(c.p).map(function (port) {
       var actuel = ini[port].id, choisi = choixPorts[port] || actuel;
       var options = TFPorts.COMPOSANTS.map(function (c) { return c.id; });
       if (options.indexOf(actuel) < 0) options.unshift(actuel);
       if (options.indexOf(choisi) < 0) choisi = actuel;
-      var broches = k.c.p[port] === 'TR' ? 'TX et RX' : (k.c.p[port] === 'T' ? 'TX seul' : 'RX seul');
+      var broches = c.p[port] === 'TR' ? 'TX et RX' : (c.p[port] === 'T' ? 'TX seul' : (c.p[port] === 'R' ? 'RX seul' : 'aucune (broches données à autre chose)'));
       return '<tr><td>' + port + '</td><td>' + broches + '</td><td>' + echap(nomComposant(actuel)) + '</td><td><select data-port="' + port + '">' +
         options.map(function (id) { return '<option value="' + id + '"' + (id === choisi ? ' selected' : '') + '>' + echap(nomComposant(id)) + '</option>'; }).join('') +
         '</select></td></tr>';
@@ -459,8 +460,8 @@
   });
   $('generer-ports').addEventListener('click', function () {
     var k = carteChoisie(); if (!k) { dessinerPorts(); return; }
-    var ini = TFPorts.etatInitial(k.c, $('diff').value);
-    var r = TFPorts.generer(k.c, choixPorts, ini, { modele: $('modele').value });
+    var c = TFPorts.carteLue(k.c, $('diff').value), ini = TFPorts.etatInitial(c, $('diff').value);
+    var r = TFPorts.generer(c, choixPorts, ini, { modele: $('modele').value });
     var h = '<div class="carte"><h2>Commandes des ports</h2>' + messages(r.alertes, 'alerte') + messages(r.conseils, 'conseil') + messages(r.notes, 'note');
     h += r.commandes.length ? blocCli(TFPorts.versCli(r, 'TrueGlide Studio : ports ' + k.nom), 'trueglide_ports.txt') :
       '<div class="msg ok">Aucun changement : les ports correspondent déjà à la configuration actuelle.</div>';

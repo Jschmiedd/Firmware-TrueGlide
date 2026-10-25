@@ -62,6 +62,65 @@
     return { ports: ports, fournisseurRx: fournisseur };
   }
 
+  // Lignes « resource » d'un dump all ou d'un diff all : { 'SERIAL_TX 1': 'A09', 'MOTOR 5': null (NONE), ... }.
+  function lireResources(texte) {
+    var r = {};
+    String(texte || '').split(/\r?\n/).forEach(function (l) {
+      var m = l.trim().match(/^resource\s+(\w+)\s+(\d+)\s+(\S+)/i);
+      if (!m) return;
+      var b = m[3].toUpperCase().match(/^P?([A-K])(\d{1,2})$/);
+      if (b || m[3].toUpperCase() === 'NONE') r[m[1].toUpperCase() + ' ' + Number(m[2])] = b ? b[1] + ('0' + b[2]).slice(-2) : null;
+    });
+    return r;
+  }
+  // 'SERIAL_TX 2' -> ['UART2', 'T'] ; 'LPUART_RX 1' -> ['LPUART1', 'R'] ; autre chose -> null
+  function portDeRessource(nom) {
+    var m = nom.match(/^(SERIAL|LPUART)_(TX|RX) (\d+)$/);
+    return m ? [(m[1] === 'SERIAL' ? 'UART' : 'LPUART') + m[3], m[2][0]] : null;
+  }
+
+  // Carte telle que la configuration collée la décrit : broches d'usine (carte.b) remplacées par les lignes
+  // « resource ». Rend une copie de la carte avec les ports réels (p) et les broches d'un port série données aussi à
+  // autre chose (conflits) ; une broche déjà partagée en usine n'est pas signalée. Sans ligne « resource », la carte
+  // est rendue telle quelle.
+  function carteLue(carte, texteConfig) {
+    var lu = lireResources(texteConfig);
+    if (!carte || !Object.keys(lu).length) return carte;
+    var copie = {}, usine = {}, actuel = {};
+    Object.keys(carte).forEach(function (k) { copie[k] = carte[k]; });
+    Object.keys(carte.b || {}).forEach(function (b) {
+      carte.b[b].split('|').forEach(function (nom) { usine[nom] = b; actuel[nom] = b; });
+    });
+    var p = {};
+    Object.keys(carte.p || {}).forEach(function (port) { p[port] = carte.p[port]; });
+    Object.keys(lu).forEach(function (nom) {
+      if (lu[nom]) actuel[nom] = lu[nom]; else delete actuel[nom];
+      var pl = portDeRessource(nom);
+      if (!pl) return;
+      var lettres = (p[pl[0]] || '').replace(pl[1], '') + (lu[nom] ? pl[1] : '');
+      p[pl[0]] = lettres.indexOf('T') >= 0 ? (lettres.indexOf('R') >= 0 ? 'TR' : 'T') : (lettres.indexOf('R') >= 0 ? 'R' : '');
+    });
+    // un port qui n'avait pas de broche et n'en a toujours pas n'est pas montré
+    Object.keys(p).forEach(function (port) { if (!p[port] && !(carte.p || {})[port]) delete p[port]; });
+    copie.p = p;
+    var parBroche = {};
+    Object.keys(actuel).forEach(function (nom) { (parBroche[actuel[nom]] = parBroche[actuel[nom]] || []).push(nom); });
+    copie.conflits = [];
+    Object.keys(parBroche).forEach(function (b) {
+      var noms = parBroche[b];
+      if (noms.length < 2) return;
+      noms.forEach(function (nom) {
+        var pl = portDeRessource(nom);
+        if (!pl || !p[pl[0]]) return;
+        // partage nouveau : l'une des deux fonctions n'était pas sur cette broche en usine
+        var autres = noms.filter(function (n) { return n !== nom && (usine[n] !== b || usine[nom] !== b); });
+        if (autres.length) copie.conflits.push({ port: pl[0], lettre: pl[1], broche: b, autres: autres });
+      });
+    });
+    copie.ressourcesLues = true;
+    return copie;
+  }
+
   // État de départ des ports d'une carte : fonctions par défaut de la carte, puis celles de la configuration lue.
   function etatInitial(carte, texteConfig) {
     var lu = lireSerial(texteConfig), etat = {};
@@ -90,8 +149,17 @@
       var c = composant(id), broches = carte.p[port];
       if (c && c.broches) {
         c.broches.split('').forEach(function (b) {
-          if (broches.indexOf(b) < 0) alertes.push(port + tr(' n\'a pas de broche ' + (b === 'T' ? 'TX' : 'RX') + ' sur cette carte : « ' + c.nom + ' » en a besoin.',
-            ' has no ' + (b === 'T' ? 'TX' : 'RX') + ' pin on this board: "' + c.nom + '" needs it.'));
+          if (broches.indexOf(b) < 0) alertes.push(port + tr(' n\'a pas de broche ' + (b === 'T' ? 'TX' : 'RX') + (carte.ressourcesLues ? ' dans la configuration lue' : ' sur cette carte') + ' : « ' + c.nom + ' » en a besoin.',
+            ' has no ' + (b === 'T' ? 'TX' : 'RX') + ' pin ' + (carte.ressourcesLues ? 'in the loaded configuration' : 'on this board') + ': "' + c.nom + '" needs it.'));
+        });
+        // broche du port donnée aussi à autre chose dans la configuration lue (carteLue) : une seule fonction la prend
+        (carte.conflits || []).forEach(function (k) {
+          if (k.port !== port || c.broches.indexOf(k.lettre) < 0) return;
+          var fil = k.lettre === 'T' ? 'TX' : 'RX';
+          alertes.push(tr(port + ' : la broche ' + fil + ' (' + k.broche + ') sert aussi à ' + k.autres.join(', ') + ' dans la configuration lue. « ' + c.nom +
+            ' » ne marchera pas de façon sûre : rendre la broche au port (commande resource) ou choisir un autre port.',
+            port + ': the ' + fil + ' pin (' + k.broche + ') is also used by ' + k.autres.join(', ') + ' in the loaded configuration. "' + c.nom +
+            '" will not work reliably: give the pin back to the port (resource command) or choose another port.'));
         });
       }
       var masque = masqueDe(id), avant = initial[port] ? initial[port].masque : 0;
@@ -227,6 +295,7 @@
   }
 
   var API = { COMPOSANTS: COMPOSANTS, BAUDS_DEFAUT: BAUDS_DEFAUT, FORMAT_CALCULATEUR: FORMAT_CALCULATEUR, composant: composant, depuisMasque: depuisMasque, lireSerial: lireSerial,
+    lireResources: lireResources, carteLue: carteLue,
     etatInitial: etatInitial, generer: generer, versCli: versCli, fichierDrone: fichierDrone, ouvrir: ouvrir,
     langue: function (l) { LANGUE = (l === 'en') ? 'en' : 'fr'; } };
   if (typeof module !== 'undefined') module.exports = API; else root.TFPorts = API;
