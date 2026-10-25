@@ -117,3 +117,8 @@ En attente de Johann :
     essai sur https://jschmiedd.github.io/TrueGlide-Configurator/studio/ (4c8916b, bandeau « version d'essai »).
     Site : section « L'écosystème TrueGlide » en bas de l'accueil, XPRO compris (nom et une ligne), batterie basse et
     onglet ESC marqués en essai, page Moteurs « Régler ou flasher les ESC » (essai-site 2c398b9, gh-pages d01cb1e).
+  - Onglet Studio dans TrueGlide Configurator (essai-onglets d21ff26, publié sur /test/) : iframe de /studio/, avec
+    ou sans carte ; carte branchée, « Lire la configuration de la carte » lit le diff all (CLI sur MSP) et le donne à
+    Studio (message postMessage, rien n'est écrit dans la carte). Essayé en ligne avec le simulateur : 49 lignes reçues.
+  - Studio (cc25cf5) : formulaire vide au départ (exemples en grisé), calcul refusé tant que les 5 champs du drone
+    ne sont pas remplis, bouton « Nouveau drone ». Accueil du site : schéma de l'écosystème repris du site XRIG.
