@@ -32,8 +32,9 @@ d'Internet ; sans connexion, le tableau des points fonctionne seul.
   donnée aussi à autre chose** (par exemple le TX du récepteur réaffecté à un moteur : drone non pilotable). Un
   partage qui existe déjà en usine (PPM et RX d'un port sur certaines cartes) n'est pas signalé. Sans ligne
   `resource`, rien ne change. Studio n'écrit jamais de commande `resource` : il dit quoi corriger.
-- **Carte en USB (Chrome ou Edge sur ordinateur)** : « Lire la carte en USB » lit le `diff all` de la carte et remplit
-  tout (la carte redémarre ensuite sans rien enregistrer). Chaque bloc de commandes a un bouton « Envoyer à la carte
+- **Carte en USB (Chrome ou Edge sur ordinateur)** : le bouton « Connecter » en haut ouvre la carte (mode CLI : décollage
+  impossible tant qu'elle est connectée) et lit son `diff all`, qui remplit tout ; « Lire la carte » relit ;
+  « Déconnecter » la redémarre sans rien enregistrer. Chaque bloc de commandes a un bouton « Envoyer à la carte
   (USB) » : après confirmation, les commandes partent une par une ; à la première erreur, rien n'est enregistré
   (`exit`), sinon `save`. Jamais de `defaults`. TrueGlide Configurator doit être déconnecté (un seul logiciel sur le
   port). Dans l'onglet Studio du Configurator, ces boutons n'apparaissent pas : le Configurator lit la carte lui-même.
