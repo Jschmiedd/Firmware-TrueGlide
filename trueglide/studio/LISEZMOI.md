@@ -32,6 +32,11 @@ d'Internet ; sans connexion, le tableau des points fonctionne seul.
   donnée aussi à autre chose** (par exemple le TX du récepteur réaffecté à un moteur : drone non pilotable). Un
   partage qui existe déjà en usine (PPM et RX d'un port sur certaines cartes) n'est pas signalé. Sans ligne
   `resource`, rien ne change. Studio n'écrit jamais de commande `resource` : il dit quoi corriger.
+- **Carte en USB (Chrome ou Edge sur ordinateur)** : « Lire la carte en USB » lit le `diff all` de la carte et remplit
+  tout (la carte redémarre ensuite sans rien enregistrer). Chaque bloc de commandes a un bouton « Envoyer à la carte
+  (USB) » : après confirmation, les commandes partent une par une ; à la première erreur, rien n'est enregistré
+  (`exit`), sinon `save`. Jamais de `defaults`. TrueGlide Configurator doit être déconnecté (un seul logiciel sur le
+  port). Dans l'onglet Studio du Configurator, ces boutons n'apparaissent pas : le Configurator lit la carte lui-même.
 - **Fichier drone** : un fichier `.json` garde le formulaire, les ports et la configuration de la carte (`diff all`).
   On l'enregistre, on le rouvre plus tard sans la carte ; un `diff all` enregistré depuis le Configurator s'ouvre
   aussi (carte et nombre de pôles repris). Les commandes se collent ensuite dans l'onglet CLI, drone branché.
@@ -66,7 +71,7 @@ dépôt officiel `betaflight/firmware-presets` (firmware 2025.12) :
 
 ## Vérifications
 
-- `node --test trueglide/studio/test/studio.test.js` : 45 tests (bornes de tous les réglages pour 2 à 15", 5 styles, 3 châssis ;
+- `node --test trueglide/studio/test/studio.test.js` : 48 tests (bornes de tous les réglages pour 2 à 15", 5 styles, 3 châssis ;
   format des commandes de mission ; analyse d'un diff ; broches lues, dont un `dump all` des broches d'usine des 629
   cartes sans aucune fausse alerte).
 - `python3 trueglide/studio/tools/valider_sitl.py` (après `make TARGET=SITL`) : colle les commandes générées pour 40

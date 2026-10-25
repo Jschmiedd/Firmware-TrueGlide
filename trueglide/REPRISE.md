@@ -122,3 +122,9 @@ En attente de Johann :
     Studio (message postMessage, rien n'est écrit dans la carte). Essayé en ligne avec le simulateur : 49 lignes reçues.
   - Studio (cc25cf5) : formulaire vide au départ (exemples en grisé), calcul refusé tant que les 5 champs du drone
     ne sont pas remplis, bouton « Nouveau drone ». Accueil du site : schéma de l'écosystème repris du site XRIG.
+  - Studio en USB (Web Serial, js/usb.js) à la demande de Johann (« tout ce qui est fait dans Studio doit pouvoir se
+    faire avec le navigateur ») : lecture du diff all puis exit (aucun enregistrement), envoi des commandes après
+    confirmation (arrêt et exit à la première erreur, sinon save). Essayé avec le firmware SITL par un faux port série
+    relié au CLI : lecture 48 lignes, envoi enregistré et relu, erreur volontaire = rien enregistré. Réglage complet :
+    arrêt sur dshot_bidir (absent du SITL seulement). Pas encore essayé sur une vraie carte.
+

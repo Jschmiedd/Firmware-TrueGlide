@@ -537,3 +537,73 @@ test('réglage avec les données du calculateur : PID inchangés, gaz de station
   const x8 = T.recommander({ ...e, chassis: 'x8', masse: 1300, base: 'calcul', calcul: { pousseeG: 1450 } });
   assert.equal(x8.physique.rapportCalcule, Math.round(8 * 0.8 * 1450 / 1300 * 10) / 10);
 });
+
+// ---- carte en USB (Web Serial) : faux port qui imite le CLI du firmware ----
+const U = require('../js/usb.js');
+function fauxPort(reponses) {
+  const recu = [];
+  let pousser = null, ferme = false;
+  const sortie = [];
+  function emettre(t) { sortie.push(new TextEncoder().encode(t)); if (pousser) { const p = pousser; pousser = null; p(); } }
+  let ligne = '', cli = false;
+  return {
+    recu,
+    async open() {},
+    async close() { ferme = true; if (pousser) pousser(); },
+    readable: { getReader: () => ({
+      async read() {
+        while (!sortie.length) { if (ferme) return { done: true }; await new Promise(r => { pousser = r; }); }
+        return { value: sortie.shift(), done: false };
+      },
+      async cancel() { ferme = true; if (pousser) pousser(); },
+      releaseLock() {}
+    }) },
+    writable: { getWriter: () => ({
+      async write(octets) {
+        for (const ch of new TextDecoder().decode(octets)) {
+          if (!cli && ch === '#') { cli = true; emettre('\r\nEntering CLI Mode, type \'exit\' to reboot, or \'help\'\r\n\r\n# '); continue; }
+          if (ch === '\n') continue;
+          if (ch !== '\r') { ligne += ch; emettre(ch); continue; }
+          const c = ligne.trim(); ligne = ''; recu.push(c);
+          if (c === 'exit' || c === 'save') { emettre('\r\n# ' + (c === 'save' ? 'saving' : 'leaving CLI mode, unsaved changes lost') + '\r\n'); ferme = true; continue; }
+          emettre('\r\n' + (c ? (reponses(c) || '') : '') + '\r\n# ');
+        }
+      },
+      releaseLock() {}
+    }) }
+  };
+}
+const DIFF = '# version\r\n# Betaflight / STM32F405 (S405) 2026.6.2\r\n\r\n# master\r\nboard_name SPEEDYBEEF405MINI\r\nresource MOTOR 5 C10\r\nset motor_poles = 14';
+
+test('USB : lecture du diff all, la carte redémarre sans enregistrer', async () => {
+  const port = fauxPort(c => c === 'diff all' ? DIFF : '');
+  const texte = await U.lireConfiguration(null, port);
+  assert.match(texte, /^# version\n/);
+  assert.match(texte, /set motor_poles = 14$/);
+  assert.ok(!/diff all/.test(texte));
+  assert.deepEqual(port.recu, ['', 'diff all', 'exit']);
+  const o = P.ouvrir(texte);
+  assert.equal(o.carte, 'SPEEDYBEEF405MINI');
+  assert.equal(o.drone.poles, '14');
+});
+
+test('USB : envoi des commandes puis save ; à la première erreur, exit sans save', async () => {
+  const ok = fauxPort(c => c.startsWith('set ') ? c.slice(4).replace(' = ', ' set to ') : '');
+  const r = await U.envoyerCommandes(null, '# TrueGlide Studio\nserial UART3 64 115200 57600 0 115200\nset motor_poles = 14\n\nsave', ok);
+  assert.deepEqual(r, { envoyees: 2, total: 2, erreur: null });
+  assert.deepEqual(ok.recu, ['', 'serial UART3 64 115200 57600 0 115200', 'set motor_poles = 14', 'save']);
+  const ko = fauxPort(c => c === 'set inconnu = 1' ? '###ERROR IN set: INVALID NAME###' : '');
+  const r2 = await U.envoyerCommandes(null, 'set motor_poles = 14\nset inconnu = 1\nset gyro_lpf1_static_hz = 250\nsave', ko);
+  assert.equal(r2.envoyees, 1);
+  assert.equal(r2.erreur.ligne, 'set inconnu = 1');
+  assert.deepEqual(ko.recu, ['', 'set motor_poles = 14', 'set inconnu = 1', 'exit']);   // jamais de save
+  assert.deepEqual(U.aEnvoyer('defaults\n# x\nsave\nexit\nset a = 1'), ['set a = 1']);    // jamais d'effacement
+  await assert.rejects(U.envoyerCommandes(null, '# rien\nsave', fauxPort(() => '')), /Aucune commande/);
+});
+
+test('USB : pas de bouton dans TrueGlide Configurator (Studio dans un cadre) ni sans Web Serial', () => {
+  const w = {}; w.parent = w;
+  assert.equal(U.disponible({ serial: {} }, w), true);
+  assert.equal(U.disponible({ serial: {} }, { parent: {} }), false);
+  assert.equal(U.disponible({}, w), false);
+});
