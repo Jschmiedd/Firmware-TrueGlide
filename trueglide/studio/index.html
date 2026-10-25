@@ -496,6 +496,12 @@
     lecteur.onload = function () {
       var o;
       try { o = TFPorts.ouvrir(lecteur.result); } catch (err) { $('info-drone').innerHTML = messages([err.message], 'alerte'); return; }
+      appliquer(o, f.name + ' ouvert');
+    };
+    lecteur.readAsText(f);
+  });
+  // Remplit le formulaire avec un fichier drone, un fichier du calculateur ou un diff all (TFPorts.ouvrir)
+  function appliquer(o, origine) {
       Object.keys(o.drone).forEach(function (k) { if (CHAMPS.indexOf(k) >= 0) { if ($(k).type === 'checkbox') $(k).checked = !!o.drone[k]; else $(k).value = o.drone[k]; } });
       if (o.carte) $('carte').value = o.carte;
       if (o.configuration) $('diff').value = o.configuration;
@@ -503,13 +509,27 @@
       memoriser();
       majCarteEsc(); majSpeeder(); dessinerPorts();
       var k = carteChoisie();
-      $('info-drone').innerHTML = messages([f.name + ' ouvert : carte ' + (k ? k.nom : (o.carte || 'non trouvée')) +
+      $('info-drone').innerHTML = messages([origine + ' : carte ' + (k ? k.nom : (o.carte || 'non trouvée')) +
         (o.configuration ? ', configuration de ' + o.configuration.split(/\r?\n/).length + ' lignes (onglet « Analyser ma configuration »)' : '') + '.'], k ? 'ok' : 'conseil') +
         (k ? '' : messages(['Carte non reconnue : la choisir dans la liste « Carte de vol (FC) ».'], 'conseil')) +
         (o.messages || []).map(function (m) { return messages([m.texte], m.niveau); }).join('');
-    };
-    lecteur.readAsText(f);
-  });
+  }
+
+  // Studio dans l'onglet Studio de TrueGlide Configurator : le logiciel lit le « diff all » de la carte branchée et
+  // l'envoie ici ({ source: 'trueglide-configurator', command: 'configuration', texte }). Seulement depuis la page qui
+  // contient Studio ; le texte remplit le formulaire comme un diff all ouvert à la main, rien n'est envoyé à la carte.
+  if (window.parent !== window) {
+    window.addEventListener('message', function (ev) {
+      var d = ev.data;
+      if (ev.source !== window.parent || !d || d.source !== 'trueglide-configurator' || d.command !== 'configuration' || typeof d.texte !== 'string') return;
+      var o;
+      try { o = TFPorts.ouvrir(d.texte); } catch (err) { $('info-drone').innerHTML = messages([err.message], 'alerte'); return; }
+      appliquer(o, 'Configuration lue sur la carte branchée');
+      document.querySelector('nav.onglets button[data-page="reglage"]').click();
+      $('info-drone').scrollIntoView({ block: 'center' });
+    });
+    window.parent.postMessage({ source: 'trueglide-studio', event: 'ready' }, '*');
+  }
 
   // ---- navigation ----
   var points = [], carte = null, couche = null;
