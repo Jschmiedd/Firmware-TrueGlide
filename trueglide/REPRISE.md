@@ -128,3 +128,10 @@ En attente de Johann :
     relié au CLI : lecture 48 lignes, envoi enregistré et relu, erreur volontaire = rien enregistré. Réglage complet :
     arrêt sur dshot_bidir (absent du SITL seulement). Pas encore essayé sur une vraie carte.
 
+- 25 octobre 2026 (soir), demande de Johann : régler la carte hors ligne avec les mêmes onglets que le Configurator.
+  - Solution A (Johann) : « carte hors ligne » dans TrueGlide Configurator (essai-onglets 2d88b8b, /test/ ef98b0f).
+    Récolte carte branchée (le logiciel ouvre chaque onglet, garde les réponses), carte hors ligne dans la liste des
+    ports (mêmes onglets), écritures relues comme le firmware (règles lues dans msp.c), envoi des changements préparés
+    à la carte récoltée seulement. SITL : 5 changements hors ligne envoyés puis récoltés à nouveau, réponses identiques.
+    Limites : profils non changeables hors ligne, Plan de vol non récolté, OSD / LED / servos / tables VTX pas encore
+    vérifiés au SITL ; pas encore essayé sur une vraie carte.
