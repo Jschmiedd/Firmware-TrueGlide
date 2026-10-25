@@ -113,3 +113,7 @@ En attente de Johann :
     partagée » et « pas de broche » dans l'onglet Ports. 45 tests ; essayé dans la page (Chromium). Pas mis en
     ligne : la publication de Studio attend que les produits soient bien séparés (XPro / TrueGlide).
 
+  - Mise en ligne demandée par Johann (« prépare pour publier, je veux tester Studio sur la vraie page ») : Studio en
+    essai sur https://jschmiedd.github.io/TrueGlide-Configurator/studio/ (4c8916b, bandeau « version d'essai »).
+    Site : section « L'écosystème TrueGlide » en bas de l'accueil, XPRO compris (nom et une ligne), batterie basse et
+    onglet ESC marqués en essai, page Moteurs « Régler ou flasher les ESC » (essai-site 2c398b9, gh-pages d01cb1e).
