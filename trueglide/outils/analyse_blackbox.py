@@ -265,7 +265,8 @@ def segments_centrage(t, arme, rc, gaz, rpm, sortie, vbat, lacet_dps, acc, cellu
     res = []
     for s in range(0, len(t) - n, n):
         sl = slice(s, s + n)
-        if not ok[sl].all() or gaz[sl].std() > CENTRAGE['gaz_ecart']:
+        # en vol seulement : gaz levés (drone armé posé au ralenti écarté), comme pour les mesures du stationnaire
+        if not ok[sl].all() or gaz[sl].mean() < 1100 or gaz[sl].std() > CENTRAGE['gaz_ecart']:
             continue
         a = np.abs(rc[sl])
         if a.mean(axis=0).max() > CENTRAGE['manche_moyen'] or a.max() > CENTRAGE['manche_max']:

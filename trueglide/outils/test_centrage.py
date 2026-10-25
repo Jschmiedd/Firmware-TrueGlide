@@ -5,7 +5,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import analyse_blackbox as ab  # noqa: E402
 
 
-def vol(duree_a=15.0, duree_b=15.0, vent=0.0, incl=0.0, coup=False, volts=15.6):
+def vol(duree_a=15.0, duree_b=15.0, vent=0.0, incl=0.0, coup=False, volts=15.6, gaz=1300.0):
     """Stationnaire à 1 kHz : cap A puis demi-tour (2 s à 90 °/s) puis cap B. Le centre de gravité est en avant :
     les moteurs avant tournent 3 % plus vite. Le vent ajoute +vent % aux moteurs face au vent (s'inverse avec le cap)."""
     dt = 0.001
@@ -25,7 +25,7 @@ def vol(duree_a=15.0, duree_b=15.0, vent=0.0, incl=0.0, coup=False, volts=15.6):
         rc[int(5 / dt):int(5.2 / dt), 1] = 120
     acc = np.tile([np.sin(np.radians(incl)) * 2048, 0, np.cos(np.radians(incl)) * 2048], (n, 1))
     arme = np.ones(n, bool); arme[-10:] = False
-    return ab.segments_centrage(t, arme, rc, np.full(n, 1300.0), rpm, np.full((n, 4), 30.0), np.full(n, volts),
+    return ab.segments_centrage(t, arme, rc, np.full(n, gaz), rpm, np.full((n, 4), 30.0), np.full(n, volts),
                                 lacet, acc, 4, np.zeros(n, bool))
 
 
@@ -46,6 +46,9 @@ class Centrage(unittest.TestCase):
         self.assertTrue(any('inclinaison' in r for r in ab.bloc_centrage(vol(incl=5), ab.POSITIONS_QUADX, 4)['refus']))
         self.assertEqual(ab.bloc_centrage(vol(volts=14.0), ab.POSITIONS_QUADX, 4)['refus'][0], 'aucune fenêtre de stationnaire calme')
         self.assertIsNone(ab.bloc_centrage(vol(), None, 4)['protocole'])
+
+    def test_drone_pose_au_ralenti_ecarte(self):
+        self.assertEqual(vol(gaz=1000.0), [])
 
     def test_coup_de_manche_ecarte(self):
         self.assertLess(len(vol(coup=True)), len(vol()))
