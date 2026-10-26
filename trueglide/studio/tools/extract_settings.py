@@ -4,12 +4,20 @@
 Source : src/main/cli/settings.c (bornes, tables de choix) et, si fourni, la sortie de la commande CLI
 `get` d'un SITL (valeurs par défaut). Usage, depuis la racine du dépôt :
     python3 trueglide/studio/tools/extract_settings.py [sortie_get_sitl.txt]
+Base d'un autre firmware (Betaflight), avec le `get` d'une carte d'usine de ce firmware :
+    python3 trueglide/studio/tools/extract_settings.py get.txt --racine ../betaflight --firmware betaflight
 """
-import json, re, sys
+import argparse, json, re
 from pathlib import Path
 
-RACINE = Path(__file__).resolve().parents[3]
+ARGS = argparse.ArgumentParser()
+ARGS.add_argument('get', nargs='?')
+ARGS.add_argument('--racine', default=str(Path(__file__).resolve().parents[3]))
+ARGS.add_argument('--firmware', default='trueglide', choices=['trueglide', 'betaflight'])
+ARGS = ARGS.parse_args()
+RACINE = Path(ARGS.racine).resolve()
 SRC = RACINE / 'src' / 'main'
+STUDIO = Path(__file__).resolve().parents[1]
 
 
 def defines(fichiers):
@@ -68,9 +76,9 @@ def main():
             e['array'] = True
         elif kind == 'string':
             e['string'] = True
-    if len(sys.argv) > 1:   # valeurs par défaut lues sur un SITL
+    if ARGS.get:   # valeurs par défaut lues sur un SITL (ou une carte d'usine)
         cur = None
-        for l in Path(sys.argv[1]).read_text(errors='replace').splitlines():
+        for l in Path(ARGS.get).read_text(errors='replace').splitlines():
             mm = re.match(r'^([a-z0-9_]+) = (.*)$', l)
             if mm:
                 cur = mm.group(1) if mm.group(1) in db else None
@@ -78,11 +86,16 @@ def main():
                     db[cur]['default'] = mm.group(2).strip()
             elif cur and l.startswith('Allowed values:'):
                 db[cur]['values'] = [v.strip() for v in l.split(':', 1)[1].split(',')]
-    sortie = RACINE / 'trueglide' / 'studio' / 'js' / 'settings_db.js'
-    sortie.write_text('// Généré par tools/extract_settings.py depuis src/main/cli/settings.c : ne pas modifier à la main.\n'
+    if ARGS.firmware == 'betaflight':
+        sortie, variable = STUDIO / 'js' / 'settings_db_betaflight.js', 'TF_SETTINGS_BETAFLIGHT'
+        entete = '// Réglages de Betaflight (même extraction, sur ses sources) : ne pas modifier à la main.\n'
+    else:
+        sortie, variable = STUDIO / 'js' / 'settings_db.js', 'TF_SETTINGS'
+        entete = ''
+    sortie.write_text('// Généré par tools/extract_settings.py depuis src/main/cli/settings.c : ne pas modifier à la main.\n' + entete +
                       '// TrueGlide - Copyright (C) 2026 TalkTrueFPV. Derived from Betaflight.\n// Free software under the GPL-3.0 license, WITHOUT ANY WARRANTY; see the LICENSE file.\n'
                       '(function (root) {\n  var DB = ' + json.dumps(db, ensure_ascii=False, sort_keys=True) + ';\n'
-                      '  if (typeof module !== "undefined") module.exports = DB; else root.TF_SETTINGS = DB;\n'
+                      '  if (typeof module !== "undefined") module.exports = DB; else root.' + variable + ' = DB;\n'
                       '})(this);\n')
     print(len(db), 'réglages ->', sortie)
 

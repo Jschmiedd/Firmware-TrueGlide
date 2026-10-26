@@ -612,3 +612,35 @@ test('USB : pas de bouton dans TrueGlide Configurator (Studio dans un cadre) ni 
   assert.equal(U.disponible({ serial: {} }, { parent: {} }), false);
   assert.equal(U.disponible({}, w), false);
 });
+
+// ---- carte restée en Betaflight ----
+const DB_BF = require('../js/settings_db_betaflight.js');
+
+test('firmware lu dans l\'en-tête du diff : Betaflight ou TrueGlide', () => {
+  assert.equal(A.lire('# Betaflight / STM32F405 (F405) 2025.12.2 Feb 23 2026 / 22:29:29').firmware, 'betaflight');
+  assert.equal(A.lire('# TRUEGLIDE / STM32F405 (F405) 2026.6.2 Oct 1 2026').firmware, 'trueglide');
+  assert.equal(A.lire('set p_roll = 50').firmware, null);
+});
+
+test('carte en Betaflight : aucun réglage TrueGlide proposé, la liste des retirés est donnée', () => {
+  const e = { pouces: 5, kv: 1950, cellules: 6, masse: 650, poles: 14, chassis: 'quadx', style: 'speeder', qualite: 'normal',
+    pwmEsc: 24, esc: 'am32', carte: null, serieBranchee: false, capteurCourant: true, courantEsc: 45,
+    speeder: { angle: 20, vitesse: 30, mix: false }, base: 'estimation', calcul: {} };
+  const rec = T.recommander(e);
+  const p = T.pourFirmware(rec, DB_BF);
+  assert.ok(p.absents.length > 0);
+  assert.ok(p.absents.every((n) => !DB_BF[n] && DB[n]), 'seuls les réglages propres à TrueGlide sont retirés');
+  assert.deepEqual(T.verifier(p.rec.reglages, DB_BF), []);
+  assert.equal(p.rec.reglages.length + p.absents.length, rec.reglages.length);
+  assert.ok(!/speeder_|power_guard_|motor_desync_recovery/.test(T.versCli(p.rec)));
+  // pour une carte TrueGlide, rien n'est retiré
+  assert.deepEqual(T.pourFirmware(rec, DB).absents, []);
+});
+
+test('carte en Betaflight : les contrôles ne conseillent aucune fonction TrueGlide', () => {
+  const cfg = A.lire('# Betaflight / STM32F405 (F405) 2025.12.2\nboard_name SPEEDYBEEF405MINI\nset dshot_bidir = ON\nset motor_pwm_protocol = DSHOT300');
+  const bf = A.controler(cfg, DB_BF, null, CARTES, 'betaflight').map((c) => c.texte).join('\n');
+  assert.ok(!/TrueGlide|power_guard|motor_desync_recovery|dshot_telemetry_fallback/.test(bf), bf);
+  const tg = A.controler(cfg, DB, null, CARTES).map((c) => c.texte).join('\n');
+  assert.ok(/power_guard|motor_desync_recovery/.test(tg), 'carte TrueGlide : conseils inchangés');
+});
