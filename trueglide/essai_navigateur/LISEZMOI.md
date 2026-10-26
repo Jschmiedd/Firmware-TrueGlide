@@ -47,6 +47,38 @@ l'UART1 sert de console ; dans la version navigateur, la console devra passer pa
 Mesures en direct : sans mouvement simulé, la carte simulée affiche une charge processeur et une cadence du gyro à 0
 (vrai pour la simulation, différent d'une vraie carte) ; à signaler dans le logiciel.
 
+## Étape 1 : le firmware exact de la vraie carte (branche `essai-vraie-carte`)
+
+Au lieu du simulateur SITL, `vraie_carte.py` compile **les mêmes fichiers que la vraie construction** de la carte
+(même `config.h`, mêmes tables de broches, timers et DMA du F405), pour l'ordinateur (essais) ou pour le navigateur.
+Seul ce qui touche directement au matériel est remplacé, dans `src/platform/STM32/simulee/` :
+
+| Partie | Dans la carte simulée |
+| --- | --- |
+| Registres du microcontrôleur | mémoire ordinaire (adresses de base redéfinies), le code du fabricant est gardé |
+| Démarrage, horloge, redémarrage | horloge de l'ordinateur ou du navigateur, processeur annoncé à 168 MHz |
+| Mémoire des réglages | zone de 16 Ko comme la flash de la F405, gardée dans `eeprom.bin` |
+| Port USB (VCP) | relié à la page (ou TCP 5761 sur l'ordinateur) |
+| Bus SPI | gyro ICM42688P, puce OSD MAX7456, flash W25Q128 (16 Mo) simulés |
+| Bus I2C | baromètre DPS310 simulé |
+| ADC | tension de référence et température de la puce fixes ; batterie absente (0 V) |
+| Interruptions | aucune ; le gyro est lu par l'ordonnanceur |
+
+Résultats mesurés (26/10) :
+
+| Contrôle | Résultat |
+| --- | --- |
+| `status` | `MCU: STM32F405xx CLK=168MHz (PLLP-HSE)`, gyro et acc ICM42688P, baro DPS310, flash 16 Mo, gyro à 8 kHz, aucune erreur I2C |
+| Configuration KarRmen (204 lignes, avec `serial UART1`) | 204/204 acceptées ; 204/204 relues après `save` et redémarrage (ordinateur et navigateur) |
+| `dump all` comparé au dump réel de la carte KarRmen (Betaflight 2025.12.2) | `resource` 73/73, `dma` 34/34, `timer` 7/7, `serial` 7/7, `feature` 27/27, 938 réglages `set` identiques ; les autres écarts viennent des versions (réglages renommés ou ajoutés depuis 2025.12, fonctions en plus dans TrueGlide), `mcu_id` remplaçable par celui de la carte récoltée |
+| Version navigateur | `carte.wasm` 667 Ko ; Configurator publié relié dans un Web Worker : onglet Ports avec USB VCP et UART1–6 comme la vraie carte, barre d'état `SPBE/SPEEDYBEEF405MINI (STM32F405)`, flash 16 Mo, nom changé, enregistré et relu ; aucune erreur |
+| Firmware de la vraie F405 Mini construit avec et sans l'essai | identique octet pour octet |
+
+```
+python3 trueglide/essai_navigateur/vraie_carte.py SPEEDYBEEF405MINI natif   # obj/vraie_carte/…/natif/carte (TCP 5761)
+python3 trueglide/essai_navigateur/vraie_carte.py SPEEDYBEEF405MINI wasm    # obj/vraie_carte/…/wasm/carte.js + .wasm
+```
+
 ## Reconstruire et rejouer
 
 ```

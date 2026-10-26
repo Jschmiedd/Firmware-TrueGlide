@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #include "drivers/io_types.h"
@@ -18,3 +19,7 @@ typedef struct {
 
 // puce sélectionnée par cette broche CS, d'après le config.h de la vraie carte (NULL : rien ne répond)
 const tgPuceSpi_t *tgPuceSpi(IO_t cs);
+
+// une puce sur un bus I2C (adresse sur 7 bits) : écriture et lecture de registres ; false si personne ne répond
+bool tgI2cEcrire(int bus, uint8_t adresse, uint8_t reg, uint8_t nombre, const uint8_t *octets);
+bool tgI2cLire(int bus, uint8_t adresse, uint8_t reg, uint8_t nombre, uint8_t *octets);

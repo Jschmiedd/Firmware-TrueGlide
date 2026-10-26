@@ -14,6 +14,7 @@
 
 #include "platform.h"
 
+#include "drivers/bus_i2c.h"
 #include "drivers/io.h"
 
 #include "simulee/peripheriques.h"
@@ -284,4 +285,87 @@ const tgPuceSpi_t *tgPuceSpi(IO_t cs)
     }
 #endif
     return NULL;
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// baromètre Infineon DPS310 (I2C, adresse 0x76) : posé au niveau de la mer, 1013,25 hPa et 25 °C. Les mesures
+// brutes restent à zéro ; les coefficients d'étalonnage donnent alors exactement ces valeurs (c0 = 50 : 25 °C,
+// c00 = 101325 Pa, les autres à zéro).
+
+static uint8_t dpsRegistres[0x30];
+
+static void dpsInitialiser(void)
+{
+    memset(dpsRegistres, 0, sizeof(dpsRegistres));
+    dpsRegistres[0x0D] = 0x10;                  // identifiant : DPS310
+    dpsRegistres[0x08] = 0xF0;                  // coefficients prêts, capteur prêt, mesures prêtes
+    dpsRegistres[0x10] = 0x03;                  // c0 = 50
+    dpsRegistres[0x11] = 0x20;
+    dpsRegistres[0x13] = 0x18;                  // c00 = 101325 (0x18BCD)
+    dpsRegistres[0x14] = 0xBC;
+    dpsRegistres[0x15] = 0xD0;
+}
+
+static bool dpsEcrire(uint8_t reg, uint8_t nombre, const uint8_t *octets)
+{
+    for (int i = 0; i < nombre; i++, reg++) {
+        if (reg == 0x0C && (octets[i] & 0x0F) == 0x09) {
+            dpsInitialiser(); // réinitialisation logicielle
+        } else if (reg == 0x08) {
+            dpsRegistres[0x08] = 0xF0 | (octets[i] & 0x07); // l'état reste « prêt », seul le mode change
+        } else if (reg < sizeof(dpsRegistres) && reg != 0x0D) {
+            dpsRegistres[reg] = octets[i];
+        }
+    }
+    return true;
+}
+
+static bool dpsLire(uint8_t reg, uint8_t nombre, uint8_t *octets)
+{
+    for (int i = 0; i < nombre; i++, reg++) {
+        octets[i] = reg < sizeof(dpsRegistres) ? dpsRegistres[reg] : 0x00;
+    }
+    return true;
+}
+
+static bool i2cPret;
+
+static void i2cPreparer(void)
+{
+    if (!i2cPret) {
+        dpsInitialiser();
+        i2cPret = true;
+    }
+}
+
+bool tgI2cEcrire(int bus, uint8_t adresse, uint8_t reg, uint8_t nombre, const uint8_t *octets)
+{
+    i2cPreparer();
+#if defined(USE_BARO_DPS310) && defined(BARO_I2C_INSTANCE)
+    if (bus == BARO_I2C_INSTANCE && adresse == 0x76) {
+        return dpsEcrire(reg, nombre, octets);
+    }
+#endif
+    UNUSED(bus);
+    UNUSED(adresse);
+    UNUSED(reg);
+    UNUSED(nombre);
+    UNUSED(octets);
+    return false;
+}
+
+bool tgI2cLire(int bus, uint8_t adresse, uint8_t reg, uint8_t nombre, uint8_t *octets)
+{
+    i2cPreparer();
+#if defined(USE_BARO_DPS310) && defined(BARO_I2C_INSTANCE)
+    if (bus == BARO_I2C_INSTANCE && adresse == 0x76) {
+        return dpsLire(reg, nombre, octets);
+    }
+#endif
+    UNUSED(bus);
+    UNUSED(adresse);
+    UNUSED(reg);
+    UNUSED(nombre);
+    UNUSED(octets);
+    return false;
 }

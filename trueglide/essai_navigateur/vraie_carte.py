@@ -43,6 +43,10 @@ REMPLACES = [
 RENOMMES = {
     'src/platform/STM32/bus_spi_stdperiph.c': ['-DspiSequenceStart=tgMaterielSpiSequenceStart',
                                                '-DspiInternalReadWriteBufPolled=tgMaterielSpiReadWriteBufPolled'],
+    'src/platform/STM32/bus_i2c_stm32f4xx.c': ['-Di2cWriteBuffer=tgMaterielI2cWriteBuffer', '-Di2cWrite=tgMaterielI2cWrite',
+                                               '-Di2cReadBuffer=tgMaterielI2cReadBuffer', '-Di2cRead=tgMaterielI2cRead',
+                                               '-Di2cBusy=tgMaterielI2cBusy',
+                                               '-Di2cGetErrorCounter=tgMaterielI2cGetErrorCounter'],
     'lib/main/STM32F4/Drivers/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_adc.c': [
         '-DADC_SoftwareStartInjectedConv=tgMaterielAdcStartInjected'],
 }
@@ -108,7 +112,7 @@ def main():
         sys.exit(1)
 
     if cible == 'wasm':
-        lien = ['emcc', '-O2'] + objets + ['-lm', '-sSTACK_SIZE=1048576', '-sALLOW_MEMORY_GROWTH', '-sMODULARIZE',
+        lien = ['emcc', '-O2'] + objets + ['-lm', '-Wl,--allow-multiple-definition', '-sSTACK_SIZE=1048576', '-sALLOW_MEMORY_GROWTH', '-sMODULARIZE',
                                            '-sEXPORT_NAME=TrueGlideCarte',
                                            '-sEXPORTED_FUNCTIONS=_main,_tg_entree,_tg_definir_uid,_malloc,_free',
                                            '-sEXPORTED_RUNTIME_METHODS=FS,HEAPU8', '-sENVIRONMENT=web,worker,node',
