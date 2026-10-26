@@ -135,3 +135,7 @@ En attente de Johann :
     à la carte récoltée seulement. SITL : 5 changements hors ligne envoyés puis récoltés à nouveau, réponses identiques.
     Limites : profils non changeables hors ligne, Plan de vol non récolté, OSD / LED / servos / tables VTX pas encore
     vérifiés au SITL ; pas encore essayé sur une vraie carte.
+- 26 octobre 2026 : un seul outil (décision de Johann). Studio est livré dans TrueGlide Configurator (copie studio/ par
+  scripts/sync-trueglide-studio.mjs, aussi sans Internet), onglet Studio avec « Envoyer à la carte » par le logiciel
+  (essai-onglets 9e2a942). La page /studio/ ouvre /test/#studio. Parcours complet refait au SITL en images :
+  suivi/Parcours_TrueGlide_Configurator_Studio.pdf (18 pages). Pas encore essayé sur une vraie carte.
