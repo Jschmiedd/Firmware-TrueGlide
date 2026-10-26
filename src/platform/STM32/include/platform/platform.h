@@ -822,3 +822,14 @@ extern uint8_t _dmaram_end__;
 #define NVIC_PRIORITY_SUB(prio) (((prio)>>4)&(0x0f>>(7-(NVIC_PRIORITY_GROUPING>>8))))
 #endif
 
+// TrueGlide : carte simulée (firmware de la vraie carte compilé pour l'ordinateur ou le navigateur)
+#if defined(TG_CARTE_SIMULEE)
+#include "simulee/carte_simulee.h"
+// identifiant unique de la puce : celui de la carte simulée (réglable par la page, par exemple celui de la carte récoltée)
+#undef U_ID_0
+#undef U_ID_1
+#undef U_ID_2
+#define U_ID_0 (tgIdentifiantUnique[0])
+#define U_ID_1 (tgIdentifiantUnique[1])
+#define U_ID_2 (tgIdentifiantUnique[2])
+#endif

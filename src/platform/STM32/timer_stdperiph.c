@@ -93,8 +93,16 @@ static uint8_t lookupTimerIndex(const timerResource_t *tim)
 #define _CASE_(tim, index) case ((unsigned)tim >> _CASE_SHF): return index; break
 #define _CASE(i) _CASE_(TIM##i##_BASE, TIMER_INDEX(i))
 
+#if defined(TG_CARTE_SIMULEE)
+    // carte simulée : les adresses des timers ne sont pas des constantes, on compare les pointeurs
+#undef _CASE_
+#define _CASE_(tim, index) if (tim_ptr == (const TIM_TypeDef *)(tim)) { return index; }
+    switch (0) {
+    case 0:
+#else
 // let gcc do the work, switch should be quite optimized
     switch ((unsigned)tim_ptr >> _CASE_SHF) {
+#endif
 #if USED_TIMERS & TIM_N(1)
         _CASE(1);
 #endif

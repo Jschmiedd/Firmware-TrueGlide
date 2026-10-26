@@ -123,9 +123,16 @@ const adcTagMap_t adcTagMap[] = {
 #endif
 };
 
+#if defined(TG_CARTE_SIMULEE)
+// TrueGlide : carte simulée, valeurs d'étalonnage d'usine dans la mémoire système simulée
+#define VREFINT_CAL_ADDR  TG_SYSTEME(0x1FFF7A2A)
+#define TS_CAL1_ADDR      TG_SYSTEME(0x1FFF7A2C)
+#define TS_CAL2_ADDR      TG_SYSTEME(0x1FFF7A2E)
+#else
 #define VREFINT_CAL_ADDR  0x1FFF7A2A
 #define TS_CAL1_ADDR      0x1FFF7A2C
 #define TS_CAL2_ADDR      0x1FFF7A2E
+#endif
 
 static void adcInitDevice(ADC_TypeDef *adcdev, int channelCount)
 {

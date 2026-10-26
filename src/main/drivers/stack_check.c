@@ -32,8 +32,17 @@
 
 #define STACK_FILL_CHAR 0xa5
 
+#if defined(TG_CARTE_SIMULEE)
+// TrueGlide : carte simulée, pile de la taille de celle de la vraie carte (la simulation n'y écrit pas)
+#define TG_PILE_TAILLE 0x800
+char tgPile[TG_PILE_TAILLE];
+#define _estack (tgPile[TG_PILE_TAILLE])
+#define TG_MIN_STACK_SIZE TG_PILE_TAILLE
+#else
 extern char _estack; // end of stack, declared in .LD file
 extern char _Min_Stack_Size; // declared in .LD file
+#define TG_MIN_STACK_SIZE ((uint32_t)&_Min_Stack_Size)
+#endif
 
 /*
  * The ARM processor uses a full descending stack. This means the stack pointer holds the address
@@ -66,8 +75,14 @@ void taskStackCheck(timeUs_t currentTimeUs)
 {
     UNUSED(currentTimeUs);
 
+#if defined(TG_CARTE_SIMULEE)
+    // carte simulée : la pile du processeur ARM n'existe pas, rien n'est mesuré
+    usedStackSize = 0;
+    return;
+#endif
+
     char * const stackHighMem = &_estack;
-    const uint32_t stackSize = (uint32_t)&_Min_Stack_Size;
+    const uint32_t stackSize = TG_MIN_STACK_SIZE;
     char * const stackLowMem = stackHighMem - stackSize;
     const char * const stackCurrent = (char *)&stackLowMem;
 
@@ -94,7 +109,7 @@ uint32_t stackUsedSize(void)
 
 uint32_t stackTotalSize(void)
 {
-    return (uint32_t)(intptr_t)&_Min_Stack_Size;
+    return (uint32_t)(intptr_t)TG_MIN_STACK_SIZE;
 }
 
 uint32_t stackHighMem(void)

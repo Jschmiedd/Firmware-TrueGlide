@@ -761,9 +761,16 @@ extern uint8_t eepromData[EEPROM_SIZE];
 #ifndef CONFIG_IN_FLASH
 #define CONFIG_IN_FLASH
 #endif
+#if defined(TG_CARTE_SIMULEE)
+// TrueGlide : carte simulée, zone des réglages de la même taille que dans la mémoire flash de la vraie carte
+extern uint8_t tgConfigZone[];
+#define __config_start (*tgConfigZone)
+#define __config_end (*(tgConfigZone + TG_CONFIG_TAILLE))
+#else
 struct linker_symbol;
 extern struct linker_symbol __config_start;   // configured via linker script when building binaries.
 extern struct linker_symbol __config_end;
+#endif
 #ifdef FONTDATA_IN_FLASH
 extern struct linker_symbol __fontdata_start; // configured via linker script when building binaries.
 extern struct linker_symbol __fontdata_end;

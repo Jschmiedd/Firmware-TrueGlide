@@ -22,7 +22,7 @@
 
 #include <stdint.h>
 
-#if !defined(UNIT_TEST) && !defined(SITLFULL)
+#if !defined(UNIT_TEST) && !defined(SITLFULL) && !defined(TG_CARTE_SIMULEE)
 // BASEPRI manipulation functions
 // only set_BASEPRI is implemented in device library. It does always create memory barrier
 // missing versions are implemented here
@@ -41,7 +41,7 @@ __attribute__( ( always_inline ) ) static inline void __set_BASEPRI_MAX_nb(uint3
 
 #endif
 
-#if defined(UNIT_TEST) || defined(SITLFULL)
+#if defined(UNIT_TEST) || defined(SITLFULL) || defined(TG_CARTE_SIMULEE)
 // atomic related (essai SITLFULL : simulateur sans BASEPRI) functions for unittest.
 
 extern uint8_t atomic_BASEPRI;
