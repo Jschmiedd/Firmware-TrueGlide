@@ -43,6 +43,19 @@ const BASE = 'https://jschmiedd.github.io/TrueGlide-Configurator/'; const DOSSIE
   await photo('01_accueil');
   console.log('page : tours de boucle en 1 s :', await p.evaluate(async () => { const t = performance.now(); let n = 0; while (performance.now() - t < 1000) { n++; await new Promise(r => setTimeout(r, 0)); } return n; }));
   for (const [n, o] of [['02_ports', 'Ports'], ['03_configuration', 'Configuration'], ['04_moteurs', 'Moteurs'], ['05_osd', 'OSD'], ['06_pid', 'Réglages de PID']]) { try { await onglet(o); await photo(n); } catch (e) { console.log('onglet', o, ':', e.message.split('\n')[0]); await photo('erreur'); console.log((await p.locator('[role=dialog]').allInnerTexts()).join(' / ').slice(0, 400)); } }
+  // tous les onglets du menu, carte branchée (simulée) : capture et erreurs de page
+  if (process.env.TOUS_LES_ONGLETS) {
+    const noms = await p.evaluate(() => [...document.querySelectorAll('nav button, aside button, [data-slot=link]')].map(b => b.innerText.trim()).filter(t => t && t.length < 40));
+    const vus = new Set(); let k = 10;
+    for (const nom of noms) {
+      if (vus.has(nom) || /Déconnecter|Flasher|Connexion|Tableau de bord|^ESC$/.test(nom)) continue; vus.add(nom);
+      const avant = err.length;
+      try { await onglet(nom.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')); await photo(String(k++) + '_' + nom.replace(/[^A-Za-zÀ-ÿ0-9]+/g, '_'));
+        console.log('onglet', nom, ':', err.length > avant ? 'ERREUR ' + err.slice(avant).join(' | ').slice(0, 200) : 'ok'); }
+      catch (e) { console.log('onglet', nom, ': impossible à ouvrir', e.message.split('\n')[0].slice(0, 120)); }
+    }
+    console.log('connecté à la fin :', await connecte(), '| erreurs de page :', err.length); await b.close(); return;
+  }
   // un changement dans l'interface, enregistré et relu après redémarrage
   await onglet('Configuration');
   const indice = await p.evaluate(() => [...document.querySelectorAll('#content input')].findIndex(i => i.value === 'KarRmen'));
