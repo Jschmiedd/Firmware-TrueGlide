@@ -82,6 +82,15 @@
 #include "udplink.h"
 #include "sitl_gyro.h"
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
+#if defined(SITLFULL)
+// essai SITLFULL : niveau d'interruption simulé pour ATOMIC_BLOCK (build/atomic.h)
+uint8_t atomic_BASEPRI;
+#endif
+
 // ENABLE_GAZEBO_BRIDGE is a boolean selector for the gyro yaw sign (passed to
 // sitlGyroBodyFromSim below). target.h defaults it to 1; configs set 0 for the
 // legacy bridges. Require it to be explicitly 0 or 1 so an accidental non-boolean
@@ -601,6 +610,14 @@ void systemInit(void)
         exit(1);
     }
 
+#ifdef __EMSCRIPTEN__
+    // essai WebAssembly : ni réseau ni simulateur de vol, les ports série passent par la mémoire (serial_tcp.c)
+    UNUSED(ret);
+    UNUSED(tcpThread);
+    UNUSED(udpThread);
+    UNUSED(udpRCThread);
+    return;
+#endif
     ret = pthread_create(&tcpWorker, NULL, tcpThread, NULL);
     if (ret != 0) {
         printf("Create tcpWorker error!\n");
@@ -635,6 +652,11 @@ void systemInit(void)
 void systemReset(void)
 {
     printf("[system]Reset!\n");
+#ifdef __EMSCRIPTEN__
+    // essai WebAssembly : la page garde eeprom.bin et relance la carte (comme un redémarrage)
+    emscripten_cancel_main_loop();
+    EM_ASM({ if (Module.tgRedemarrage) Module.tgRedemarrage(); });
+#endif
     workerRunning = false;
     pthread_join(tcpWorker, NULL);
     pthread_join(udpWorker, NULL);
@@ -645,6 +667,11 @@ void systemResetToBootloader(bootloaderRequestType_e requestType)
     UNUSED(requestType);
 
     printf("[system]ResetToBootloader!\n");
+#ifdef __EMSCRIPTEN__
+    // essai WebAssembly : la page garde eeprom.bin et relance la carte (comme un redémarrage)
+    emscripten_cancel_main_loop();
+    EM_ASM({ if (Module.tgRedemarrage) Module.tgRedemarrage(); });
+#endif
     workerRunning = false;
     pthread_join(tcpWorker, NULL);
     pthread_join(udpWorker, NULL);
@@ -752,6 +779,13 @@ uint32_t getCycleCounter(void)
 
 static void microsleep(uint32_t usec)
 {
+#ifdef __EMSCRIPTEN__
+    // essai WebAssembly : attente active (courtes attentes du démarrage et des pilotes)
+    const uint64_t fin = nanos64_real() + (uint64_t)usec * 1000;
+    while (nanos64_real() < fin) {
+    }
+    return;
+#endif
     struct timespec ts;
     ts.tv_sec = 0;
     ts.tv_nsec = usec*1000UL;
@@ -926,6 +960,38 @@ bool motorPwmDevInit(motorDevice_t *device, const motorDevConfig_t *motorConfig,
 
     return true;
 }
+
+#if defined(SITLFULL) && defined(USE_DSHOT)
+// essai SITLFULL : pas de vrai DShot dans le simulateur ; les réglages DShot sont acceptés et les moteurs restent
+// ceux du simulateur (aucune vitesse moteur n'est inventée : la télémétrie reste vide)
+#include "drivers/dshot.h"
+bool useDshotTelemetry = false;
+dshotTelemetryCycleCounters_t dshotDMAHandlerCycleCounters;
+
+bool dshotPwmDevInit(motorDevice_t *device, const motorDevConfig_t *motorConfig)
+{
+    // comme le pilote de la carte : l'état DShot bidirectionnel suit la configuration
+    useDshotTelemetry = motorConfig->useDshotTelemetry;
+    return motorPwmDevInit(device, motorConfig, 0);
+}
+#endif
+
+#if defined(SITLFULL) && defined(USE_LED_STRIP)
+// essai SITLFULL : bande de LED sans matériel (réglages seulement, rien n'est allumé)
+#include "common/color.h"
+#include "drivers/light_ws2811strip.h"
+void ws2811LedStripInit(ioTag_t ioTag, ledStripFormatRGB_e ledFormat) { UNUSED(ioTag); UNUSED(ledFormat); }
+bool ws2811LedStripHardwareInit(void) { return false; }
+void ws2811LedStripStartTransfer(void) { }
+void ws2811LedStripUpdateTransferBuffer(const rgbColor24bpp_t *color, unsigned ledIndex) { UNUSED(color); UNUSED(ledIndex); }
+#endif
+
+#if defined(SITLFULL)
+timeUs_t microsISR(void)
+{
+    return micros();
+}
+#endif
 
 // stack part
 char _estack;

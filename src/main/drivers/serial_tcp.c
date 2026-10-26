@@ -38,6 +38,12 @@
 #include "io/serial.h"
 #include "serial_tcp.h"
 
+#ifdef __EMSCRIPTEN__
+// essai WebAssembly (SITLFULL) : pas de réseau ; les ports série sont reliés à la page par la mémoire.
+// La page envoie des octets avec tg_entree(port, adresse, nombre) et reçoit les réponses par Module.tgSortie.
+#include <emscripten.h>
+#endif
+
 #define BASE_PORT 5760
 
 static const struct serialPortVTable tcpVTable; // Forward
@@ -112,6 +118,11 @@ static tcpPort_t* tcpReconfigure(tcpPort_t *s, int id)
     s->clientCount = 0;
     s->id = id;
     s->conn = NULL;
+#ifdef __EMSCRIPTEN__
+    s->connected = true;
+    s->clientCount = 1;
+    return s;
+#endif
     s->serv = dyad_newStream();
     dyad_setNoDelay(s->serv, 1);
     dyad_addListener(s->serv, DYAD_EVENT_ACCEPT, onAccept, s);
@@ -232,10 +243,31 @@ static void tcpWrite(serialPort_t *instance, uint8_t ch)
     tcpDataOut(s);
 }
 
+#ifdef __EMSCRIPTEN__
+EM_JS(void, tgSortie, (int id, const uint8_t *data, int size), {
+    if (Module.tgSortie) Module.tgSortie(id, HEAPU8.slice(data, data + size));
+});
+
+static void tgWrite(tcpPort_t *s, const uint8_t *data, int size)
+{
+    tgSortie(s->id, data, size);
+}
+#define dyad_write(conn, data, size) tgWrite(s, (const uint8_t *)(data), (size))
+
+EMSCRIPTEN_KEEPALIVE void tg_entree(int id, uint8_t *data, int size)
+{
+    if (id >= 0 && id < (int)ARRAYLEN(tcpSerialPorts) && tcpPortInitialized[id]) {
+        tcpDataIn(&tcpSerialPorts[id], data, size);
+    }
+}
+#endif
+
 void tcpDataOut(tcpPort_t *instance)
 {
     tcpPort_t *s = (tcpPort_t *)instance;
+#ifndef __EMSCRIPTEN__
     if (s->conn == NULL) return;
+#endif
     pthread_mutex_lock(&s->txLock);
 
     if (s->port.txBufferHead < s->port.txBufferTail) {

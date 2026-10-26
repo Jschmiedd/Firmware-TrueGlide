@@ -670,7 +670,7 @@
 #endif
 #endif
 
-#if ENABLE_SIMULATOR || defined(UNIT_TEST)
+#if (ENABLE_SIMULATOR || defined(UNIT_TEST)) && !defined(SITLFULL)
 // This feature uses 'arm_math.h', which does not exist for x86.
 #undef USE_DYN_NOTCH_FILTER
 #endif

@@ -1007,9 +1007,11 @@ void initPhase3(void)
         // osdInit will register with CMS by itself.
         osdInit(osdDisplayPort, osdDisplayPortDevice);
 
+#if !defined(SITLFULL) // essai SITLFULL : pas de puce vidéo, la fonction OSD de la carte est gardée
         if (osdDisplayPortDevice == OSD_DISPLAYPORT_DEVICE_NONE) {
             featureDisableImmediate(FEATURE_OSD);
         }
+#endif
     }
 #endif // USE_OSD
 

@@ -1,0 +1,54 @@
+# Essai : la carte simulée dans le navigateur (SPEEDYBEE F405 MINI)
+
+Essai de faisabilité du 26 octobre 2026, sur la branche `essai-carte-navigateur`, **sans aucune intégration** dans
+TRUEGLIDE CONFIGURATOR ni dans le site. Le but : faire tourner le vrai firmware TRUEGLIDE dans la page, pour régler
+une carte débranchée avec le firmware lui-même plutôt qu'avec des réponses enregistrées.
+
+## Ce qui a été fait
+
+1. **Simulateur complet `SITLFULL`** (`src/platform/SIMULATOR/target/SITLFULL/`) : copie du simulateur SITL avec
+   les fonctions d'une vraie carte, pour leurs réglages seulement : DShot (et DShot bidirectionnel), filtre dynamique,
+   filtre RPM, ralenti dynamique, OSD (positions des éléments, MSP DisplayPort), récepteur série, télémétrie, LED,
+   VTX. Aucun moteur, aucune puce vidéo, aucune LED n'est piloté ; aucune vitesse moteur n'est inventée.
+2. **Version WebAssembly** (`construire.sh`) : le même firmware, sans réseau ni fils d'exécution. Les ports série
+   passent par la mémoire de la page (`tg_entree` pour envoyer, `Module.tgSortie` pour recevoir) ; un
+   redémarrage de la carte appelle `Module.tgRedemarrage` et la page relance la carte avec sa mémoire
+   (`eeprom.bin`).
+
+Toutes les modifications du code commun sont protégées par `SITLFULL` ou `__EMSCRIPTEN__`.
+
+## Résultats mesurés
+
+| Contrôle | Résultat |
+| --- | --- |
+| Diff complet de la carte KarRmen (F405 Mini) collé dans le simulateur SITL actuel | 172 / 204 lignes acceptées |
+| Même diff dans `SITLFULL` | **204 / 204** |
+| Après `save`, redémarrage et `diff all` | toutes les lignes relues à l'identique (*) |
+| Version WebAssembly (Node), même essai | **203 / 203** acceptées, toutes gardées après redémarrage (*) |
+| Taille | `carte.wasm` 455 Ko + `carte.js` 89 Ko |
+| Démarrage dans Chromium | 0,3 à 0,6 s, puis environ 1 s de démarrage du firmware |
+| Requête MSP dans Chromium | **24 ms**, stable |
+| TRUEGLIDE CONFIGURATOR publié (/test/) relié à la carte simulée dans la page | connexion, onglets Tableau de bord, Ports, Configuration, Moteurs, OSD, Réglages de PID : configuration KarRmen affichée ; nom changé, « Sauvegarder et Redémarrer », reconnexion : nom relu ; aucune erreur de page |
+| Firmware de la vraie SPEEDYBEE F405 MINI construit avec et sans l'essai | **identique octet pour octet** (même révision) |
+
+(*) `feature TELEMETRY` n'apparaît pas dans `diff all` parce qu'elle est active d'usine dans le simulateur ; la
+commande `feature` la montre bien active. La ligne `serial UART1 …` est retirée de l'essai : dans le simulateur,
+l'UART1 sert de console ; dans la version navigateur, la console devra passer par un port à part.
+
+## Écarts connus avant toute intégration
+
+- **Gyroscope** : le gyroscope virtuel tourne à 1 kHz ; l'onglet Configuration affiche donc 1 kHz / 0,5 kHz au lieu
+  des fréquences de la vraie carte. Il faut un gyroscope virtuel à la fréquence de la carte simulée (sinon chiffre
+  faux affiché).
+- **Liste des fonctions** : `SITLFULL` reprend les fonctions d'une F405 à la main ; il faut la générer depuis la
+  cible réelle de chaque carte (sinon une fonction absente de la carte pourrait être réglable dans la simulation).
+- **Ports et broches** : la carte simulée n'a ni les UART ni les ressources (broches) de la F405 Mini.
+- **Calcul** : la carte simulée occupe un cœur du processeur pendant qu'elle tourne ; à placer dans un Web Worker.
+
+## Reconstruire et rejouer
+
+```
+EMSDK=/chemin/emsdk trueglide/essai_navigateur/construire.sh            # obj/navigateur/carte.js + carte.wasm
+node trueglide/essai_navigateur/essai_node.cjs diff_de_la_carte.txt     # collage, save, redémarrage, relecture
+node trueglide/essai_navigateur/essai_configurateur.cjs                 # Configurator publié + carte simulée (Playwright)
+```

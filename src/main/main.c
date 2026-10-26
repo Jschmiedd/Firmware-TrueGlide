@@ -56,6 +56,10 @@
 
 #include "scheduler/scheduler.h"
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 #ifdef CONFIG_IN_FILE
 #include "cli/cli.h"
 #endif
@@ -144,8 +148,25 @@ int main(int argc, char * argv[])
     return 0;
 }
 
+#ifdef __EMSCRIPTEN__
+// essai WebAssembly : le navigateur appelle tgTour sans cesse (sans délai minimal) ; chaque tour fait tourner
+// l'ordonnanceur pendant 12 ms puis rend la main à la page (messages, affichage).
+static void tgTour(void)
+{
+    const uint32_t debut = millis();
+    while (millis() - debut < 12) {
+        scheduler();
+    }
+}
+#endif
+
 void FAST_CODE run(void)
 {
+#ifdef __EMSCRIPTEN__
+    emscripten_set_main_loop(tgTour, 0, false);
+    emscripten_set_main_loop_timing(EM_TIMING_SETIMMEDIATE, 1);
+    return;
+#endif
     while (true) {
         scheduler();
 

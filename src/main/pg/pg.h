@@ -72,6 +72,15 @@ extern const pgRegistry_t __pg_registry_end[] __asm("section$end$__DATA$__pg_reg
 extern const uint8_t __pg_resetdata_start[] __asm("section$start$__DATA$__pg_resetdata");
 extern const uint8_t __pg_resetdata_end[] __asm("section$end$__DATA$__pg_resetdata");
 #define PG_RESETDATA_ATTRIBUTES __attribute__ ((section("__DATA,__pg_resetdata"), used, aligned(2)))
+#elif defined(__EMSCRIPTEN__)
+// essai WebAssembly (SITLFULL) : wasm-ld donne __start_<section> / __stop_<section> pour une section au nom de type C
+extern const pgRegistry_t __pg_registry_start[] __asm("__start_pg_registry");
+extern const pgRegistry_t __pg_registry_end[] __asm("__stop_pg_registry");
+#define PG_REGISTER_ATTRIBUTES __attribute__ ((section("pg_registry"), used, aligned(4)))
+
+extern const uint8_t __pg_resetdata_start[] __asm("__start_pg_resetdata");
+extern const uint8_t __pg_resetdata_end[] __asm("__stop_pg_resetdata");
+#define PG_RESETDATA_ATTRIBUTES __attribute__ ((section("pg_resetdata"), used, aligned(2)))
 #else
 extern const pgRegistry_t __pg_registry_start[];
 extern const pgRegistry_t __pg_registry_end[];
