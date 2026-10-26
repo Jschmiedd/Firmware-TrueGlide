@@ -202,6 +202,9 @@
 
 #define DEFIO_NO_PORTS   // suppress 'no pins defined' warning
 
+// gyro de la vraie SPEEDYBEE F405 MINI (ICM42688P) : le gyro virtuel tourne à sa fréquence
+#define SITLFULL_GYRO_CAPTEUR ICM_42688P_SPI
+
 #define FLASH_PAGE_SIZE (0x400)
 
 // belows are internal stuff

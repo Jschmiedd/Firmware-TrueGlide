@@ -300,9 +300,15 @@ void gyroInitSensor(gyroSensor_t *gyroSensor, const gyroDeviceConfig_t *config)
     // The targetLooptime gets set later based on the active sensor's gyroSampleRateHz and pid_process_denom
 #ifdef USE_VIRTUAL_GYRO
     if (gyroSensor->gyroDev.gyroHardware == GYRO_VIRTUAL) {
+#if defined(SITLFULL_GYRO_CAPTEUR)
+        // carte simulée SITLFULL : le gyro virtuel tourne à la fréquence du capteur de la vraie carte
+        gyroSensor->gyroDev.mpuDetectionResult.sensor = SITLFULL_GYRO_CAPTEUR;
+        gyroSensor->gyroDev.gyroSampleRateHz = gyroSetSampleRate(&gyroSensor->gyroDev);
+#else
         gyroSensor->gyroDev.gyroSampleRateHz = VIRTUAL_GYRO_SAMPLE_RATE_HZ;
         gyroSensor->gyroDev.accSampleRateHz = VIRTUAL_GYRO_SAMPLE_RATE_HZ;
         gyroSensor->gyroDev.gyroRateKHz = GYRO_RATE_1_kHz;
+#endif
     } else
 #endif
     {
