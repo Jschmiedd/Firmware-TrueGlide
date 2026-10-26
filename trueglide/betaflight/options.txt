@@ -1,0 +1,4 @@
+# carte simulée Betaflight : une ligne par vraie carte (firmware construit par le service en ligne de Betaflight)
+# NOM  CONFIG  VERSION  RÉVISION_CONFIG  OPTIONS (CLOUD_BUILD puis les options choisies à la construction)
+# Options retrouvées en comparant le « dump all » de la vraie carte à celui de la carte simulée (zéro différence).
+SPEEDYBEEF405MINI_KARRMEN SPEEDYBEEF405MINI 2025.12.2 e378347 CLOUD_BUILD USE_DSHOT USE_SERIALRX USE_SERIALRX_CRSF USE_TELEMETRY USE_TELEMETRY_CRSF USE_GPS USE_GPS_PLUS_CODES USE_LED_STRIP USE_VTX USE_OSD_SD USE_OSD_HD USE_PINIO USE_ALTITUDE_HOLD

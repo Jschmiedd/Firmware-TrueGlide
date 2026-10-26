@@ -18,6 +18,11 @@
 #define TG_AHB2_TAILLE     0x00061000u   // AHB2 (USB OTG FS, RNG) : 0x50000000 - 0x50060FFF
 #define TG_COEUR_TAILLE    0x00043000u   // ITM, DWT, SCS (NVIC, SCB, SysTick), TPI, DBGMCU : 0xE0000000 - 0xE0042FFF
 
+// la vraie carte calcule en virgule flottante matérielle (__FPU_USED = 1) : certaines valeurs par défaut en
+// dépendent (nombre de voies AUX) ; sur l'ordinateur, CMSIS le met à 0
+#undef __FPU_USED
+#define __FPU_USED 1U
+
 // zone des réglages : 16 Ko dans la mémoire flash de la STM32F405 (secteur 1)
 #define TG_CONFIG_TAILLE   (16 * 1024)
 

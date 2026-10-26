@@ -1,0 +1,2050 @@
+diff --git a/src/main/build/atomic.h b/src/main/build/atomic.h
+index 90d7607..be5b9c0 100644
+--- a/src/main/build/atomic.h
++++ b/src/main/build/atomic.h
+@@ -22,7 +22,7 @@
+ 
+ #include <stdint.h>
+ 
+-#if !defined(UNIT_TEST)
++#if !defined(UNIT_TEST) && !defined(SITLFULL) && !defined(TG_CARTE_SIMULEE)
+ // BASEPRI manipulation functions
+ // only set_BASEPRI is implemented in device library. It does always create memory barrier
+ // missing versions are implemented here
+@@ -41,8 +41,8 @@ __attribute__( ( always_inline ) ) static inline void __set_BASEPRI_MAX_nb(uint3
+ 
+ #endif
+ 
+-#if defined(UNIT_TEST)
+-// atomic related functions for unittest.
++#if defined(UNIT_TEST) || defined(SITLFULL) || defined(TG_CARTE_SIMULEE)
++// atomic related (essai SITLFULL : simulateur sans BASEPRI) functions for unittest.
+ 
+ extern uint8_t atomic_BASEPRI;
+ 
+@@ -149,7 +149,7 @@ static inline uint8_t __basepriSetRetVal(uint8_t prio)
+ #define ATOMIC_BARRIER_LEAVE(dataPtr, refStr)                              \
+     __asm__ volatile ("\t# barrier (" refStr ") leave\n" : "m" (*(dataPtr)))
+ 
+-#if defined(__clang__)
++#if defined(__clang__) && defined(__APPLE__)
+ // CLang version, using Objective C-style block
+ // based on https://stackoverflow.com/questions/24959440/rewrite-gcc-cleanup-macro-with-nested-function-for-clang
+ typedef void (^__cleanup_block)(void);
+@@ -162,6 +162,16 @@ static inline void __do_cleanup(__cleanup_block * b) { (*b)(); }
+         ^{  ATOMIC_BARRIER_LEAVE(__UNIQL(__barrier), #data); };         \
+     do {} while(0)                                                      \
+ /**/
++#elif defined(__clang__)
++// Clang on non-Apple: use nested function cleanup (clang supports it in C mode)
++#define ATOMIC_BARRIER(data)                                            \
++    __extension__ void  __UNIQL(__barrierEnd)(typeof(data) **__d) {     \
++         ATOMIC_BARRIER_LEAVE(*__d, #data);                             \
++    }                                                                   \
++    typeof(data) __attribute__((__cleanup__(__UNIQL(__barrierEnd)))) *__UNIQL(__barrier) = &data; \
++    ATOMIC_BARRIER_ENTER(__UNIQL(__barrier), #data);                    \
++    do {} while(0)                                                      \
++/**/
+ #else
+ // gcc version, uses local function for cleanup.
+ #define ATOMIC_BARRIER(data)                                            \
+diff --git a/src/main/drivers/serial_tcp.c b/src/main/drivers/serial_tcp.c
+index a922cc7..8f11e4a 100644
+--- a/src/main/drivers/serial_tcp.c
++++ b/src/main/drivers/serial_tcp.c
+@@ -38,6 +38,12 @@
+ #include "io/serial.h"
+ #include "serial_tcp.h"
+ 
++#ifdef __EMSCRIPTEN__
++// essai WebAssembly (SITLFULL) : pas de réseau ; les ports série sont reliés à la page par la mémoire.
++// La page envoie des octets avec tg_entree(port, adresse, nombre) et reçoit les réponses par Module.tgSortie.
++#include <emscripten.h>
++#endif
++
+ #define BASE_PORT 5760
+ 
+ static const struct serialPortVTable tcpVTable; // Forward
+@@ -112,6 +118,11 @@ static tcpPort_t* tcpReconfigure(tcpPort_t *s, int id)
+     s->clientCount = 0;
+     s->id = id;
+     s->conn = NULL;
++#ifdef __EMSCRIPTEN__
++    s->connected = true;
++    s->clientCount = 1;
++    return s;
++#endif
+     s->serv = dyad_newStream();
+     dyad_setNoDelay(s->serv, 1);
+     dyad_addListener(s->serv, DYAD_EVENT_ACCEPT, onAccept, s);
+@@ -232,10 +243,31 @@ static void tcpWrite(serialPort_t *instance, uint8_t ch)
+     tcpDataOut(s);
+ }
+ 
++#ifdef __EMSCRIPTEN__
++EM_JS(void, tgSortie, (int id, const uint8_t *data, int size), {
++    if (Module.tgSortie) Module.tgSortie(id, HEAPU8.slice(data, data + size));
++});
++
++static void tgWrite(tcpPort_t *s, const uint8_t *data, int size)
++{
++    tgSortie(s->id, data, size);
++}
++#define dyad_write(conn, data, size) tgWrite(s, (const uint8_t *)(data), (size))
++
++EMSCRIPTEN_KEEPALIVE void tg_entree(int id, uint8_t *data, int size)
++{
++    if (id >= 0 && id < (int)ARRAYLEN(tcpSerialPorts) && tcpPortInitialized[id]) {
++        tcpDataIn(&tcpSerialPorts[id], data, size);
++    }
++}
++#endif
++
+ void tcpDataOut(tcpPort_t *instance)
+ {
+     tcpPort_t *s = (tcpPort_t *)instance;
++#ifndef __EMSCRIPTEN__
+     if (s->conn == NULL) return;
++#endif
+     pthread_mutex_lock(&s->txLock);
+ 
+     if (s->port.txBufferHead < s->port.txBufferTail) {
+diff --git a/src/main/drivers/stack_check.c b/src/main/drivers/stack_check.c
+index 8a5f05a..23fc76b 100644
+--- a/src/main/drivers/stack_check.c
++++ b/src/main/drivers/stack_check.c
+@@ -32,8 +32,17 @@
+ 
+ #define STACK_FILL_CHAR 0xa5
+ 
++#if defined(TG_CARTE_SIMULEE)
++// TrueGlide : carte simulée, pile de la taille de celle de la vraie carte (la simulation n'y écrit pas)
++#define TG_PILE_TAILLE 0x800
++char tgPile[TG_PILE_TAILLE];
++#define _estack (tgPile[TG_PILE_TAILLE])
++#define TG_MIN_STACK_SIZE TG_PILE_TAILLE
++#else
+ extern char _estack; // end of stack, declared in .LD file
+ extern char _Min_Stack_Size; // declared in .LD file
++#define TG_MIN_STACK_SIZE ((uint32_t)&_Min_Stack_Size)
++#endif
+ 
+ /*
+  * The ARM processor uses a full descending stack. This means the stack pointer holds the address
+@@ -66,8 +75,14 @@ void taskStackCheck(timeUs_t currentTimeUs)
+ {
+     UNUSED(currentTimeUs);
+ 
++#if defined(TG_CARTE_SIMULEE)
++    // carte simulée : la pile du processeur ARM n'existe pas, rien n'est mesuré
++    usedStackSize = 0;
++    return;
++#endif
++
+     char * const stackHighMem = &_estack;
+-    const uint32_t stackSize = (uint32_t)&_Min_Stack_Size;
++    const uint32_t stackSize = TG_MIN_STACK_SIZE;
+     char * const stackLowMem = stackHighMem - stackSize;
+     const char * const stackCurrent = (char *)&stackLowMem;
+ 
+@@ -94,7 +109,7 @@ uint32_t stackUsedSize(void)
+ 
+ uint32_t stackTotalSize(void)
+ {
+-    return (uint32_t)(intptr_t)&_Min_Stack_Size;
++    return (uint32_t)(intptr_t)TG_MIN_STACK_SIZE;
+ }
+ 
+ uint32_t stackHighMem(void)
+diff --git a/src/main/fc/init.c b/src/main/fc/init.c
+index 69c7357..cdc1448 100644
+--- a/src/main/fc/init.c
++++ b/src/main/fc/init.c
+@@ -933,9 +933,11 @@ void initPhase3(void)
+         // osdInit will register with CMS by itself.
+         osdInit(osdDisplayPort, osdDisplayPortDevice);
+ 
++#if !defined(SITLFULL) // essai SITLFULL : pas de puce vidéo, la fonction OSD de la carte est gardée
+         if (osdDisplayPortDevice == OSD_DISPLAYPORT_DEVICE_NONE) {
+             featureDisableImmediate(FEATURE_OSD);
+         }
++#endif
+     }
+ #endif // USE_OSD
+ 
+diff --git a/src/main/main.c b/src/main/main.c
+index 6ea0587..a357bf3 100644
+--- a/src/main/main.c
++++ b/src/main/main.c
+@@ -23,6 +23,8 @@
+ 
+ #include "platform.h"
+ 
++#include "drivers/time.h"
++
+ #ifdef USE_VCP
+ #include "drivers/serial_usb_vcp.h"
+ #endif
+@@ -100,8 +102,26 @@ int main(int argc, char * argv[])
+     return 0;
+ }
+ 
++#ifdef __EMSCRIPTEN__
++#include <emscripten.h>
++// TrueGlide : carte simulée dans le navigateur : le navigateur appelle tgTour sans cesse ; chaque tour fait tourner
++// l'ordonnanceur pendant 12 ms puis rend la main à la page.
++static void tgTour(void)
++{
++    const uint32_t debut = millis();
++    while (millis() - debut < 12) {
++        scheduler();
++    }
++}
++#endif
++
+ void FAST_CODE run(void)
+ {
++#ifdef __EMSCRIPTEN__
++    emscripten_set_main_loop(tgTour, 0, false);
++    emscripten_set_main_loop_timing(EM_TIMING_SETIMMEDIATE, 1);
++    return;
++#endif
+     while (true) {
+         scheduler();
+ #if defined(RUN_LOOP_DELAY_US) && RUN_LOOP_DELAY_US > 0
+diff --git a/src/main/pg/pg.h b/src/main/pg/pg.h
+index 8159a44..13f9b36 100644
+--- a/src/main/pg/pg.h
++++ b/src/main/pg/pg.h
+@@ -72,6 +72,15 @@ extern const pgRegistry_t __pg_registry_end[] __asm("section$end$__DATA$__pg_reg
+ extern const uint8_t __pg_resetdata_start[] __asm("section$start$__DATA$__pg_resetdata");
+ extern const uint8_t __pg_resetdata_end[] __asm("section$end$__DATA$__pg_resetdata");
+ #define PG_RESETDATA_ATTRIBUTES __attribute__ ((section("__DATA,__pg_resetdata"), used, aligned(2)))
++#elif defined(__EMSCRIPTEN__)
++// essai WebAssembly (SITLFULL) : wasm-ld donne __start_<section> / __stop_<section> pour une section au nom de type C
++extern const pgRegistry_t __pg_registry_start[] __asm("__start_pg_registry");
++extern const pgRegistry_t __pg_registry_end[] __asm("__stop_pg_registry");
++#define PG_REGISTER_ATTRIBUTES __attribute__ ((section("pg_registry"), used, aligned(4)))
++
++extern const uint8_t __pg_resetdata_start[] __asm("__start_pg_resetdata");
++extern const uint8_t __pg_resetdata_end[] __asm("__stop_pg_resetdata");
++#define PG_RESETDATA_ATTRIBUTES __attribute__ ((section("pg_resetdata"), used, aligned(2)))
+ #else
+ extern const pgRegistry_t __pg_registry_start[];
+ extern const pgRegistry_t __pg_registry_end[];
+diff --git a/src/main/target/common_post.h b/src/main/target/common_post.h
+index a83766d..8853985 100644
+--- a/src/main/target/common_post.h
++++ b/src/main/target/common_post.h
+@@ -630,10 +630,17 @@ extern uint8_t eepromData[EEPROM_SIZE];
+ #ifndef CONFIG_IN_FLASH
+ #define CONFIG_IN_FLASH
+ #endif
++#if defined(TG_CARTE_SIMULEE)
++// TrueGlide : carte simulée, zone des réglages de la même taille que dans la mémoire flash de la vraie carte
++extern uint8_t tgConfigZone[];
++#define __config_start (*tgConfigZone)
++#define __config_end (*(tgConfigZone + TG_CONFIG_TAILLE))
++#else
+ struct linker_symbol;
+ extern struct linker_symbol __config_start;   // configured via linker script when building binaries.
+ extern struct linker_symbol __config_end;
+ #endif
++#endif
+ 
+ #ifndef USE_ITERM_RELAX
+ #undef USE_ABSOLUTE_CONTROL
+diff --git a/src/platform/STM32/adc_stm32f4xx.c b/src/platform/STM32/adc_stm32f4xx.c
+index 5942ddc..c61b444 100644
+--- a/src/platform/STM32/adc_stm32f4xx.c
++++ b/src/platform/STM32/adc_stm32f4xx.c
+@@ -122,9 +122,16 @@ const adcTagMap_t adcTagMap[] = {
+ #endif
+ };
+ 
++#if defined(TG_CARTE_SIMULEE)
++// TrueGlide : carte simulée, valeurs d'étalonnage d'usine dans la mémoire système simulée
++#define VREFINT_CAL_ADDR  TG_SYSTEME(0x1FFF7A2A)
++#define TS_CAL1_ADDR      TG_SYSTEME(0x1FFF7A2C)
++#define TS_CAL2_ADDR      TG_SYSTEME(0x1FFF7A2E)
++#else
+ #define VREFINT_CAL_ADDR  0x1FFF7A2A
+ #define TS_CAL1_ADDR      0x1FFF7A2C
+ #define TS_CAL2_ADDR      0x1FFF7A2E
++#endif
+ 
+ static void adcInitDevice(ADC_TypeDef *adcdev, int channelCount)
+ {
+diff --git a/src/platform/STM32/include/platform/platform.h b/src/platform/STM32/include/platform/platform.h
+index 55c884f..1d3922d 100644
+--- a/src/platform/STM32/include/platform/platform.h
++++ b/src/platform/STM32/include/platform/platform.h
+@@ -553,3 +553,13 @@ extern uint8_t _dmaram_end__;
+ #define RAM_CODE                   __attribute__((section(".ram_code")))
+ #endif
+ 
++// TrueGlide : carte simulée (firmware de la vraie carte compilé pour l'ordinateur ou le navigateur)
++#if defined(TG_CARTE_SIMULEE)
++#include "simulee/carte_simulee.h"
++#undef U_ID_0
++#undef U_ID_1
++#undef U_ID_2
++#define U_ID_0 (tgIdentifiantUnique[0])
++#define U_ID_1 (tgIdentifiantUnique[1])
++#define U_ID_2 (tgIdentifiantUnique[2])
++#endif
+diff --git a/src/platform/STM32/simulee/adc.c b/src/platform/STM32/simulee/adc.c
+new file mode 100644
+index 0000000..396cf60
+--- /dev/null
++++ b/src/platform/STM32/simulee/adc.c
+@@ -0,0 +1,18 @@
++/*
++ * TrueGlide - carte simulée : convertisseur analogique (ADC).
++ * Free software under the GPL-3.0 license, WITHOUT ANY WARRANTY; see the LICENSE file.
++ *
++ * Les mesures internes (tension de référence, température de la puce) sont terminées dès qu'elles sont lancées ;
++ * leurs valeurs sont fixées par tgMemoireInit(). Les mesures externes (batterie, courant, RSSI) arrivent normalement
++ * par DMA : aucune batterie n'est branchée sur la carte simulée, elles restent à zéro.
++ */
++
++#include "platform.h"
++
++void tgMaterielAdcStartInjected(ADC_TypeDef *ADCx);
++
++void ADC_SoftwareStartInjectedConv(ADC_TypeDef *ADCx)
++{
++    tgMaterielAdcStartInjected(ADCx);
++    ADCx->SR |= ADC_FLAG_JEOC;
++}
+diff --git a/src/platform/STM32/simulee/carte_simulee.h b/src/platform/STM32/simulee/carte_simulee.h
+new file mode 100644
+index 0000000..80ca43f
+--- /dev/null
++++ b/src/platform/STM32/simulee/carte_simulee.h
+@@ -0,0 +1,57 @@
++/*
++ * TrueGlide - carte simulée : le firmware d'une vraie carte STM32F4, compilé pour l'ordinateur ou le navigateur.
++ * Free software under the GPL-3.0 license, WITHOUT ANY WARRANTY; see the LICENSE file.
++ *
++ * Inclus à la fin de platform/platform.h quand TG_CARTE_SIMULEE est défini (jamais dans une vraie construction).
++ * Les registres du microcontrôleur deviennent de la mémoire ordinaire : les adresses de base des périphériques
++ * (définies par l'en-tête du fabricant et par CMSIS) sont redéfinies vers des tableaux de la carte simulée. Les
++ * macros étant développées à l'usage, toutes les adresses qui en dérivent (TIM1, SPI1, GPIOA, DMA2_Stream0, SCB…)
++ * suivent. Le code de la vraie carte, ses tables (broches, timers, DMA) et ses réglages restent inchangés.
++ */
++
++#pragma once
++
++#include <stdint.h>
++
++// tailles des zones simulées (registres du F4)
++#define TG_PERIPH_TAILLE   0x00080000u   // APB1, APB2, AHB1 : 0x40000000 - 0x4007FFFF
++#define TG_AHB2_TAILLE     0x00061000u   // AHB2 (USB OTG FS, RNG) : 0x50000000 - 0x50060FFF
++#define TG_COEUR_TAILLE    0x00043000u   // ITM, DWT, SCS (NVIC, SCB, SysTick), TPI, DBGMCU : 0xE0000000 - 0xE0042FFF
++
++// la vraie carte calcule en virgule flottante matérielle (__FPU_USED = 1) : certaines valeurs par défaut en
++// dépendent (nombre de voies AUX) ; sur l'ordinateur, CMSIS le met à 0
++#undef __FPU_USED
++#define __FPU_USED 1U
++
++// zone des réglages : 16 Ko dans la mémoire flash de la STM32F405 (secteur 1)
++#define TG_CONFIG_TAILLE   (16 * 1024)
++
++extern uint8_t tgPeripheriques[TG_PERIPH_TAILLE];
++extern uint8_t tgAhb2[TG_AHB2_TAILLE];
++extern uint8_t tgCoeur[TG_COEUR_TAILLE];
++extern uint32_t tgIdentifiantUnique[3];
++
++// mémoire système de la puce (0x1FFF7800 - 0x1FFF7A2F : zone OTP, identifiant unique, taille de la flash, étalonnages)
++#define TG_SYSTEME_TAILLE  0x230u
++extern uint8_t tgSysteme[TG_SYSTEME_TAILLE];
++#define TG_SYSTEME(adresse) ((uintptr_t)tgSysteme + ((adresse) - 0x1FFF7800UL))
++
++#undef PERIPH_BASE
++#define PERIPH_BASE        ((uintptr_t)tgPeripheriques)
++#undef AHB2PERIPH_BASE
++#define AHB2PERIPH_BASE    ((uintptr_t)tgAhb2)
++
++#define TG_COEUR(adresse)  ((uintptr_t)tgCoeur + ((adresse) - 0xE0000000UL))
++#undef ITM_BASE
++#define ITM_BASE           TG_COEUR(0xE0000000UL)
++#undef DWT_BASE
++#define DWT_BASE           TG_COEUR(0xE0001000UL)
++#undef SCS_BASE
++#define SCS_BASE           TG_COEUR(0xE000E000UL)
++#undef CoreDebug_BASE
++#define CoreDebug_BASE     TG_COEUR(0xE000EDF0UL)
++#undef TPI_BASE
++#define TPI_BASE           TG_COEUR(0xE0040000UL)
++#undef DBGMCU_BASE
++#define DBGMCU_BASE        TG_COEUR(0xE0042000UL)
++
+diff --git a/src/platform/STM32/simulee/cmsis_hote.h b/src/platform/STM32/simulee/cmsis_hote.h
+new file mode 100644
+index 0000000..2de959f
+--- /dev/null
++++ b/src/platform/STM32/simulee/cmsis_hote.h
+@@ -0,0 +1,126 @@
++/*
++ * TrueGlide - carte simulée : fonctions CMSIS du cœur ARM Cortex-M pour l'ordinateur ou le navigateur.
++ * Free software under the GPL-3.0 license, WITHOUT ANY WARRANTY; see the LICENSE file.
++ *
++ * Inclus avant tout autre fichier (-include) dans la construction de la carte simulée : il prend la place de
++ * cmsis_gcc.h, dont les instructions ARM (interruptions, barrières mémoire, attente) n'existent pas ailleurs. La carte
++ * simulée n'a pas d'interruptions : les activer ou les couper ne fait rien ; le niveau BASEPRI est simulé par
++ * build/atomic.h.
++ */
++
++#pragma once
++
++#include <stdint.h>
++
++#define __CMSIS_GCC_H
++
++#ifndef __has_builtin
++#define __has_builtin(x) (0)
++#endif
++
++#define __ASM                                  __asm
++#define __INLINE                               inline
++#define __STATIC_INLINE                        static inline
++#define __STATIC_FORCEINLINE                   __attribute__((always_inline)) static inline
++#define __NO_RETURN                            __attribute__((__noreturn__))
++#define __USED                                 __attribute__((used))
++#define __WEAK                                 __attribute__((weak))
++#define __PACKED                               __attribute__((packed, aligned(1)))
++#define __PACKED_STRUCT                        struct __attribute__((packed, aligned(1)))
++#define __PACKED_UNION                         union __attribute__((packed, aligned(1)))
++#define __ALIGNED(x)                           __attribute__((aligned(x)))
++#define __RESTRICT                             __restrict
++#define __COMPILER_BARRIER()                   __asm volatile("" ::: "memory")
++
++struct __attribute__((packed)) T_UINT32 { uint32_t v; };
++struct __attribute__((packed, aligned(1))) T_UINT16_WRITE { uint16_t v; };
++struct __attribute__((packed, aligned(1))) T_UINT16_READ { uint16_t v; };
++struct __attribute__((packed, aligned(1))) T_UINT32_WRITE { uint32_t v; };
++struct __attribute__((packed, aligned(1))) T_UINT32_READ { uint32_t v; };
++#define __UNALIGNED_UINT32(x)                  (((struct T_UINT32 *)(x))->v)
++#define __UNALIGNED_UINT16_WRITE(addr, val)    (void)((((struct T_UINT16_WRITE *)(void *)(addr))->v) = (val))
++#define __UNALIGNED_UINT16_READ(addr)          (((const struct T_UINT16_READ *)(const void *)(addr))->v)
++#define __UNALIGNED_UINT32_WRITE(addr, val)    (void)((((struct T_UINT32_WRITE *)(void *)(addr))->v) = (val))
++#define __UNALIGNED_UINT32_READ(addr)          (((const struct T_UINT32_READ *)(const void *)(addr))->v)
++
++// interruptions : aucune dans la carte simulée
++extern uint32_t tgPrimask;
++__STATIC_FORCEINLINE void __enable_irq(void) { tgPrimask = 0; }
++__STATIC_FORCEINLINE void __disable_irq(void) { tgPrimask = 1; }
++__STATIC_FORCEINLINE uint32_t __get_PRIMASK(void) { return tgPrimask; }
++__STATIC_FORCEINLINE void __set_PRIMASK(uint32_t priMask) { tgPrimask = priMask; }
++__STATIC_FORCEINLINE void __enable_fault_irq(void) { }
++__STATIC_FORCEINLINE void __disable_fault_irq(void) { }
++__STATIC_FORCEINLINE uint32_t __get_FAULTMASK(void) { return 0; }
++__STATIC_FORCEINLINE void __set_FAULTMASK(uint32_t faultMask) { (void)faultMask; }
++__STATIC_FORCEINLINE uint32_t __get_CONTROL(void) { return 0; }
++__STATIC_FORCEINLINE void __set_CONTROL(uint32_t control) { (void)control; }
++__STATIC_FORCEINLINE uint32_t __get_IPSR(void) { return 0; }      // jamais dans une interruption
++__STATIC_FORCEINLINE uint32_t __get_APSR(void) { return 0; }
++__STATIC_FORCEINLINE uint32_t __get_xPSR(void) { return 0; }
++__STATIC_FORCEINLINE uint32_t __get_PSP(void) { return 0; }
++__STATIC_FORCEINLINE void __set_PSP(uint32_t topOfProcStack) { (void)topOfProcStack; }
++__STATIC_FORCEINLINE uint32_t __get_MSP(void) { return (uint32_t)(uintptr_t)__builtin_frame_address(0); }
++__STATIC_FORCEINLINE void __set_MSP(uint32_t topOfMainStack) { (void)topOfMainStack; }
++__STATIC_FORCEINLINE uint32_t __get_FPSCR(void) { return 0; }
++__STATIC_FORCEINLINE void __set_FPSCR(uint32_t fpscr) { (void)fpscr; }
++
++// attente, barrières : rien à attendre
++#define __NOP()                                __asm volatile ("" ::: "memory")
++#define __WFI()                                __asm volatile ("" ::: "memory")
++#define __WFE()                                __asm volatile ("" ::: "memory")
++#define __SEV()                                __asm volatile ("" ::: "memory")
++#define __BKPT(value)                          ((void)(value))
++__STATIC_FORCEINLINE void __ISB(void) { __COMPILER_BARRIER(); }
++__STATIC_FORCEINLINE void __DSB(void) { __COMPILER_BARRIER(); }
++__STATIC_FORCEINLINE void __DMB(void) { __COMPILER_BARRIER(); }
++
++// calculs sur les bits
++__STATIC_FORCEINLINE uint32_t __REV(uint32_t value) { return __builtin_bswap32(value); }
++__STATIC_FORCEINLINE uint32_t __REV16(uint32_t value) { return ((value & 0x00ff00ffu) << 8) | ((value >> 8) & 0x00ff00ffu); }
++__STATIC_FORCEINLINE int16_t __REVSH(int16_t value) { return (int16_t)__builtin_bswap16((uint16_t)value); }
++__STATIC_FORCEINLINE uint32_t __ROR(uint32_t op1, uint32_t op2)
++{
++    op2 %= 32u;
++    return op2 ? (op1 >> op2) | (op1 << (32u - op2)) : op1;
++}
++__STATIC_FORCEINLINE uint32_t __RBIT(uint32_t value)
++{
++    uint32_t r = 0;
++    for (int i = 0; i < 32; i++) {
++        r = (r << 1) | ((value >> i) & 1u);
++    }
++    return r;
++}
++__STATIC_FORCEINLINE uint8_t __CLZ(uint32_t value) { return value ? (uint8_t)__builtin_clz(value) : 32u; }
++
++// accès exclusifs : un seul fil, ils réussissent toujours
++__STATIC_FORCEINLINE uint8_t __LDREXB(volatile uint8_t *addr) { return *addr; }
++__STATIC_FORCEINLINE uint16_t __LDREXH(volatile uint16_t *addr) { return *addr; }
++__STATIC_FORCEINLINE uint32_t __LDREXW(volatile uint32_t *addr) { return *addr; }
++__STATIC_FORCEINLINE uint32_t __STREXB(uint8_t value, volatile uint8_t *addr) { *addr = value; return 0; }
++__STATIC_FORCEINLINE uint32_t __STREXH(uint16_t value, volatile uint16_t *addr) { *addr = value; return 0; }
++__STATIC_FORCEINLINE uint32_t __STREXW(uint32_t value, volatile uint32_t *addr) { *addr = value; return 0; }
++__STATIC_FORCEINLINE void __CLREX(void) { }
++
++__STATIC_FORCEINLINE int32_t __SSAT(int32_t val, uint32_t sat)
++{
++    if (sat >= 1u && sat <= 32u) {
++        const int32_t max = (int32_t)((1u << (sat - 1u)) - 1u);
++        const int32_t min = -1 - max;
++        return val > max ? max : (val < min ? min : val);
++    }
++    return val;
++}
++__STATIC_FORCEINLINE uint32_t __USAT(int32_t val, uint32_t sat)
++{
++    if (sat <= 31u) {
++        const uint32_t max = ((1u << sat) - 1u);
++        return val > (int32_t)max ? max : (val < 0 ? 0u : (uint32_t)val);
++    }
++    return (uint32_t)val;
++}
++
++// registres du microcontrôleur : tous les fichiers (y compris la bibliothèque du fabricant) voient la mémoire simulée
++#include "stm32f4xx.h"
++#include "simulee/carte_simulee.h"
+diff --git a/src/platform/STM32/simulee/config.c b/src/platform/STM32/simulee/config.c
+new file mode 100644
+index 0000000..917e285
+--- /dev/null
++++ b/src/platform/STM32/simulee/config.c
+@@ -0,0 +1,64 @@
++/*
++ * TrueGlide - carte simulée : mémoire des réglages, à la place de common/stm32/config_flash.c.
++ * Free software under the GPL-3.0 license, WITHOUT ANY WARRANTY; see the LICENSE file.
++ *
++ * La zone a la taille de celle de la vraie carte. Comme la mémoire flash, elle est effacée (0xFF) quand une
++ * sauvegarde commence au début de la zone. Elle est gardée dans le fichier eeprom.bin (mémoire de la page dans le
++ * navigateur, que la page conserve d'un redémarrage à l'autre).
++ */
++
++#include <stdint.h>
++#include <stdio.h>
++#include <string.h>
++
++#include "platform.h"
++
++#include "config/config_streamer.h"
++#include "config/config_streamer_impl.h"
++
++#include "simulee/liaison.h"
++
++#define FICHIER "eeprom.bin"
++
++__attribute__((aligned(8))) uint8_t tgConfigZone[TG_CONFIG_TAILLE];
++
++void tgConfigCharger(void)
++{
++    memset(tgConfigZone, 0xff, sizeof(tgConfigZone));
++    FILE *f = fopen(FICHIER, "rb");
++    if (f) {
++        const size_t n = fread(tgConfigZone, 1, sizeof(tgConfigZone), f);
++        fclose(f);
++        printf("[carte] réglages lus : %u octets\n", (unsigned)n);
++    }
++}
++
++void configUnlock(void)
++{
++}
++
++void configClearFlags(void)
++{
++}
++
++configStreamerResult_e configWriteWord(uintptr_t address, config_streamer_buffer_type_t *buffer)
++{
++    const uintptr_t debut = (uintptr_t)tgConfigZone;
++    if (address < debut || address + CONFIG_STREAMER_BUFFER_SIZE > debut + sizeof(tgConfigZone)) {
++        return CONFIG_RESULT_ADDRESS_INVALID;
++    }
++    if (address == debut) {
++        memset(tgConfigZone, 0xff, sizeof(tgConfigZone)); // effacement du secteur, comme la mémoire flash
++    }
++    memcpy((void *)address, buffer, CONFIG_STREAMER_BUFFER_SIZE);
++    return CONFIG_RESULT_SUCCESS;
++}
++
++void configLock(void)
++{
++    FILE *f = fopen(FICHIER, "wb");
++    if (f) {
++        fwrite(tgConfigZone, 1, sizeof(tgConfigZone), f);
++        fclose(f);
++    }
++}
+diff --git a/src/platform/STM32/simulee/i2c.c b/src/platform/STM32/simulee/i2c.c
+new file mode 100644
+index 0000000..4f839da
+--- /dev/null
++++ b/src/platform/STM32/simulee/i2c.c
+@@ -0,0 +1,65 @@
++/*
++ * TrueGlide - carte simulée : bus I2C.
++ * Free software under the GPL-3.0 license, WITHOUT ANY WARRANTY; see the LICENSE file.
++ *
++ * Le pilote I2C du microcontrôleur (STM32/bus_i2c_stm32f4xx.c) est gardé pour les broches et l'initialisation ;
++ * les échanges passent ici, tout de suite, vers les puces simulées (peripheriques.c). Une adresse où rien ne
++ * répond compte une erreur, comme sur la vraie carte.
++ */
++
++#include <stdbool.h>
++#include <stdint.h>
++
++#include "platform.h"
++
++#ifdef USE_I2C
++
++#include "drivers/bus_i2c.h"
++
++#include "simulee/peripheriques.h"
++
++static uint16_t erreurs;
++
++bool i2cWriteBuffer(i2cDevice_e device, uint8_t addr_, uint8_t reg_, uint8_t len_, uint8_t *data)
++{
++    if (!tgI2cEcrire(device, addr_, reg_, len_, data)) {
++        erreurs++;
++        return false;
++    }
++    return true;
++}
++
++bool i2cWrite(i2cDevice_e device, uint8_t addr_, uint8_t reg_, uint8_t data)
++{
++    return i2cWriteBuffer(device, addr_, reg_, 1, &data);
++}
++
++bool i2cReadBuffer(i2cDevice_e device, uint8_t addr_, uint8_t reg_, uint8_t len, uint8_t *buf)
++{
++    if (!tgI2cLire(device, addr_, reg_, len, buf)) {
++        erreurs++;
++        return false;
++    }
++    return true;
++}
++
++bool i2cRead(i2cDevice_e device, uint8_t addr_, uint8_t reg_, uint8_t len, uint8_t *buf)
++{
++    return i2cReadBuffer(device, addr_, reg_, len, buf);
++}
++
++bool i2cBusy(i2cDevice_e device, bool *error)
++{
++    UNUSED(device);
++    if (error) {
++        *error = false;
++    }
++    return false;
++}
++
++uint16_t i2cGetErrorCounter(void)
++{
++    return erreurs;
++}
++
++#endif
+diff --git a/src/platform/STM32/simulee/liaison.c b/src/platform/STM32/simulee/liaison.c
+new file mode 100644
+index 0000000..52b45ce
+--- /dev/null
++++ b/src/platform/STM32/simulee/liaison.c
+@@ -0,0 +1,185 @@
++/*
++ * TrueGlide - carte simulée : liaison avec l'extérieur.
++ * Free software under the GPL-3.0 license, WITHOUT ANY WARRANTY; see the LICENSE file.
++ *
++ * Navigateur (WebAssembly) : la page envoie les octets avec tg_entree() et les reçoit par Module.tgSortie(port,
++ * octets) ; un redémarrage appelle Module.tgRedemarrage() après l'enregistrement de eeprom.bin.
++ * Ordinateur (essais) : le port USB est un serveur TCP sur le port 5761, comme le simulateur SITL.
++ */
++
++#include <stdbool.h>
++#include <stdint.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++
++#include "platform.h"
++
++#include "common/utils.h"
++
++#include "simulee/liaison.h"
++
++#ifdef __EMSCRIPTEN__
++#include <emscripten.h>
++#else
++#include <errno.h>
++#include <fcntl.h>
++#include <netinet/in.h>
++#include <netinet/tcp.h>
++#include <sys/socket.h>
++#include <unistd.h>
++#endif
++
++#define TG_PORTS 1
++#define TG_TAMPON 4096
++
++typedef struct {
++    uint8_t octets[TG_TAMPON];
++    uint32_t tete;
++    uint32_t queue;
++} tampon_t;
++
++static tampon_t entrees[TG_PORTS];
++
++void tg_entree(int port, uint8_t *octets, int nombre)
++{
++    if (port < 0 || port >= TG_PORTS) {
++        return;
++    }
++    tampon_t *t = &entrees[port];
++    for (int i = 0; i < nombre; i++) {
++        const uint32_t suivante = (t->tete + 1) % TG_TAMPON;
++        if (suivante == t->queue) {
++            break; // plein : comme un vrai port, les octets en trop sont perdus
++        }
++        t->octets[t->tete] = octets[i];
++        t->tete = suivante;
++    }
++}
++
++uint32_t tgEnAttente(int port)
++{
++    tgRelever();
++    const tampon_t *t = &entrees[port];
++    return (t->tete + TG_TAMPON - t->queue) % TG_TAMPON;
++}
++
++uint8_t tgLire(int port)
++{
++    tampon_t *t = &entrees[port];
++    if (t->tete == t->queue) {
++        return 0;
++    }
++    const uint8_t c = t->octets[t->queue];
++    t->queue = (t->queue + 1) % TG_TAMPON;
++    return c;
++}
++
++#ifdef __EMSCRIPTEN__
++
++EM_JS(void, tgSortieJs, (int port, const uint8_t *octets, int nombre), {
++    if (Module.tgSortie) Module.tgSortie(port, HEAPU8.slice(octets, octets + nombre));
++});
++
++EM_JS(void, tgRedemarrageJs, (void), {
++    if (Module.tgRedemarrage) Module.tgRedemarrage();
++});
++
++void tgEcrire(int port, const uint8_t *octets, int nombre)
++{
++    tgSortieJs(port, octets, nombre);
++}
++
++void tgRelever(void)
++{
++}
++
++void tgRedemarrer(void)
++{
++    emscripten_cancel_main_loop();
++    tgRedemarrageJs();
++    exit(0);
++}
++
++#else
++
++static int serveur = -1;
++static int client = -1;
++
++static void tcpOuvrir(void)
++{
++    serveur = socket(AF_INET, SOCK_STREAM, 0);
++    const int oui = 1;
++    setsockopt(serveur, SOL_SOCKET, SO_REUSEADDR, &oui, sizeof(oui));
++    struct sockaddr_in a = { .sin_family = AF_INET, .sin_port = htons(5761), .sin_addr.s_addr = htonl(INADDR_LOOPBACK) };
++    if (bind(serveur, (struct sockaddr *)&a, sizeof(a)) || listen(serveur, 1)) {
++        fprintf(stderr, "[carte] port TCP 5761 indisponible\n");
++        exit(1);
++    }
++    fcntl(serveur, F_SETFL, O_NONBLOCK);
++    fprintf(stderr, "[carte] port USB sur TCP 5761\n");
++}
++
++void tgRelever(void)
++{
++    if (serveur < 0) {
++        tcpOuvrir();
++    }
++    if (client < 0) {
++        client = accept(serveur, NULL, NULL);
++        if (client >= 0) {
++            fcntl(client, F_SETFL, O_NONBLOCK);
++            const int oui = 1;
++            setsockopt(client, IPPROTO_TCP, TCP_NODELAY, &oui, sizeof(oui));
++        }
++        return;
++    }
++    uint8_t lu[512];
++    const ssize_t n = recv(client, lu, sizeof(lu), 0);
++    if (n > 0) {
++        tg_entree(TG_PORT_USB, lu, (int)n);
++    } else if (n == 0 || (errno != EAGAIN && errno != EWOULDBLOCK)) {
++        close(client);
++        client = -1;
++    }
++}
++
++void tgEcrire(int port, const uint8_t *octets, int nombre)
++{
++    if (port == TG_PORT_USB && client >= 0) {
++        while (nombre > 0) {
++            const ssize_t n = send(client, octets, nombre, MSG_NOSIGNAL);
++            if (n <= 0) {
++                if (n < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
++                    continue;
++                }
++                break;
++            }
++            octets += n;
++            nombre -= (int)n;
++        }
++    }
++}
++
++void tgRedemarrer(void)
++{
++    // la boucle d'essai relance le programme, qui relit eeprom.bin
++    if (client >= 0) {
++        close(client);
++    }
++    exit(0);
++}
++
++#endif
++
++// identifiant unique de la puce simulée : la page peut donner celui de la carte récoltée, pour que l'envoi des
++// réglages préparés reconnaisse la même carte
++#ifdef __EMSCRIPTEN__
++EMSCRIPTEN_KEEPALIVE
++#endif
++void tg_definir_uid(uint32_t uid0, uint32_t uid1, uint32_t uid2)
++{
++    tgIdentifiantUnique[0] = uid0;
++    tgIdentifiantUnique[1] = uid1;
++    tgIdentifiantUnique[2] = uid2;
++}
+diff --git a/src/platform/STM32/simulee/liaison.h b/src/platform/STM32/simulee/liaison.h
+new file mode 100644
+index 0000000..14b56a3
+--- /dev/null
++++ b/src/platform/STM32/simulee/liaison.h
+@@ -0,0 +1,28 @@
++/*
++ * TrueGlide - carte simulée : liaison avec l'extérieur (page du navigateur, ou TCP pour les essais sur l'ordinateur).
++ * Free software under the GPL-3.0 license, WITHOUT ANY WARRANTY; see the LICENSE file.
++ */
++
++#pragma once
++
++#include <stdint.h>
++
++// port 0 : le port USB (VCP) de la carte
++#define TG_PORT_USB 0
++
++// octets reçus pour un port (appelé par la page, ou par la boucle TCP sur l'ordinateur)
++void tg_entree(int port, uint8_t *octets, int nombre);
++// octets reçus en attente pour un port, et lecture
++uint32_t tgEnAttente(int port);
++uint8_t tgLire(int port);
++// octets envoyés par la carte sur un port
++void tgEcrire(int port, const uint8_t *octets, int nombre);
++// relève les octets arrivés (TCP sur l'ordinateur ; rien dans le navigateur)
++void tgRelever(void);
++
++// valeurs des registres à la mise sous tension (memoire.c)
++void tgMemoireInit(void);
++
++// mémoire des réglages (fichier eeprom.bin) et redémarrage
++void tgConfigCharger(void);
++void tgRedemarrer(void);
+diff --git a/src/platform/STM32/simulee/memoire.c b/src/platform/STM32/simulee/memoire.c
+new file mode 100644
+index 0000000..45fa499
+--- /dev/null
++++ b/src/platform/STM32/simulee/memoire.c
+@@ -0,0 +1,38 @@
++/*
++ * TrueGlide - carte simulée : mémoire des registres du microcontrôleur (voir carte_simulee.h).
++ * Free software under the GPL-3.0 license, WITHOUT ANY WARRANTY; see the LICENSE file.
++ */
++
++#include <stdint.h>
++
++#include "platform.h"
++
++__attribute__((aligned(4096))) uint8_t tgPeripheriques[TG_PERIPH_TAILLE];
++__attribute__((aligned(4096))) uint8_t tgAhb2[TG_AHB2_TAILLE];
++__attribute__((aligned(4096))) uint8_t tgCoeur[TG_COEUR_TAILLE];
++
++// identifiant unique de la puce simulée (remplacé par la page, par exemple par celui de la carte récoltée)
++uint32_t tgIdentifiantUnique[3] = { 0x54475349, 0x4d554c45, 0x45000001 };
++
++// niveau d'interruption simulé (build/atomic.h)
++uint8_t atomic_BASEPRI;
++uint32_t tgPrimask;
++
++// mémoire système : taille de la flash (1024 Ko pour la F405) et étalonnages d'usine typiques de la STM32F4
++// (tension de référence interne, capteur de température à 30 °C et 110 °C)
++uint8_t tgSysteme[TG_SYSTEME_TAILLE] = {
++    [0x222] = 0x00, [0x223] = 0x04,
++    [0x22A] = 0xF7, [0x22B] = 0x05,
++    [0x22C] = 0xAC, [0x22D] = 0x03,
++    [0x22E] = 0xC2, [0x22F] = 0x04,
++};
++
++// valeurs des registres à la mise sous tension, quand elles comptent pour le firmware
++void tgMemoireInit(void)
++{
++    // mesures internes de l'ADC1 (canaux injectés) : tension de référence nominale (étalonnage d'usine, soit 3,3 V)
++    // et capteur de température de la puce à 35 °C ; conversion terminée
++    ADC1->JDR1 = 0x05F7;
++    ADC1->JDR2 = 0x03AC + 17;
++    ADC1->SR |= ADC_FLAG_JEOC;
++}
+diff --git a/src/platform/STM32/simulee/peripheriques.c b/src/platform/STM32/simulee/peripheriques.c
+new file mode 100644
+index 0000000..d6a41d4
+--- /dev/null
++++ b/src/platform/STM32/simulee/peripheriques.c
+@@ -0,0 +1,371 @@
++/*
++ * TrueGlide - carte simulée : puces de la carte.
++ * Free software under the GPL-3.0 license, WITHOUT ANY WARRANTY; see the LICENSE file.
++ *
++ * Chaque puce répond comme la vraie, juste assez pour que les pilotes du firmware la reconnaissent et la règlent :
++ * mêmes registres d'identification et d'état. La carte simulée est posée à plat et immobile : gyroscope à zéro,
++ * accéléromètre à 1 g sur l'axe Z. Aucune vidéo n'arrive sur la puce OSD. La mémoire flash est vide au démarrage.
++ */
++
++#include <stdbool.h>
++#include <stdint.h>
++#include <stdlib.h>
++#include <string.h>
++
++#include "platform.h"
++
++#include "drivers/bus_i2c.h"
++#include "drivers/io.h"
++
++#include "simulee/peripheriques.h"
++
++// ---------------------------------------------------------------------------------------------------------------
++// gyroscope et accéléromètre InvenSense ICM42688P (registres en 4 bancs, lecture : bit 7 de l'adresse à 1)
++
++#define ICM_BANQUE_SEL      0x76
++#define ICM_WHO_AM_I        0x75
++#define ICM_DEVICE_CONFIG   0x11
++#define ICM_ACCEL_Z1        0x23
++
++static uint8_t icmRegistres[4][128];
++static uint8_t icmBanque;
++static uint8_t icmAdresse;
++static bool icmLecture;
++static int icmPosition;
++
++static void icmReinitialiser(void)
++{
++    memset(icmRegistres, 0, sizeof(icmRegistres));
++    icmBanque = 0;
++}
++
++static uint8_t icmValeur(uint8_t reg)
++{
++    if (reg == ICM_WHO_AM_I) {
++        return 0x47; // ICM42688P
++    }
++    if (reg == ICM_BANQUE_SEL) {
++        return icmBanque;
++    }
++    if (icmBanque == 0 && reg >= 0x1D && reg <= 0x2A) {
++        // température (25 °C : 0), accéléromètre (Z : 1 g à ±16 g, 2048 points par g), gyroscope (immobile)
++        return reg == ICM_ACCEL_Z1 ? 0x08 : 0x00;
++    }
++    return icmRegistres[icmBanque][reg & 0x7F];
++}
++
++static void icmDebut(void)
++{
++    icmPosition = 0;
++}
++
++static uint8_t icmOctet(uint8_t envoye)
++{
++    if (icmPosition++ == 0) {
++        icmAdresse = envoye & 0x7F;
++        icmLecture = envoye & 0x80;
++        return 0xFF;
++    }
++    const uint8_t reg = icmAdresse++;
++    if (icmLecture) {
++        return icmValeur(reg);
++    }
++    if (reg == ICM_BANQUE_SEL) {
++        icmBanque = envoye & 0x03;
++    } else if (icmBanque == 0 && reg == ICM_DEVICE_CONFIG && (envoye & 0x01)) {
++        icmReinitialiser(); // réinitialisation logicielle
++    } else {
++        icmRegistres[icmBanque][reg & 0x7F] = envoye;
++    }
++    return 0xFF;
++}
++
++static void rien(void)
++{
++}
++
++static const tgPuceSpi_t icm42688p = { icmDebut, icmOctet, rien };
++
++// ---------------------------------------------------------------------------------------------------------------
++// puce OSD MAX7456 (ou AT7456E) : paires adresse / donnée ; lecture : bit 7 de l'adresse à 1
++
++#define MAX_DMM     0x04
++#define MAX_DMDI    0x07
++#define MAX_OSDM    0x0C
++#define MAX_STAT    0x20
++#define MAX_FIN     0xFF
++
++static uint8_t maxRegistres[128];
++static enum { MAX_ADRESSE, MAX_DONNEE, MAX_LIRE, MAX_SUITE } maxEtat;
++static uint8_t maxAdresse;
++
++static void maxDebut(void)
++{
++    maxEtat = MAX_ADRESSE;
++}
++
++static uint8_t maxOctet(uint8_t envoye)
++{
++    switch (maxEtat) {
++    case MAX_ADRESSE:
++        if (envoye == MAX_FIN) {
++            return 0xFF;
++        }
++        maxAdresse = envoye & 0x7F;
++        maxEtat = (envoye & 0x80) ? MAX_LIRE : MAX_DONNEE;
++        return 0xFF;
++    case MAX_LIRE:
++        maxEtat = MAX_ADRESSE;
++        if (maxAdresse == MAX_STAT) {
++            return 0x04; // aucune caméra branchée : perte de synchronisation, mémoire des caractères libre
++        }
++        return maxRegistres[maxAdresse];
++    case MAX_DONNEE:
++        // le bit de réinitialisation de VM0 retombe tout seul
++        maxRegistres[maxAdresse] = maxAdresse == 0x00 ? (envoye & ~0x02) : envoye;
++        maxEtat = (maxAdresse == MAX_DMDI && (maxRegistres[MAX_DMM] & 0x01)) ? MAX_SUITE : MAX_ADRESSE;
++        return 0xFF;
++    case MAX_SUITE:
++        // écriture de l'écran en incrémentation automatique, jusqu'à 0xFF
++        if (envoye == MAX_FIN) {
++            maxEtat = MAX_ADRESSE;
++        }
++        return 0xFF;
++    }
++    return 0xFF;
++}
++
++static void maxInitialiser(void)
++{
++    maxRegistres[MAX_OSDM] = 0x1B; // valeur à la mise sous tension
++}
++
++static const tgPuceSpi_t max7456 = { maxDebut, maxOctet, rien };
++
++// ---------------------------------------------------------------------------------------------------------------
++// mémoire flash Winbond W25Q128FV (16 Mo), vide au démarrage ; pages de 4 Ko créées à la première écriture
++
++#define FL_TAILLE       (16u * 1024u * 1024u)
++#define FL_PAGE         4096u
++
++static uint8_t *flPages[FL_TAILLE / FL_PAGE];
++static uint8_t flCommande;
++static uint32_t flAdresse;
++static int flPosition;
++static bool flEcritureAutorisee;
++
++static uint8_t flLireOctet(uint32_t adresse)
++{
++    adresse %= FL_TAILLE;
++    const uint8_t *page = flPages[adresse / FL_PAGE];
++    return page ? page[adresse % FL_PAGE] : 0xFF;
++}
++
++static void flProgrammer(uint32_t adresse, uint8_t valeur)
++{
++    adresse %= FL_TAILLE;
++    uint8_t **page = &flPages[adresse / FL_PAGE];
++    if (!*page) {
++        if (valeur == 0xFF) {
++            return;
++        }
++        *page = malloc(FL_PAGE);
++        memset(*page, 0xFF, FL_PAGE);
++    }
++    (*page)[adresse % FL_PAGE] &= valeur; // la programmation ne fait que passer des bits à 0
++}
++
++static void flEffacer(uint32_t adresse, uint32_t taille)
++{
++    adresse = (adresse % FL_TAILLE) & ~(taille - 1);
++    for (uint32_t p = adresse / FL_PAGE; p < (adresse + taille) / FL_PAGE; p++) {
++        free(flPages[p]);
++        flPages[p] = NULL;
++    }
++}
++
++static void flDebut(void)
++{
++    flPosition = 0;
++}
++
++static uint8_t flOctet(uint8_t envoye)
++{
++    const int position = flPosition++;
++    if (position == 0) {
++        flCommande = envoye;
++        flAdresse = 0;
++        if (envoye == 0x06) {
++            flEcritureAutorisee = true;
++        } else if (envoye == 0x04) {
++            flEcritureAutorisee = false;
++        } else if ((envoye == 0xC7 || envoye == 0x60) && flEcritureAutorisee) {
++            flEffacer(0, FL_TAILLE);
++            flEcritureAutorisee = false;
++        }
++        return 0xFF;
++    }
++    switch (flCommande) {
++    case 0x9F: { // identification JEDEC : Winbond, W25Q128FV
++        static const uint8_t id[] = { 0xEF, 0x40, 0x18, 0x00 };
++        return position <= 4 ? id[position - 1] : 0x00;
++    }
++    case 0x05: // état : jamais occupée
++        return flEcritureAutorisee ? 0x02 : 0x00;
++    case 0x35:
++    case 0x15:
++        return 0x00;
++    case 0x03: // lecture
++        if (position <= 3) {
++            flAdresse = (flAdresse << 8) | envoye;
++            return 0xFF;
++        }
++        return flLireOctet(flAdresse++);
++    case 0x0B: // lecture rapide : un octet d'attente après l'adresse
++        if (position <= 3) {
++            flAdresse = (flAdresse << 8) | envoye;
++            return 0xFF;
++        }
++        return position == 4 ? 0xFF : flLireOctet(flAdresse++);
++    case 0x02: // programmation d'une page
++        if (position <= 3) {
++            flAdresse = (flAdresse << 8) | envoye;
++            return 0xFF;
++        }
++        if (flEcritureAutorisee) {
++            flProgrammer((flAdresse & ~0xFFu) | ((flAdresse + (uint32_t)(position - 4)) & 0xFFu), envoye);
++        }
++        return 0xFF;
++    case 0x20: // effacement 4 Ko
++    case 0xD8: // effacement 64 Ko
++        flAdresse = (flAdresse << 8) | envoye;
++        if (position == 3 && flEcritureAutorisee) {
++            flEffacer(flAdresse, flCommande == 0x20 ? 4096u : 65536u);
++            flEcritureAutorisee = false;
++        }
++        return 0xFF;
++    default:
++        return 0xFF;
++    }
++}
++
++static void flFin(void)
++{
++    if (flCommande == 0x02) {
++        flEcritureAutorisee = false;
++    }
++}
++
++static const tgPuceSpi_t w25q128 = { flDebut, flOctet, flFin };
++
++// ---------------------------------------------------------------------------------------------------------------
++// câblage de la vraie carte (config.h) : broche CS -> puce
++
++const tgPuceSpi_t *tgPuceSpi(IO_t cs)
++{
++    static bool pret;
++    if (!pret) {
++        icmReinitialiser();
++        maxInitialiser();
++        pret = true;
++    }
++#if defined(GYRO_1_CS_PIN) && defined(USE_GYRO_SPI_ICM42688P)
++    if (cs == IOGetByTag(IO_TAG(GYRO_1_CS_PIN))) {
++        return &icm42688p;
++    }
++#endif
++#if defined(MAX7456_SPI_CS_PIN) && defined(USE_MAX7456)
++    if (cs == IOGetByTag(IO_TAG(MAX7456_SPI_CS_PIN))) {
++        return &max7456;
++    }
++#endif
++#if defined(FLASH_CS_PIN) && defined(USE_FLASH_W25Q128FV)
++    if (cs == IOGetByTag(IO_TAG(FLASH_CS_PIN))) {
++        return &w25q128;
++    }
++#endif
++    return NULL;
++}
++
++// ---------------------------------------------------------------------------------------------------------------
++// baromètre Infineon DPS310 (I2C, adresse 0x76) : posé au niveau de la mer, 1013,25 hPa et 25 °C. Les mesures
++// brutes restent à zéro ; les coefficients d'étalonnage donnent alors exactement ces valeurs (c0 = 50 : 25 °C,
++// c00 = 101325 Pa, les autres à zéro).
++
++static uint8_t dpsRegistres[0x30];
++
++static void dpsInitialiser(void)
++{
++    memset(dpsRegistres, 0, sizeof(dpsRegistres));
++    dpsRegistres[0x0D] = 0x10;                  // identifiant : DPS310
++    dpsRegistres[0x08] = 0xF0;                  // coefficients prêts, capteur prêt, mesures prêtes
++    dpsRegistres[0x10] = 0x03;                  // c0 = 50
++    dpsRegistres[0x11] = 0x20;
++    dpsRegistres[0x13] = 0x18;                  // c00 = 101325 (0x18BCD)
++    dpsRegistres[0x14] = 0xBC;
++    dpsRegistres[0x15] = 0xD0;
++}
++
++static bool dpsEcrire(uint8_t reg, uint8_t nombre, const uint8_t *octets)
++{
++    for (int i = 0; i < nombre; i++, reg++) {
++        if (reg == 0x0C && (octets[i] & 0x0F) == 0x09) {
++            dpsInitialiser(); // réinitialisation logicielle
++        } else if (reg == 0x08) {
++            dpsRegistres[0x08] = 0xF0 | (octets[i] & 0x07); // l'état reste « prêt », seul le mode change
++        } else if (reg < sizeof(dpsRegistres) && reg != 0x0D) {
++            dpsRegistres[reg] = octets[i];
++        }
++    }
++    return true;
++}
++
++static bool dpsLire(uint8_t reg, uint8_t nombre, uint8_t *octets)
++{
++    for (int i = 0; i < nombre; i++, reg++) {
++        octets[i] = reg < sizeof(dpsRegistres) ? dpsRegistres[reg] : 0x00;
++    }
++    return true;
++}
++
++static bool i2cPret;
++
++static void i2cPreparer(void)
++{
++    if (!i2cPret) {
++        dpsInitialiser();
++        i2cPret = true;
++    }
++}
++
++bool tgI2cEcrire(int bus, uint8_t adresse, uint8_t reg, uint8_t nombre, const uint8_t *octets)
++{
++    i2cPreparer();
++#if defined(USE_BARO_DPS310) && defined(BARO_I2C_INSTANCE)
++    if (bus == BARO_I2C_INSTANCE && adresse == 0x76) {
++        return dpsEcrire(reg, nombre, octets);
++    }
++#endif
++    UNUSED(bus);
++    UNUSED(adresse);
++    UNUSED(reg);
++    UNUSED(nombre);
++    UNUSED(octets);
++    return false;
++}
++
++bool tgI2cLire(int bus, uint8_t adresse, uint8_t reg, uint8_t nombre, uint8_t *octets)
++{
++    i2cPreparer();
++#if defined(USE_BARO_DPS310) && defined(BARO_I2C_INSTANCE)
++    if (bus == BARO_I2C_INSTANCE && adresse == 0x76) {
++        return dpsLire(reg, nombre, octets);
++    }
++#endif
++    UNUSED(bus);
++    UNUSED(adresse);
++    UNUSED(reg);
++    UNUSED(nombre);
++    UNUSED(octets);
++    return false;
++}
+diff --git a/src/platform/STM32/simulee/peripheriques.h b/src/platform/STM32/simulee/peripheriques.h
+new file mode 100644
+index 0000000..4be32fe
+--- /dev/null
++++ b/src/platform/STM32/simulee/peripheriques.h
+@@ -0,0 +1,25 @@
++/*
++ * TrueGlide - carte simulée : puces reliées aux bus de la carte (gyroscope, OSD, mémoire flash, baromètre).
++ * Free software under the GPL-3.0 license, WITHOUT ANY WARRANTY; see the LICENSE file.
++ */
++
++#pragma once
++
++#include <stdbool.h>
++#include <stdint.h>
++
++#include "drivers/io_types.h"
++
++// une puce sur un bus SPI : début (CS au niveau bas), un octet échangé, fin (CS au niveau haut)
++typedef struct {
++    void (*debut)(void);
++    uint8_t (*octet)(uint8_t envoye);
++    void (*fin)(void);
++} tgPuceSpi_t;
++
++// puce sélectionnée par cette broche CS, d'après le config.h de la vraie carte (NULL : rien ne répond)
++const tgPuceSpi_t *tgPuceSpi(IO_t cs);
++
++// une puce sur un bus I2C (adresse sur 7 bits) : écriture et lecture de registres ; false si personne ne répond
++bool tgI2cEcrire(int bus, uint8_t adresse, uint8_t reg, uint8_t nombre, const uint8_t *octets);
++bool tgI2cLire(int bus, uint8_t adresse, uint8_t reg, uint8_t nombre, uint8_t *octets);
+diff --git a/src/platform/STM32/simulee/spi.c b/src/platform/STM32/simulee/spi.c
+new file mode 100644
+index 0000000..808f87d
+--- /dev/null
++++ b/src/platform/STM32/simulee/spi.c
+@@ -0,0 +1,60 @@
++/*
++ * TrueGlide - carte simulée : bus SPI.
++ * Free software under the GPL-3.0 license, WITHOUT ANY WARRANTY; see the LICENSE file.
++ *
++ * Le pilote SPI du microcontrôleur (STM32/bus_spi_stdperiph.c) est gardé pour tout le reste (broches, horloges,
++ * DMA réservés : `resource`, `dma` restent ceux de la vraie carte). Seuls les échanges d'octets passent ici : chaque
++ * transfert est remis à la puce simulée choisie par sa broche de sélection (CS), comme sur la carte. Les transferts
++ * se font sans DMA, tout de suite, et les fonctions de rappel des pilotes sont appelées comme à la fin d'un DMA.
++ */
++
++#include <stdbool.h>
++#include <stdint.h>
++
++#include "platform.h"
++
++#ifdef USE_SPI
++
++#include "drivers/bus_spi.h"
++#include "drivers/bus_spi_impl.h"
++#include "drivers/io.h"
++
++#include "simulee/peripheriques.h"
++
++static const extDevice_t *appareil;     // appareil dont la séquence est en cours
++static bool selectionne;                // broche CS au niveau bas
++
++void spiSequenceStart(const extDevice_t *dev)
++{
++    dev->bus->initSegment = true;
++    appareil = dev;
++    selectionne = false;
++    spiProcessSegmentsPolled(dev);
++}
++
++bool spiInternalReadWriteBufPolled(SPI_TypeDef *spiInstance, const uint8_t *txData, uint8_t *rxData, int len)
++{
++    UNUSED(spiInstance);
++    const tgPuceSpi_t *puce = appareil ? tgPuceSpi(appareil->busType_u.spi.csnPin) : NULL;
++
++    if (puce && !selectionne) {
++        puce->debut();
++    }
++    selectionne = true;
++    for (int i = 0; i < len; i++) {
++        const uint8_t b = txData ? txData[i] : 0xFF;
++        const uint8_t r = puce ? puce->octet(b) : 0xFF;
++        if (rxData) {
++            rxData[i] = r;
++        }
++    }
++    if (appareil && appareil->bus->curSegment->negateCS) {
++        if (puce) {
++            puce->fin();
++        }
++        selectionne = false;
++    }
++    return true;
++}
++
++#endif
+diff --git a/src/platform/STM32/simulee/systeme.c b/src/platform/STM32/simulee/systeme.c
+new file mode 100644
+index 0000000..4821ead
+--- /dev/null
++++ b/src/platform/STM32/simulee/systeme.c
+@@ -0,0 +1,194 @@
++/*
++ * TrueGlide - carte simulée : démarrage, temps et redémarrage, à la place des fichiers du microcontrôleur
++ * (common/stm32/system.c, STM32/system_stm32f4xx.c, STM32/persistent.c).
++ * Free software under the GPL-3.0 license, WITHOUT ANY WARRANTY; see the LICENSE file.
++ *
++ * Le temps vient de l'horloge de l'ordinateur ou du navigateur. L'horloge simulée du processeur tourne à la
++ * fréquence de la vraie carte (SystemCoreClock), pour que les durées affichées en cycles restent justes.
++ */
++
++#include <stdbool.h>
++#include <stdint.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <time.h>
++
++#include "platform.h"
++
++#include "drivers/io.h"
++#include "drivers/io_impl.h"
++#include "drivers/light_led.h"
++#include "drivers/persistent.h"
++#include "drivers/system.h"
++#include "drivers/time.h"
++
++#include "simulee/liaison.h"
++
++// fréquence du processeur de la vraie carte (STM32F405 : 168 MHz)
++uint32_t SystemCoreClock = 168000000;
++static uint32_t valeurHse;
++
++// horloge système tirée de la PLL (2 : PLLP), elle-même tirée du quartz externe (1 : HSE), comme la vraie carte
++int SystemSYSCLKSource(void)
++{
++    return 2;
++}
++
++int SystemPLLSource(void)
++{
++    return 1;
++}
++
++static struct timespec debut;
++
++static uint64_t nanosDepuisDebut(void)
++{
++    struct timespec t;
++    clock_gettime(CLOCK_MONOTONIC, &t);
++    return (uint64_t)(t.tv_sec - debut.tv_sec) * 1000000000ull + (uint64_t)t.tv_nsec - (uint64_t)debut.tv_nsec;
++}
++
++void systemInit(void)
++{
++    clock_gettime(CLOCK_MONOTONIC, &debut);
++    tgMemoireInit();
++    tgConfigCharger();
++    persistentObjectInit();
++}
++
++void systemClockSetHSEValue(uint32_t frequency)
++{
++    valeurHse = frequency;
++    UNUSED(valeurHse);
++}
++
++void cycleCounterInit(void)
++{
++}
++
++bool isMPUSoftReset(void)
++{
++    return false;
++}
++
++void OverclockRebootIfNecessary(uint32_t overclockLevel)
++{
++    UNUSED(overclockLevel);
++}
++
++uint32_t micros(void)
++{
++    return (uint32_t)(nanosDepuisDebut() / 1000u);
++}
++
++uint32_t microsISR(void)
++{
++    return micros();
++}
++
++uint32_t millis(void)
++{
++    return (uint32_t)(nanosDepuisDebut() / 1000000u);
++}
++
++uint32_t getCycleCounter(void)
++{
++    return (uint32_t)(nanosDepuisDebut() * (SystemCoreClock / 1000000u) / 1000u);
++}
++
++int32_t clockCyclesToMicros(int32_t clockCycles)
++{
++    return clockCycles / (int32_t)(SystemCoreClock / 1000000u);
++}
++
++float clockCyclesToMicrosf(int32_t clockCycles)
++{
++    return clockCycles / (SystemCoreClock / 1000000.0f);
++}
++
++int32_t clockCyclesTo10thMicros(int32_t clockCycles)
++{
++    return 10 * clockCycles / (int32_t)(SystemCoreClock / 1000000u);
++}
++
++int32_t clockCyclesTo100thMicros(int32_t clockCycles)
++{
++    return 100 * clockCycles / (int32_t)(SystemCoreClock / 1000000u);
++}
++
++uint32_t clockMicrosToCycles(uint32_t us)
++{
++    return us * (SystemCoreClock / 1000000u);
++}
++
++void delayMicroseconds(uint32_t us)
++{
++    const uint64_t fin = nanosDepuisDebut() + (uint64_t)us * 1000u;
++    while (nanosDepuisDebut() < fin) {
++    }
++}
++
++void delay(uint32_t ms)
++{
++    delayMicroseconds(ms * 1000u);
++}
++
++// redémarrage : la page relance la carte avec sa mémoire des réglages (comme un redémarrage de la vraie carte)
++void systemReset(void)
++{
++    printf("[carte] redémarrage\n");
++    tgRedemarrer();
++}
++
++void systemResetToBootloader(bootloaderRequestType_e requestType)
++{
++    UNUSED(requestType);
++    printf("[carte] mode chargeur de démarrage : pas dans la carte simulée, redémarrage\n");
++    tgRedemarrer();
++}
++
++void systemResetToMsc(int timezoneOffsetMinutes)
++{
++    UNUSED(timezoneOffsetMinutes);
++    tgRedemarrer();
++}
++
++void systemResetFromMsc(void)
++{
++    tgRedemarrer();
++}
++
++void indicateFailure(failureMode_e mode, int codeRepeatsRemaining)
++{
++    UNUSED(codeRepeatsRemaining);
++    printf("[carte] défaut %d\n", mode);
++}
++
++void failureMode(failureMode_e mode)
++{
++    indicateFailure(mode, 10);
++    systemReset();
++}
++
++void initialiseMemorySections(void)
++{
++}
++
++// objets gardés pendant un redémarrage logiciel (raison du redémarrage, demande de chargeur…)
++static uint32_t objetsPersistants[PERSISTENT_OBJECT_COUNT];
++
++void persistentObjectInit(void)
++{
++}
++
++uint32_t persistentObjectRead(persistentObjectId_e id)
++{
++    return id < PERSISTENT_OBJECT_COUNT ? objetsPersistants[id] : 0;
++}
++
++void persistentObjectWrite(persistentObjectId_e id, uint32_t value)
++{
++    if (id < PERSISTENT_OBJECT_COUNT) {
++        objetsPersistants[id] = value;
++    }
++}
+diff --git a/src/platform/STM32/simulee/usb.c b/src/platform/STM32/simulee/usb.c
+new file mode 100644
+index 0000000..70f50ae
+--- /dev/null
++++ b/src/platform/STM32/simulee/usb.c
+@@ -0,0 +1,205 @@
++/*
++ * TrueGlide - carte simulée : port USB (VCP), à la place de STM32/serial_usb_vcp.c et de la pile USB.
++ * Free software under the GPL-3.0 license, WITHOUT ANY WARRANTY; see the LICENSE file.
++ *
++ * Le port USB de la carte est relié à la page (ou à TCP sur l'ordinateur) par simulee/liaison.c. Il se comporte
++ * comme une carte branchée et reconnue par l'ordinateur. Le mode clé USB (stockage de masse) et la manette USB
++ * (HID) n'existent pas dans la carte simulée.
++ */
++
++#include <stdbool.h>
++#include <stdint.h>
++
++#include "platform.h"
++
++#include "common/utils.h"
++
++#include "drivers/io.h"
++#include "drivers/serial.h"
++#include "drivers/serial_usb_vcp.h"
++#include "drivers/usb_msc.h"
++#include "io/usb_cdc_hid.h"
++#include "io/usb_msc.h"
++
++#include "simulee/liaison.h"
++
++static vcpPort_t vcpPort;
++static uint32_t debitUsb = 115200;
++
++static void usbVcpSetBaudRate(serialPort_t *instance, uint32_t baudRate)
++{
++    UNUSED(instance);
++    UNUSED(baudRate);
++}
++
++static void usbVcpSetMode(serialPort_t *instance, portMode_e mode)
++{
++    UNUSED(instance);
++    UNUSED(mode);
++}
++
++static void usbVcpSetCtrlLineStateCb(serialPort_t *instance, void (*cb)(void *context, uint16_t ctrlLineState), void *context)
++{
++    UNUSED(instance);
++    UNUSED(cb);
++    UNUSED(context);
++}
++
++static void usbVcpSetBaudRateCb(serialPort_t *instance, void (*cb)(serialPort_t *context, uint32_t baud), serialPort_t *context)
++{
++    UNUSED(instance);
++    UNUSED(cb);
++    UNUSED(context);
++}
++
++static bool isUsbVcpTransmitBufferEmpty(const serialPort_t *instance)
++{
++    UNUSED(instance);
++    return true;
++}
++
++static uint32_t usbVcpAvailable(const serialPort_t *instance)
++{
++    UNUSED(instance);
++    return tgEnAttente(TG_PORT_USB);
++}
++
++static uint8_t usbVcpRead(serialPort_t *instance)
++{
++    UNUSED(instance);
++    return tgLire(TG_PORT_USB);
++}
++
++static void usbVcpWriteBuf(serialPort_t *instance, const void *data, int count)
++{
++    UNUSED(instance);
++    tgEcrire(TG_PORT_USB, data, count);
++}
++
++static void usbVcpFlush(vcpPort_t *port)
++{
++    if (port->txAt) {
++        tgEcrire(TG_PORT_USB, port->txBuf, port->txAt);
++        port->txAt = 0;
++    }
++}
++
++static void usbVcpWrite(serialPort_t *instance, uint8_t c)
++{
++    vcpPort_t *port = container_of(instance, vcpPort_t, port);
++    port->txBuf[port->txAt++] = c;
++    if (!port->buffering || port->txAt >= ARRAYLEN(port->txBuf)) {
++        usbVcpFlush(port);
++    }
++}
++
++static void usbVcpBeginWrite(serialPort_t *instance)
++{
++    vcpPort_t *port = container_of(instance, vcpPort_t, port);
++    port->buffering = true;
++}
++
++static uint32_t usbTxBytesFree(const serialPort_t *instance)
++{
++    UNUSED(instance);
++    return 4096; // la liaison n'est jamais pleine
++}
++
++static void usbVcpEndWrite(serialPort_t *instance)
++{
++    vcpPort_t *port = container_of(instance, vcpPort_t, port);
++    port->buffering = false;
++    usbVcpFlush(port);
++}
++
++static const struct serialPortVTable usbVTable[] = {
++    {
++        .serialWrite = usbVcpWrite,
++        .serialTotalRxWaiting = usbVcpAvailable,
++        .serialTotalTxFree = usbTxBytesFree,
++        .serialRead = usbVcpRead,
++        .serialSetBaudRate = usbVcpSetBaudRate,
++        .isSerialTransmitBufferEmpty = isUsbVcpTransmitBufferEmpty,
++        .setMode = usbVcpSetMode,
++        .setCtrlLineStateCb = usbVcpSetCtrlLineStateCb,
++        .setBaudRateCb = usbVcpSetBaudRateCb,
++        .writeBuf = usbVcpWriteBuf,
++        .beginWrite = usbVcpBeginWrite,
++        .endWrite = usbVcpEndWrite
++    }
++};
++
++void usbVcpInit(void)
++{
++    // broches USB de la STM32F405, comme la vraie carte
++    IOInit(IOGetByTag(IO_TAG(PA11)), OWNER_USB, 0);
++    IOInit(IOGetByTag(IO_TAG(PA12)), OWNER_USB, 0);
++}
++
++serialPort_t *usbVcpOpen(void)
++{
++    vcpPort.port.vTable = usbVTable;
++    return &vcpPort.port;
++}
++
++uint32_t usbVcpGetBaudRate(serialPort_t *instance)
++{
++    UNUSED(instance);
++    return debitUsb;
++}
++
++uint8_t usbVcpIsConnected(void)
++{
++    return 1;
++}
++
++uint8_t usbVcpIsActive(void)
++{
++    return 1;
++}
++
++bool cdcDeviceIsMayBeActive(void)
++{
++    return true;
++}
++
++// mode clé USB et manette USB : absents de la carte simulée
++void mscButtonInit(void)
++{
++}
++
++bool mscCheckBootAndReset(void)
++{
++    return false;
++}
++
++uint8_t mscStart(void)
++{
++    return 1; // échec : la carte simulée ne devient pas une clé USB
++}
++
++bool mscCheckButton(void)
++{
++    return false;
++}
++
++void mscWaitForButton(void)
++{
++}
++
++bool mscCheckFilesystemReady(void)
++{
++    return false;
++}
++
++void sendRcDataToHid(void)
++{
++}
++
++void mscSetActive(void)
++{
++}
++
++void mscActivityLed(void)
++{
++}
+diff --git a/src/platform/STM32/timer_stdperiph.c b/src/platform/STM32/timer_stdperiph.c
+index 2bba4b2..0d09335 100644
+--- a/src/platform/STM32/timer_stdperiph.c
++++ b/src/platform/STM32/timer_stdperiph.c
+@@ -91,8 +91,16 @@ static uint8_t lookupTimerIndex(const TIM_TypeDef *tim)
+ #define _CASE_(tim, index) case ((unsigned)tim >> _CASE_SHF): return index; break
+ #define _CASE(i) _CASE_(TIM##i##_BASE, TIMER_INDEX(i))
+ 
++#if defined(TG_CARTE_SIMULEE)
++    // carte simulée : les adresses des timers ne sont pas des constantes, on compare les pointeurs
++#undef _CASE_
++#define _CASE_(timBase, index) if (tim == (const TIM_TypeDef *)(timBase)) { return index; }
++    switch (0) {
++    case 0:
++#else
+ // let gcc do the work, switch should be quite optimized
+     switch ((unsigned)tim >> _CASE_SHF) {
++#endif
+ #if USED_TIMERS & TIM_N(1)
+         _CASE(1);
+ #endif
+diff --git a/trueglide/carte_worker.js b/trueglide/carte_worker.js
+new file mode 100644
+index 0000000..0e2523e
+--- /dev/null
++++ b/trueglide/carte_worker.js
+@@ -0,0 +1,63 @@
++// TrueGlide : la carte simulée (carte.js + carte.wasm) tourne dans ce Web Worker, hors du fil de la page.
++// Messages de la page : { type: 'demarrer', eeprom, uid } (eeprom : Uint8Array ou null ; uid : identifiant unique de
++// la puce, 3 nombres, ou null) ; { type: 'entree', octets }.
++// Messages vers la page : { type: 'prete' } ; { type: 'sortie', port, octets } ; { type: 'redemarrage', eeprom }.
++/* global TrueGlideCarte */
++importScripts('carte.js');
++
++let carte = null;
++
++// les octets sortent un par un du firmware : on les regroupe et on les envoie à la page une fois par tour de boucle
++const enAttente = new Map();
++function sortie(port, octets) {
++    if (!enAttente.size) {
++        queueMicrotask(vider);
++    }
++    const liste = enAttente.get(port) || [];
++    liste.push(octets);
++    enAttente.set(port, liste);
++}
++function vider() {
++    for (const [port, liste] of enAttente) {
++        const octets = new Uint8Array(liste.reduce((n, o) => n + o.length, 0));
++        let i = 0;
++        for (const o of liste) {
++            octets.set(o, i);
++            i += o.length;
++        }
++        self.postMessage({ type: 'sortie', port, octets }, [octets.buffer]);
++    }
++    enAttente.clear();
++}
++
++self.addEventListener('message', async (e) => {
++    const m = e.data;
++    if (!m || typeof m !== 'object') {
++        return; // messages internes d'Emscripten (« setimmediate »)
++    }
++    if (m.type === 'demarrer') {
++        carte = await TrueGlideCarte({
++            print: () => {},
++            printErr: () => {},
++            arguments: [],
++            preRun: [(M) => { if (m.eeprom) M.FS.writeFile('/eeprom.bin', m.eeprom); }],
++            // avant le démarrage du firmware : l'identifiant unique de la carte récoltée (vraie carte seulement)
++            onRuntimeInitialized() {
++                if (m.uid && this._tg_definir_uid) this._tg_definir_uid(m.uid[0] >>> 0, m.uid[1] >>> 0, m.uid[2] >>> 0);
++            },
++            tgSortie: sortie,
++            tgRedemarrage: () => {
++                vider();
++                const eeprom = carte.FS.readFile('/eeprom.bin');
++                carte = null;
++                self.postMessage({ type: 'redemarrage', eeprom }, [eeprom.buffer]);
++            },
++        });
++        self.postMessage({ type: 'prete' });
++    } else if (m.type === 'entree' && carte) {
++        const p = carte._malloc(m.octets.length);
++        carte.HEAPU8.set(m.octets, p);
++        carte._tg_entree(0, p, m.octets.length);
++        carte._free(p);
++    }
++});
+diff --git a/trueglide/vraie_carte.py b/trueglide/vraie_carte.py
+new file mode 100644
+index 0000000..a589dea
+--- /dev/null
++++ b/trueglide/vraie_carte.py
+@@ -0,0 +1,145 @@
++#!/usr/bin/env python3
++# TrueGlide : construit la carte simulée « vraie carte » : le firmware exact d'une carte STM32F4 (mêmes fichiers, même
++# config.h, mêmes tables de broches, timers et DMA), compilé pour l'ordinateur (natif, pour les essais) ou pour le
++# navigateur (WebAssembly). Seuls les fichiers qui touchent directement au matériel sont remplacés par ceux de
++# src/platform/STM32/simulee/ (démarrage, horloge, mémoire des réglages, USB, interruptions).
++#
++# Usage : python3 trueglide/essai_navigateur/vraie_carte.py [CARTE] [natif|wasm]
++#         (arm-none-eabi-gcc dans le PATH pour lire la vraie construction ; emcc pour wasm)
++
++import concurrent.futures
++import fnmatch
++import os
++import re
++import shlex
++import subprocess
++import sys
++
++RACINE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
++
++# fichiers de la vraie carte remplacés par la carte simulée (motifs sur le chemin trouvé)
++REMPLACES = [
++    '*.s', '*.S',                                   # démarrage en assembleur
++    '*/STM32/startup/system_stm32f4xx.c',           # horloges du microcontrôleur
++    '*/STM32/system_stm32f4xx.c',
++    '*/common/stm32/config_flash.c',                # écriture des réglages en mémoire flash
++    '*/common/stm32/fault_handlers.c',
++    '*/STM32/persistent.c',
++    '*/STM32/serial_usb_vcp.c',                     # port USB : relié à la page par la mémoire
++    '*/STM32/vcpf4/*',
++    '*STM32_USB_Device_Library/*',
++    '*STM32_USB_OTG_Driver/*',
++    '*/STM32/usb_msc_f4xx.c',                       # clé USB (stockage de masse) : pas dans la simulation
++    '*/STM32/usbd_msc_desc.c',
++    '*/main/msc/usbd_storage*',
++    '*/common/stm32/msc_sdio_storage.c',
++    '*/drivers/usb_msc_common.c',
++    '*/io/usb_msc.c',
++    '*/io/usb_cdc_hid.c',
++]
++
++# fichiers gardés dont quelques fonctions sont remplacées (renommées pour ce fichier seulement)
++# common/stm32/system.c est gardé (type de puce, broches inutilisées…) ; ses fonctions de temps viennent de la carte
++# simulée (simulee/systeme.c)
++TEMPS = ['cycleCounterInit', 'microsISR', 'micros', 'getCycleCounter', 'clockCyclesToMicros', 'clockCyclesToMicrosf',
++         'clockCyclesTo10thMicros', 'clockCyclesTo100thMicros', 'clockMicrosToCycles', 'millis', 'delayMicroseconds',
++         'delay', 'indicateFailure', 'failureMode', 'initialiseMemorySections', 'SysTick_Handler']
++
++RENOMMES = {
++    'src/platform/common/stm32/system.c': [f'-D{n}=tgMateriel_{n}' for n in TEMPS],
++    'src/platform/STM32/bus_spi_stdperiph.c': ['-DspiSequenceStart=tgMaterielSpiSequenceStart',
++                                               '-DspiInternalReadWriteBufPolled=tgMaterielSpiReadWriteBufPolled'],
++    'src/platform/STM32/bus_i2c_stm32f4xx.c': ['-Di2cWriteBuffer=tgMaterielI2cWriteBuffer', '-Di2cWrite=tgMaterielI2cWrite',
++                                               '-Di2cReadBuffer=tgMaterielI2cReadBuffer', '-Di2cRead=tgMaterielI2cRead',
++                                               '-Di2cBusy=tgMaterielI2cBusy',
++                                               '-Di2cGetErrorCounter=tgMaterielI2cGetErrorCounter'],
++    'lib/main/STM32F4/Drivers/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_adc.c': [
++        '-DADC_SoftwareStartInjectedConv=tgMaterielAdcStartInjected'],
++}
++
++ARM = re.compile(r'^(-mthumb|-mcpu=.*|-march=.*|-mfloat-abi=.*|-mfpu=.*|-flto.*|-fuse-linker-plugin|-Werror|'
++                 r'-Wunsafe-loop-optimizations|-specs=.*|-nostdlib|-O.*|-g.*|-MMD|-MP|-MF.*)$')
++
++
++# options de construction de la vraie carte (construction « cloud » de Betaflight : OPTIONS="CLOUD_BUILD USE_…")
++OPTIONS = os.environ.get('TG_OPTIONS', '')
++
++
++def make(variable, carte):
++    r = subprocess.run(['make', '--no-print-directory', f'--eval=lire: ; @echo $({variable})', 'lire',
++                        f'CONFIG={carte}', 'OBJECT_DIR=obj/vraie_carte/lecture'] + ([f'OPTIONS={OPTIONS}'] if OPTIONS else []),
++                       cwd=RACINE, capture_output=True, text=True, check=True)
++    return r.stdout.strip().splitlines()[-1]
++
++
++def trouver(f, dossiers):
++    for d in dossiers:
++        p = os.path.normpath(os.path.join(RACINE, d, f))
++        if os.path.isfile(p):
++            return os.path.relpath(p, RACINE)
++    raise FileNotFoundError(f)
++
++
++def main():
++    carte = sys.argv[1] if len(sys.argv) > 1 else 'SPEEDYBEEF405MINI'
++    cible = sys.argv[2] if len(sys.argv) > 2 else 'natif'
++    # make écrit les valeurs entre guillemets (-D__REVISION__="…") : découpage simple, guillemets gardés
++    drapeaux = [d for d in make('CFLAGS', carte).split() if not ARM.match(d)]
++    dossiers = ['.'] + make('VPATH', carte).split(':')
++    sources = []
++    for f in dict.fromkeys(make('SRC', carte).split()):
++        p = trouver(f, dossiers)
++        if not any(fnmatch.fnmatch('./' + p, m) for m in REMPLACES):
++            sources.append(p)
++    simulee = 'src/platform/STM32/simulee'
++    sources += sorted(os.path.join(simulee, f) for f in os.listdir(os.path.join(RACINE, simulee)) if f.endswith('.c'))
++
++    sortie = os.path.join(RACINE, 'obj/vraie_carte', carte, cible)
++    os.makedirs(sortie, exist_ok=True)
++    if cible == 'wasm':
++        cc = ['emcc', '-O2', '-Wno-incompatible-pointer-types']
++    else:
++        cc = ['gcc', '-O1', '-g', '-fno-pie']
++    commun = drapeaux + ['-DTG_CARTE_SIMULEE', '-include', os.path.join(simulee, 'cmsis_hote.h'), '-Wno-error']
++
++    def compiler(src):
++        obj = os.path.join(sortie, src.replace('/', '__') + '.o')
++        r = subprocess.run(cc + commun + RENOMMES.get(src, []) + ['-c', src, '-o', obj], cwd=RACINE, capture_output=True, text=True)
++        return src, obj, r.returncode, r.stderr
++
++    objets, erreurs = [], []
++    with concurrent.futures.ThreadPoolExecutor(os.cpu_count()) as ex:
++        for src, obj, code, err in ex.map(compiler, sources):
++            if code:
++                erreurs.append((src, err))
++            else:
++                objets.append(obj)
++    print(f'{carte} ({cible}) : {len(sources)} fichiers, {len(erreurs)} en erreur')
++    for src, err in erreurs:
++        premiere = ' | '.join(l.strip() for l in err.splitlines() if 'rror' in l)[:400] or err.strip()[:200]
++        print(f'  {src} : {premiere}')
++    if erreurs:
++        sys.exit(1)
++
++    if cible == 'wasm':
++        lien = ['emcc', '-O2'] + objets + ['-lm', '-Wl,--allow-multiple-definition', '-sSTACK_SIZE=1048576', '-sALLOW_MEMORY_GROWTH', '-sMODULARIZE',
++                                           '-sEXPORT_NAME=TrueGlideCarte',
++                                           '-sEXPORTED_FUNCTIONS=_main,_tg_entree,_tg_definir_uid,_malloc,_free',
++                                           '-sEXPORTED_RUNTIME_METHODS=FS,HEAPU8', '-sENVIRONMENT=web,worker,node',
++                                           '-sEXIT_RUNTIME=0', '-o', os.path.join(sortie, 'carte.js')]
++    else:
++        lien = ['gcc', '-no-pie', '-Wl,--gc-sections'] + objets + ['-lm', '-Wl,-T,src/platform/SIMULATOR/link/sitl.ld',
++                                              '-o', os.path.join(sortie, 'carte')]
++    r = subprocess.run(lien, cwd=RACINE, capture_output=True, text=True)
++    if r.returncode:
++        manquants = sorted(set(re.findall(r"undefined reference to `([^']+)'|undefined symbol: (\S+)", r.stderr)))
++        print('édition de liens :', len(manquants), 'symboles manquants')
++        for m in manquants:
++            print('  ', ''.join(m))
++        print('\n'.join(l for l in r.stderr.splitlines() if 'multiple definition' in l or 'error' in l.lower())[:3000])
++        sys.exit(1)
++    print('construit :', os.path.relpath(lien[-1], RACINE))
++
++
++if __name__ == '__main__':
++    main()
