@@ -493,6 +493,11 @@ test('fichier drone : enregistré puis relu à l\'identique ; un diff all donne 
   assert.equal(d.carte, 'SPEEDYBEEF405MINI');
   assert.equal(d.drone.poles, '12');
   assert.throws(() => P.ouvrir('{"format":"autre"}'));
+  // sans ligne motor_poles, la carte garde la valeur d'usine (14), signalée
+  const usine = P.ouvrir('# version\n# Betaflight / STM32F405 (S405) 2026.6.2\nboard_name SPEEDYBEEF405MINI');
+  assert.equal(usine.drone.poles, '14');
+  assert.ok(usine.messages.some(m => /valeur d'usine/.test(m.texte)));
+  assert.equal(P.ouvrir('set gyro_lpf1_static_hz = 250').drone.poles, undefined);   // simple bout de texte : rien supposé
 });
 
 test('chaque carte décrite a des ports valides et ses fonctions par défaut sur un port existant', () => {
