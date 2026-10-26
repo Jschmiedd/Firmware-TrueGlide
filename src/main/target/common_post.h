@@ -1029,3 +1029,8 @@ extern struct linker_symbol __fontdata_end;
 #if !defined(USE_DSHOT_TELEMETRY) && !defined(USE_ESC_SENSOR)
 #undef USE_MOTOR_HEALTH
 #endif
+
+// TrueGlide : carte simulée SITLFULL, fonctions de la vraie carte (généré par trueglide/essai_navigateur/sitlfull_carte.py)
+#if defined(SITLFULL)
+#include "carte_generee.h"
+#endif

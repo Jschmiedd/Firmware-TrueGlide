@@ -40,7 +40,9 @@
 
 #define RUN_LOOP_DELAY_US 50 // max 20khz run loop frequency
 #define USE_MAIN_ARGS
+#ifndef GYRO_COUNT
 #define GYRO_COUNT 1 // 1 Gyro
+#endif
 
 typedef void* ADC_TypeDef; // Dummy definition for ADC_TypeDef
 

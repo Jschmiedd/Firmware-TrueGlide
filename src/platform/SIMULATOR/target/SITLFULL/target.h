@@ -40,8 +40,9 @@
 
 #define ENABLE_SIMULATOR_MULTITHREAD 1
 
+#ifndef SYSTEM_HSE_MHZ
 #define SYSTEM_HSE_MHZ 0
-#define DEFAULT_CPU_OVERCLOCK 1
+#endif
 #define DMA_RAM
 #define DMA_RW_AXI
 #define DMA_RAM_R
@@ -135,36 +136,20 @@
 #undef USE_TELEMETRY_LTM
 #undef USE_ADC
 #undef USE_VCP
-// TrueGlide SITLFULL: USE_OSD kept (settings of a real board)
 #undef USE_RX_PPM
 #undef USE_RX_PWM
-// TrueGlide SITLFULL: USE_SERIALRX kept (settings of a real board)
-// TrueGlide SITLFULL: USE_SERIALRX_CRSF kept (settings of a real board)
-// TrueGlide SITLFULL: USE_SERIALRX_GHST kept (settings of a real board)
-// TrueGlide SITLFULL: USE_SERIALRX_IBUS kept (settings of a real board)
-// TrueGlide SITLFULL: USE_SERIALRX_SBUS kept (settings of a real board)
 #undef USE_SERIALRX_SPEKTRUM
 #undef USE_SERIALRX_SUMD
 #undef USE_SERIALRX_SUMH
 #undef USE_SERIALRX_XBUS
-// TrueGlide SITLFULL: USE_LED_STRIP kept (settings of a real board)
 #undef USE_TELEMETRY_FRSKY_HUB
 #undef USE_TELEMETRY_HOTT
 #undef USE_TELEMETRY_SMARTPORT
 #undef USE_RESOURCE_MGMT
-// TrueGlide SITLFULL: USE_CMS kept (settings of a real board)
-// TrueGlide SITLFULL: USE_TELEMETRY_CRSF kept (settings of a real board)
-// TrueGlide SITLFULL: USE_TELEMETRY_GHST kept (settings of a real board)
 #undef USE_TELEMETRY_IBUS
 #undef USE_TELEMETRY_JETIEXBUS
 #undef USE_TELEMETRY_SRXL
 #undef USE_SERIALRX_JETIEXBUS
-// TrueGlide SITLFULL: USE_VTX_COMMON kept (settings of a real board)
-// TrueGlide SITLFULL: USE_VTX_CONTROL kept (settings of a real board)
-// TrueGlide SITLFULL: USE_VTX_SMARTAUDIO kept (settings of a real board)
-// TrueGlide SITLFULL: USE_VTX_TRAMP kept (settings of a real board)
-// TrueGlide SITLFULL: USE_VTX_MSP kept (settings of a real board)
-// TrueGlide SITLFULL: USE_CAMERA_CONTROL kept (settings of a real board)
 #undef USE_SERIAL_4WAY_BLHELI_BOOTLOADER
 #undef USE_SERIAL_4WAY_SK_BOOTLOADER
 
@@ -173,34 +158,9 @@
 
 #define TARGET_FLASH_SIZE 2048
 
-// TrueGlide SITLFULL: settings of a real board without the hardware (DShot, bidirectional telemetry, dynamic
-// notch, RPM filter, dynamic idle, OSD over MSP DisplayPort). Nothing drives motors or a video chip.
-#define USE_DSHOT
-#define USE_DSHOT_TELEMETRY
-#define USE_DYN_NOTCH_FILTER
-#define USE_RPM_FILTER
-#define USE_DYN_IDLE
-#undef USE_MAX7456
-// OSD : réglages et positions des éléments (affichage par MSP DisplayPort, aucune puce vidéo)
-#define USE_OSD
-#define USE_OSD_SD
-#define USE_OSD_HD
-#define USE_VTX
-#define USE_MSP_DISPLAYPORT
-// récepteur série, télémétrie et LED comme sur une vraie carte (réglages seulement)
-#define USE_SERIALRX
-#define USE_SERIALRX_CRSF
-#define USE_SERIALRX_GHST
-#define USE_SERIALRX_IBUS
-#define USE_SERIALRX_SBUS
-#define USE_SERIALRX_FPORT
-#define USE_SERIALRX_SRXL2
-#define USE_TELEMETRY
-#define USE_LED_STRIP
-#define USE_LED_STRIP_STATUS_MODE
-#define LED_STRIP_MAX_LENGTH 32
+// TrueGlide SITLFULL : les fonctions de la vraie carte viennent de carte_generee.h (fin de common_post.h)
 
-#define DEFIO_NO_PORTS   // suppress 'no pins defined' warning
+// ports d'entrées-sorties : ceux du microcontrôleur de la vraie carte (carte_generee.h)
 
 #define FLASH_PAGE_SIZE (0x400)
 

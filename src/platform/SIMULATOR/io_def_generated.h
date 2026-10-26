@@ -21,5 +21,10 @@
 
 #pragma once
 
+#if defined(SITLFULL)
+// carte simulée : mêmes ports que le microcontrôleur de la vraie carte
+#include "../common/stm32/io_def_generated.h"
+#else
 #define DEFIO_PORT_USED_COUNT 0
 #define DEFIO_IO_USED_COUNT   0
+#endif
