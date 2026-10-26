@@ -1,5 +1,6 @@
 // TrueGlide : la carte simulée (carte.js + carte.wasm) tourne dans ce Web Worker, hors du fil de la page.
-// Messages de la page : { type: 'demarrer', eeprom } (eeprom : Uint8Array ou null) ; { type: 'entree', octets }.
+// Messages de la page : { type: 'demarrer', eeprom, uid } (eeprom : Uint8Array ou null ; uid : identifiant unique de
+// la puce, 3 nombres, ou null) ; { type: 'entree', octets }.
 // Messages vers la page : { type: 'prete' } ; { type: 'sortie', port, octets } ; { type: 'redemarrage', eeprom }.
 /* global TrueGlideCarte */
 importScripts('carte.js');
@@ -40,6 +41,10 @@ self.addEventListener('message', async (e) => {
             printErr: () => {},
             arguments: [],
             preRun: [(M) => { if (m.eeprom) M.FS.writeFile('/eeprom.bin', m.eeprom); }],
+            // avant le démarrage du firmware : l'identifiant unique de la carte récoltée (vraie carte seulement)
+            onRuntimeInitialized() {
+                if (m.uid && this._tg_definir_uid) this._tg_definir_uid(m.uid[0] >>> 0, m.uid[1] >>> 0, m.uid[2] >>> 0);
+            },
             tgSortie: sortie,
             tgRedemarrage: () => {
                 vider();
