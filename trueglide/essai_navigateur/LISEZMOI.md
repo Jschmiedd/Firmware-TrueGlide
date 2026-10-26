@@ -37,18 +37,20 @@ l'UART1 sert de console ; dans la version navigateur, la console devra passer pa
 
 ## Écarts connus avant toute intégration
 
-- **Gyroscope** : le gyroscope virtuel tourne à 1 kHz ; l'onglet Configuration affiche donc 1 kHz / 0,5 kHz au lieu
-  des fréquences de la vraie carte. Il faut un gyroscope virtuel à la fréquence de la carte simulée (sinon chiffre
-  faux affiché).
-- **Liste des fonctions** : `SITLFULL` reprend les fonctions d'une F405 à la main ; il faut la générer depuis la
-  cible réelle de chaque carte (sinon une fonction absente de la carte pourrait être réglable dans la simulation).
-- **Ports et broches** : la carte simulée n'a ni les UART ni les ressources (broches) de la F405 Mini.
-- **Calcul** : la carte simulée occupe un cœur du processeur pendant qu'elle tourne ; à placer dans un Web Worker.
+| Écart | État |
+| --- | --- |
+| Gyroscope à 1 kHz (fréquences fausses dans Configuration) | **Corrigé** : le gyro virtuel tourne à la fréquence du gyro de la vraie carte (ICM42688P : 8 kHz ; boucle PID 4 kHz avec `pid_process_denom = 2`), comme sur la vraie F405 Mini |
+| Carte simulée sur le fil de la page | **Corrigé** : elle tourne dans un Web Worker (`carte_worker.js`), sorties regroupées par tour de boucle ; page à 239–243 tours/s (maximum du navigateur) contre 45 avant ; parcours Configurator inchangé, aucune erreur |
+| Liste des fonctions écrite à la main | **En cours** (branche `essai-carte-generee`) : sur les 669 réglages de la vraie F405 Mini, il en manque 110 à la carte simulée et elle en a 62 en trop (navigation, boussole) |
+| Ports et broches de la vraie carte | **En cours** : la carte simulée n'a ni l'USB (VCP) ni les tables de broches, timers et DMA du F405 |
+
+Mesures en direct : sans mouvement simulé, la carte simulée affiche une charge processeur et une cadence du gyro à 0
+(vrai pour la simulation, différent d'une vraie carte) ; à signaler dans le logiciel.
 
 ## Reconstruire et rejouer
 
 ```
 EMSDK=/chemin/emsdk trueglide/essai_navigateur/construire.sh            # obj/navigateur/carte.js + carte.wasm
 node trueglide/essai_navigateur/essai_node.cjs diff_de_la_carte.txt     # collage, save, redémarrage, relecture
-node trueglide/essai_navigateur/essai_configurateur.cjs                 # Configurator publié + carte simulée (Playwright)
+node trueglide/essai_navigateur/essai_configurateur.cjs                 # Configurator publié + carte simulée dans un Web Worker (Playwright)
 ```
