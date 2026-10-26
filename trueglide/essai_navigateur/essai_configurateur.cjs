@@ -9,23 +9,22 @@ const BASE = 'https://jschmiedd.github.io/TrueGlide-Configurator/'; const DOSSIE
   await p.route('**/__carte/*', r => { const f = path.join(DOSSIER, path.basename(new URL(r.request().url()).pathname));
     r.fulfill({ body: fs.readFileSync(f), contentType: f.endsWith('.wasm') ? 'application/wasm' : f.endsWith('.js') ? 'text/javascript' : 'application/octet-stream' }); });
   await p.addInitScript(() => {
-    // fausse connexion « ws://carte-simulee » : la carte tourne dans la page (WebAssembly)
-    const Vrai = window.WebSocket; let eeprom = null; let charge = null;
-    const script = () => charge || (charge = new Promise(ok => { const s = document.createElement('script'); s.src = '/__carte/carte.js'; s.onload = ok; document.head.appendChild(s); }));
+    // fausse connexion « ws://carte-simulee » : la carte tourne dans un Web Worker de la page (WebAssembly)
+    const Vrai = window.WebSocket; let eeprom = null;
     const memoire = async () => { if (eeprom) return eeprom; const r = await fetch('/__carte/eeprom_collee.bin'); return eeprom = new Uint8Array(await r.arrayBuffer()); };
     class CarteSimulee {
       constructor() { this.readyState = 0; this.binaryType = 'blob'; this.demarrer(); }
       async demarrer() {
-        await script(); const mem = await memoire();
-        this.M = await TrueGlideCarte({ print: () => {}, printErr: () => {}, locateFile: f => '/__carte/' + f,
-          preRun: [m => m.FS.writeFile('/eeprom.bin', mem)],
-          tgSortie: (id, d) => { if (id === 0 && this.readyState === 1 && this.onmessage) this.onmessage({ data: new Blob([d]) }); },
-          tgRedemarrage: () => { eeprom = this.M.FS.readFile('/eeprom.bin'); window.redemarrages = (window.redemarrages || 0) + 1; setTimeout(() => this.close(), 0); } });
-        await new Promise(r => setTimeout(r, 1200)); // démarrage de la carte
-        this.readyState = 1; this.onopen && this.onopen({});
+        const mem = await memoire();
+        this.w = new Worker('/__carte/carte_worker.js');
+        this.w.onmessage = (e) => { const m = e.data;
+          if (m.type === 'sortie' && m.port === 0 && this.readyState === 1 && this.onmessage) this.onmessage({ data: new Blob([m.octets]) });
+          else if (m.type === 'prete') setTimeout(() => { this.readyState = 1; this.onopen && this.onopen({}); }, 1200); // démarrage du firmware
+          else if (m.type === 'redemarrage') { eeprom = m.eeprom; window.redemarrages = (window.redemarrages || 0) + 1; this.close(); } };
+        this.w.postMessage({ type: 'demarrer', eeprom: mem.slice() });
       }
-      send(d) { if (this.readyState !== 1) return; const b = new Uint8Array(d.buffer ? d.buffer.slice(d.byteOffset, d.byteOffset + d.byteLength) : d); const p = this.M._malloc(b.length); this.M.HEAPU8.set(b, p); this.M._tg_entree(0, p, b.length); this.M._free(p); }
-      close() { if (this.readyState === 3) return; this.readyState = 3; this.onclose && this.onclose({}); }
+      send(d) { if (this.readyState !== 1) return; const b = new Uint8Array(d.buffer ? d.buffer.slice(d.byteOffset, d.byteOffset + d.byteLength) : d); this.w.postMessage({ type: 'entree', octets: b }, [b.buffer]); }
+      close() { if (this.readyState === 3) return; this.readyState = 3; if (this.w) this.w.terminate(); this.onclose && this.onclose({}); }
     }
     window.WebSocket = function (url, proto) { return String(url).startsWith('ws://carte-simulee') ? new CarteSimulee() : new Vrai(url, proto); };
   });
@@ -42,6 +41,7 @@ const BASE = 'https://jschmiedd.github.io/TrueGlide-Configurator/'; const DOSSIE
   await p.goto(BASE + 'test/'); await p.waitForTimeout(4000);
   const t0 = Date.now(); await brancher(); console.log('connecté :', await connecte(), 'en', Date.now() - t0, 'ms');
   await photo('01_accueil');
+  console.log('page : tours de boucle en 1 s :', await p.evaluate(async () => { const t = performance.now(); let n = 0; while (performance.now() - t < 1000) { n++; await new Promise(r => setTimeout(r, 0)); } return n; }));
   for (const [n, o] of [['02_ports', 'Ports'], ['03_configuration', 'Configuration'], ['04_moteurs', 'Moteurs'], ['05_osd', 'OSD'], ['06_pid', 'Réglages de PID']]) { try { await onglet(o); await photo(n); } catch (e) { console.log('onglet', o, ':', e.message.split('\n')[0]); await photo('erreur'); console.log((await p.locator('[role=dialog]').allInnerTexts()).join(' / ').slice(0, 400)); } }
   // un changement dans l'interface, enregistré et relu après redémarrage
   await onglet('Configuration');

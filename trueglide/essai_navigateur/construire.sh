@@ -13,5 +13,6 @@ make MODELE=TRUEGLIDE TARGET=SITLFULL OBJECT_DIR=obj/wasm CROSS_CC=emcc CROSS_CX
 emcc -O2 $(find obj/wasm/SITLFULL -name "*.o") -lm -Wl,--allow-multiple-definition \
     -sSTACK_SIZE=1048576 -sALLOW_MEMORY_GROWTH -sMODULARIZE -sEXPORT_NAME=TrueGlideCarte \
     -sEXPORTED_FUNCTIONS=_main,_tg_entree,_malloc,_free -sEXPORTED_RUNTIME_METHODS=FS,HEAPU8 \
-    -sENVIRONMENT=web,node -sEXIT_RUNTIME=0 -o "$SORTIE/carte.js"
+    -sENVIRONMENT=web,worker,node -sEXIT_RUNTIME=0 -o "$SORTIE/carte.js"
 ls -la "$SORTIE/carte.js" "$SORTIE/carte.wasm"
+cp "$(dirname "$0")/carte_worker.js" "$SORTIE/carte_worker.js"
