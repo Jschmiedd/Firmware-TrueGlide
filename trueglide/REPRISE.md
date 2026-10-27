@@ -67,6 +67,9 @@ En attente de Johann :
 ## Décisions
 
 - Ligne « Entering CLI Mode… » du firmware : laissée telle quelle (décision de Johann, 14 octobre).
+- Salle blanche, exception (Johann, 27 octobre) : la forme et la mise en page des documents de contrôle peuvent venir
+  de XPro (gabarit vide : sections, colonnes, en-tête, présentation) pour une documentation uniforme. Jamais le
+  contenu (étapes, valeurs, textes techniques) ni du code : le contenu TrueGlide est rédigé ici.
 
 ## Journal des phases
 
