@@ -644,3 +644,13 @@ test('carte en Betaflight : les contrôles ne conseillent aucune fonction TrueGl
   const tg = A.controler(cfg, DB, null, CARTES).map((c) => c.texte).join('\n');
   assert.ok(/power_guard|motor_desync_recovery/.test(tg), 'carte TrueGlide : conseils inchangés');
 });
+
+test('ports, carte en Betaflight : mêmes commandes, pas d\'alerte sur la mémoire du firmware TrueGlide', () => {
+  const carte = { mcu: 'STM32F411', gps: false, p: { UART1: 'TR', UART2: 'TR' } };
+  const ini = { UART1: { id: 'aucun', masque: 0, bauds: [115200, 57600, 0, 115200] }, UART2: { id: 'aucun', masque: 0, bauds: [115200, 57600, 0, 115200] } };
+  const tg = P.generer(carte, { UART1: 'rx_crsf', UART2: 'gps' }, ini, { modele: 'STANDARD' });
+  const bf = P.generer(carte, { UART1: 'rx_crsf', UART2: 'gps' }, ini, { modele: 'BETAFLIGHT' });
+  assert.deepEqual(bf.commandes, tg.commandes);
+  assert.ok(tg.alertes.some((a) => /TRUEGLIDE/.test(a)));
+  assert.ok(!bf.alertes.some((a) => /TRUEGLIDE/.test(a)));
+});
