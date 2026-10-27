@@ -139,3 +139,15 @@ En attente de Johann :
   scripts/sync-trueglide-studio.mjs, aussi sans Internet), onglet Studio avec « Envoyer à la carte » par le logiciel
   (essai-onglets 9e2a942). La page /studio/ ouvre /test/#studio. Parcours complet refait au SITL en images :
   suivi/Parcours_TrueGlide_Configurator_Studio.pdf (18 pages). Pas encore essayé sur une vraie carte.
+- 26 et 27 octobre 2026 : carte hors ligne sur le vrai firmware, et Betaflight.
+  - Carte simulée (firmware exact de la carte compilé pour le navigateur) : branche firmware `essai-vraie-carte`
+    (`trueglide/essai_navigateur/vraie_carte.py`), carte simulée Betaflight 2025.12.2 de la KarRmen dans
+    `trueglide/betaflight/` (patch, options de construction, `construire.sh`) : `dump all` identique à la vraie carte
+    (992 réglages sur 992). Logiciel essai-onglets c74d6d0 sur /test/ : une carte simulée par firmware, préparation
+    16 s, « Sauvegarder » sans redémarrage compté, nouvelle récolte confirmée si des changements ne sont pas envoyés.
+  - Essai de Johann sur sa vraie KarRmen (Betaflight 2025.12.2) : réglage préparé hors ligne, envoyé, lu dans
+    Betaflight Configurator, puis changé dans Betaflight et relu par TrueGlide : communication validée.
+  - Studio (branche firmware `studio-betaflight`) : firmware de la carte lu (TrueGlide ou Betaflight), réglages de
+    Betaflight seulement sur une carte Betaflight (`settings_db_betaflight.js`), onglet Ports en Betaflight.
+  - Onglet PID : chiffres et curseurs ensemble ; curseurs alignés. Tableau de bord : firmware Betaflight bien nommé.
+  - Phase 2 (F405 Mini flashée en TRUEGLIDE, à plat) : toujours pas faite. Rien n'a volé en TRUEGLIDE.
