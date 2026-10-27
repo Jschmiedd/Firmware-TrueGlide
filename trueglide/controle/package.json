@@ -1,0 +1,13 @@
+{
+  "name": "trueglide-controle",
+  "private": true,
+  "description": "Fiches de contrôle TrueGlide (.docx) générées depuis les modes opératoires Markdown",
+  "type": "module",
+  "scripts": {
+    "fiche": "node fiche.mjs"
+  },
+  "license": "GPL-3.0",
+  "dependencies": {
+    "docx": "^9.5.1"
+  }
+}

@@ -154,3 +154,6 @@ En attente de Johann :
     Betaflight seulement sur une carte Betaflight (`settings_db_betaflight.js`), onglet Ports en Betaflight.
   - Onglet PID : chiffres et curseurs ensemble ; curseurs alignés. Tableau de bord : firmware Betaflight bien nommé.
   - Phase 2 (F405 Mini flashée en TRUEGLIDE, à plat) : toujours pas faite. Rien n'a volé en TRUEGLIDE.
+  - Fiches de contrôle (forme des fiches XPro, contenu TrueGlide) : `trueglide/controle/`. Source
+    `<CODE>_mode_operatoire.md`, fiche Word `<CODE>_fiche.docx` par `npm ci && node fiche.mjs <source>`. Première :
+    TG-P2 (phase 2, F405 Mini à plat). LibreOffice affiche à tort les cases « non » cochées ; Word les montre vides.
