@@ -53,14 +53,18 @@ Chrome ou Edge sur ordinateur. Matériel : multimètre, radio appairée, lunette
 - La tension affichée est égale à celle du multimètre, à 0,1 V près ?
 - Moteurs arrêtés, le courant affiché est proche de 0 A ?
 
-## TG-P2-7. Fonctions TrueGlide (à plat, puis tout remettre comme avant)
+## TG-P2-7. Fonctions TrueGlide (HÉLICES RETIRÉES)
 
-| Étape | Action | Attendu |
-| 1 | Onglet Protections : changer un réglage, « Enregistrer et redémarrer » | Le réglage est relu après le redémarrage |
-| 2 | Onglet Modes | L'interrupteur SPEEDER est proposé |
-| 3 | Onglet Caméra : basculer l'interrupteur de la caméra commandée | La sortie (PINIO) change d'état |
-| 4 | CLI : `get battery_arm` | Répond une valeur ; sinon, ce firmware n'a pas la batterie basse : passer l'étape 5 |
-| 5 | CLI : `set battery_arm_min_cell_voltage = 450` (4,50 V par élément, au-dessus de la batterie), `save`, essayer d'armer | Armement refusé, motif LOW_BATTERY ; remettre ensuite à 0 |
+Chaque fonction est allumée, vérifiée, puis remise à 0 : à la fin, tout est comme juste après le flash.
+
+- Onglet Protections, case « Protection anti-surchauffe / surintensité » : taper 80 dans « Température limite des ESC », puis « Enregistrer et redémarrer ». Après le redémarrage, le champ affiche toujours 80 ?
+- Tableau de bord, case « Fonctions TrueGlide » : la ligne Protection anti-surchauffe affiche « Activé · 80 °C » ?
+- Onglet Protections : remettre « Température limite des ESC » à 0, puis « Enregistrer et redémarrer ». Le Tableau de bord affiche de nouveau « Désactivé » ?
+- Onglet Modes : une ligne SPEEDER existe dans la liste (sans l'assigner à un interrupteur) ?
+- Onglet Caméra : la case « Sortie commutable » propose une sortie PINIO (sans rien enregistrer) ?
+- Onglet Protections : une case « Batterie basse » est affichée ? (Non est normal avec la version 1791465a6 : sauter alors les deux questions suivantes.)
+- Batterie branchée : taper 4,50 dans « Tension minimale pour décoller (par élément) », « Enregistrer et redémarrer », puis essayer d'armer avec la radio. L'armement est refusé, et le Tableau de bord affiche LOW_BATTERY ?
+- Remettre « Tension minimale pour décoller (par élément) » à 0, puis « Enregistrer et redémarrer ». L'armement est de nouveau possible ?
 
 ## TG-P2-8. Blackbox
 
