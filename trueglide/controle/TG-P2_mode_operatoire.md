@@ -19,7 +19,7 @@ Chrome ou Edge sur ordinateur. Matériel : multimètre, radio appairée, lunette
 - Le flash s'est terminé sans message d'erreur ?
 - Le Tableau de bord affiche « TRUEGLIDE 2026.6.2 (1791465a6) » dans la case Firmware ?
 - La carte affichée est SPEEDYBEEF405MINI ?
-- La case « Fonctions TrueGlide » indique que les fonctions sont désactivées par défaut ?
+- Dans la case « Fonctions TrueGlide » : Protection anti-surchauffe, Relance moteur et Sorties commandées (PINIO) sur « Désactivé », Speeder à 60° ?
 
 ## TG-P2-2. Capteurs (onglets Capteurs et Installation)
 
