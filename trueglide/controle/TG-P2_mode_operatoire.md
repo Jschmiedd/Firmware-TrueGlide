@@ -11,18 +11,17 @@ configuration KarRmen : ce qu'il faut regarder est entouré en rouge.
 ## Avant de commencer (rien à cocher)
 
 1. Retirer les 4 hélices.
-2. Dans Betaflight Configurator, carte branchée : faire la sauvegarde complète, comme d'habitude.
-3. Dans TrueGlide Configurator, carte branchée, « Connexion », onglet « Ligne de commande (CLI) » : taper `diff all`, Entrée, puis « Enregistrer sous » (garder ce fichier).
-4. Mesurer la tension de la batterie au multimètre et l'écrire dans le cadre du bas.
-5. « Déconnecter ». Onglet « Flasher le Firmware », case « Mise à jour en ligne » : « Chercher la mise à jour », Modèle TRUEGLIDE, « Télécharger ». Cocher « Effacement complet de la puce », puis « Flasher le Firmware ». Ne pas débrancher pendant le flash.
-6. Débrancher puis rebrancher l'USB, « Connexion ». Une fenêtre « Danger » s'ouvre (l'accéléromètre n'est pas encore calibré) : cliquer « Fermer », il sera calibré à la partie 2. Si une fenêtre « L'application est prête à être utilisée hors ligne » s'ouvre : « OK ».
-7. Remettre la configuration KarRmen (le flash a tout effacé) : onglet « Ligne de commande (CLI) », coller tout le texte du fichier de l'étape 3, Entrée, puis taper `save`, Entrée. La carte redémarre : « Connexion ». Si une ligne répond « ERROR », l'écrire dans « Autres remarques ».
+2. Dans Betaflight Configurator, carte branchée, comme d'habitude : faire la sauvegarde complète, et enregistrer le `diff all` dans un fichier (.txt). Garder ce fichier : il sert à l'étape 6.
+3. Mesurer la tension de la batterie au multimètre et l'écrire dans le cadre du bas.
+4. Dans TrueGlide Configurator, carte branchée, « Connexion », puis « Déconnecter » (le logiciel retient le nom de la carte). Onglet « Flasher le Firmware », case « Mise à jour en ligne » : « Chercher la mise à jour », Modèle TRUEGLIDE, « Télécharger ». Cocher « Effacement complet de la puce », puis « Flasher le Firmware ». Ne pas débrancher pendant le flash.
+5. Débrancher puis rebrancher l'USB, « Connexion ». Une fenêtre « Danger » s'ouvre (l'accéléromètre n'est pas encore calibré) : cliquer « Fermer », il sera calibré à la partie 2. Si une fenêtre « L'application est prête à être utilisée hors ligne » s'ouvre : « OK ».
+6. Remettre la configuration KarRmen (le flash a tout effacé) : onglet « Ligne de commande (CLI) », ouvrir le fichier `diff all` de l'étape 2, copier tout son texte, le coller dans la ligne du bas du CLI, Entrée. Attendre la fin (environ 20 secondes), puis taper `save`, Entrée. La carte redémarre : « Connexion ». Si une ligne répond « ERROR », l'écrire dans « Autres remarques ».
 
-![Étape 5 : onglet Flasher le Firmware, « Chercher la mise à jour » et « Effacement complet de la puce ».](photos/TG-P2/avant-5_flasher.jpg)
+![Étape 4 : onglet Flasher le Firmware, « Chercher la mise à jour » et « Effacement complet de la puce ».](photos/TG-P2/avant-5_flasher.jpg)
 
-![Étape 6 : la fenêtre « Danger » après le flash ; cliquer « Fermer ».](photos/TG-P2/avant-6_danger.jpg)
+![Étape 5 : la fenêtre « Danger » après le flash ; cliquer « Fermer ».](photos/TG-P2/avant-6_danger.jpg)
 
-![Étape 7 : configuration KarRmen collée dans le CLI (204 lignes, aucune ERROR pendant l'essai).](photos/TG-P2/avant-7_cli.jpg)
+![Étape 6 : le fichier diff all de Betaflight collé d'un coup dans le CLI ; aucune ERROR pendant l'essai, toutes les lignes gardées après save.](photos/TG-P2/avant-7_cli.jpg)
 
 ## TG-P2-1. Flash et identité (onglet Tableau de bord)
 
