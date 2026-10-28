@@ -208,6 +208,9 @@ function fiche(md, dossier) {
             enfants.push(...cadre(m[1], Boolean(m[2])));
         } else if ((m = /^- (.+)$/.exec(l)) && code) {
             questions.push(m[1]);
+        } else if ((m = /^- (.+)$/.exec(l))) {
+            // sous-point d'une étape (« Avant de commencer ») : puce, en retrait
+            enfants.push(new Paragraph({ spacing: { after: 60 }, indent: { left: 720, hanging: 240 }, children: morceaux(`•\t${m[1]}`) }));
         } else if (l.startsWith("|")) {
             tableau.push(l.replace(/^\||\|$/g, "").split("|").map((c) => c.trim()));
         } else if ((m = /^(\d+)\. (.+)$/.exec(l))) {
