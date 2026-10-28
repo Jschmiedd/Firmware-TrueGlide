@@ -171,9 +171,11 @@ En attente de Johann :
     une fois en 1S quand elle est branchée après l'USB (détection d'origine Betaflight).
   - Logiciel essai-onglets 31549b5 (pas encore publié) : intensité lue signée (−0,02 A affichait 655,34 A) ; « Chute de
     tension » devient « Écart avec la batterie pleine », « — » si négatif.
-  - Baromètre : sous TRUEGLIDE, une mesure fausse (≈ −65 400 m, 50 ms) toutes les 5,1 s, au sol, moteurs au ralenti
-    (journal Blackbox 20261028_195413, baroAlt) ; l'altitude OSD part à −5 704 m / +587 m. Sous Betaflight 2025.12.2,
-    3 vidéos .osd de la même carte (≈ 5 min) : aucun saut. Le baromètre est bon ; le défaut vient du code Betaflight
-    2026.6.2 (TRUEGLIDE ne modifie ni le baromètre, ni l'I2C, ni l'ordonnanceur ; le pilote DPS310 et la boucle
-    baroUpdate ont changé depuis 2025.12.2). Suite : journal avec `debug_mode = BARO`, correction dans TRUEGLIDE,
-    description pour Betaflight. ALTHOLD et POS HOLD à ne pas utiliser en vol en attendant.
+  - Baromètre : sous TRUEGLIDE (.hex 1791465, construction complète sans CLOUD_BUILD), mesures fausses (≈ −65 400 m,
+    50 ms) au sol, 4 dans 3 enregistrements, et « zéro » d'altitude faux à chaque démarrage (680 à 2 122 m) ; altitude
+    OSD jusqu'à −5 704 m / +587 m. Sous Betaflight 2025.12.2 (3 vidéos .osd, ≈ 5 min) et sous Betaflight 2026.6.2
+    officiel en ligne (e0b7bb01b, même config ligne par ligne, 13,8 s) : aucune. Le baromètre est bon ; le défaut vient
+    du .hex TRUEGLIDE (le code TrueGlide ne touche ni le baromètre, ni l'I2C, ni l'ordonnanceur ; autre différence :
+    construction complète, avec magnétomètre sur le même I2C). Cause exacte non trouvée.
+  - Correction def66f9 : pression hors 300 à 1 200 hPa ignorée (ni sol, ni altitude). .hex SPEEDYBEEF405MINI donné à
+    Johann ; pas encore vérifié sur la carte. Essai possible : `.hex` construit avec les options du Betaflight en ligne.
