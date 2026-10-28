@@ -72,9 +72,13 @@ Chaque fonction est allumée, vérifiée, puis remise à 0 : à la fin, tout est
 - Après effacement, armer 10 s à plat puis désarmer : un journal est enregistré ?
 - Le journal s'ouvre dans le Visualiseur Blackbox ?
 
-## TG-P2-9. Sauvegarde
+## TG-P2-9. Les réglages restent après coupure
 
-- Après « Enregistrer et redémarrer », les réglages sont toujours là ?
+Rien de nouveau à régler ici : on vérifie que tout ce que tu as réglé pendant l'essai (récepteur, modes, moteurs, OSD…)
+est bien gardé par la carte.
+
+- Débrancher l'USB et la batterie, attendre 10 secondes, rebrancher l'USB, puis « Connexion » : les réglages faits pendant l'essai sont toujours là (par exemple les interrupteurs dans l'onglet Modes) ?
+- Onglet CLI : taper `diff all`, puis copier tout le texte dans le cadre « Sortie de diff all » ci-dessous ?
 
 ## À envoyer
 
