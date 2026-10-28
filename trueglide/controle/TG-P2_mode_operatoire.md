@@ -13,7 +13,7 @@ Chrome ou Edge sur ordinateur. Matériel : multimètre, radio appairée, lunette
 3. Mesurer la tension de la batterie au multimètre et la noter dans le cadre du bas.
 4. Onglet « Flasher le Firmware » : carte SPEEDYBEEF405MINI, modèle TRUEGLIDE, cocher « Effacement complet de la puce », puis flasher.
 5. Rebrancher l'USB, puis « Connexion ».
-6. Remettre la configuration KarRmen (le flash a tout effacé) : onglet Studio, « Analyser ma configuration », coller le `diff all` sauvegardé à l'étape 2, « Analyser ». Copier la « Configuration convertie », la coller dans l'onglet CLI, puis Entrée (la carte enregistre et redémarre).
+6. Remettre la configuration KarRmen (le flash a tout effacé) : onglet CLI, coller tout le texte du `diff all` sauvegardé à l'étape 2, Entrée, puis taper `save` et Entrée (la carte redémarre). Aucune ligne ne doit répondre « ERROR » ; sinon, noter la ligne dans « Autres remarques ».
 
 ## TG-P2-1. Flash et identité
 
