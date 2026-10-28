@@ -162,3 +162,18 @@ En attente de Johann :
     sur la révision publiée) et sa configuration ; une photo par question, ce qu'il faut regarder entouré en rouge,
     mise dans la fiche. TG-P2 : `trueglide/controle/TG-P2_derouler.cjs` (24 points vérifiés, 0 échec ; 12 demandent le
     vrai matériel : radio, moteurs, lunettes, batterie), photos dans `trueglide/controle/photos/TG-P2/`.
+- 28 octobre 2026 : phase 2 faite par Johann sur sa vraie KarRmen (SpeedyBee F405 Mini), TRUEGLIDE 2026.6.2 (1791465).
+  - Fiche TG-P2 : 32 « oui » sur 32. Flash avec XPro (le firmware XPro 0.8.6-banc ne passe pas seul en mode flash
+    depuis TrueGlide Configurator) ; `diff all` Betaflight recollé sans ERROR ; `diff all` final identique sauf
+    `acc_calibration` (recalibré) et `feature LED_STRIP` (activée par l'effacement complet, désactivée sous Betaflight).
+  - Écarts relevés : la carte a 8 Mo de mémoire Blackbox (0x00ef4017), la carte simulée et la question 8.1 disent 16 Mo
+    (à corriger) ; tension 14,80 V contre 14,92 V au multimètre (échelle 110, comme sous Betaflight) ; batterie vue
+    une fois en 1S quand elle est branchée après l'USB (détection d'origine Betaflight).
+  - Logiciel essai-onglets 31549b5 (pas encore publié) : intensité lue signée (−0,02 A affichait 655,34 A) ; « Chute de
+    tension » devient « Écart avec la batterie pleine », « — » si négatif.
+  - Baromètre : sous TRUEGLIDE, une mesure fausse (≈ −65 400 m, 50 ms) toutes les 5,1 s, au sol, moteurs au ralenti
+    (journal Blackbox 20261028_195413, baroAlt) ; l'altitude OSD part à −5 704 m / +587 m. Sous Betaflight 2025.12.2,
+    3 vidéos .osd de la même carte (≈ 5 min) : aucun saut. Le baromètre est bon ; le défaut vient du code Betaflight
+    2026.6.2 (TRUEGLIDE ne modifie ni le baromètre, ni l'I2C, ni l'ordonnanceur ; le pilote DPS310 et la boucle
+    baroUpdate ont changé depuis 2025.12.2). Suite : journal avec `debug_mode = BARO`, correction dans TRUEGLIDE,
+    description pour Betaflight. ALTHOLD et POS HOLD à ne pas utiliser en vol en attendant.
