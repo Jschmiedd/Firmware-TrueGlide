@@ -11,6 +11,8 @@
 //   ## <CODE>-n. Titre               section de contrôle : chaque « - question ? » devient une ligne oui / non
 //   | a | b | c |                    tableau (première ligne = en-tête) ; colonne « Constaté » ajoutée
 //   ## À envoyer                     puis « ### Titre » : un cadre vide par titre, « [grand] » pour un long texte
+//   ![légende](photo.jpg)            photo pleine largeur (JPEG), légende dessous ; placée après les questions de la
+//                                    section (chemin relatif au mode opératoire)
 import fs from "node:fs";
 import path from "node:path";
 import {
@@ -19,6 +21,7 @@ import {
     CheckBox,
     Document,
     HeightRule,
+    ImageRun,
     Packer,
     Paragraph,
     ShadingType,
@@ -134,22 +137,67 @@ function cadre(t, grand) {
     ];
 }
 
-function fiche(md) {
+// largeur et hauteur d'une image JPEG (marqueur SOF)
+function tailleJpeg(octets) {
+    let i = 2;
+    while (i < octets.length) {
+        const marqueur = octets[i + 1];
+        const longueur = octets.readUInt16BE(i + 2);
+        if (marqueur >= 0xc0 && marqueur <= 0xcf && ![0xc4, 0xc8, 0xcc].includes(marqueur)) {
+            return { hauteur: octets.readUInt16BE(i + 5), largeur: octets.readUInt16BE(i + 7) };
+        }
+        i += 2 + longueur;
+    }
+    throw new Error("image JPEG illisible");
+}
+
+// photo pleine largeur (17 cm = 643 points à 96 ppp), légende en italique gris 9 pt dessous
+function photo(chemin, legende) {
+    const octets = fs.readFileSync(chemin);
+    const { largeur, hauteur } = tailleJpeg(octets);
+    const l = 643;
+    return [
+        new Paragraph({
+            spacing: { before: 160 },
+            keepNext: true,
+            children: [new ImageRun({ type: "jpg", data: octets, transformation: { width: l, height: Math.round((l * hauteur) / largeur) } })],
+        }),
+        new Paragraph({ spacing: { after: 160 }, children: [new TextRun({ text: legende, italics: true, size: 18, color: "666666" })] }),
+    ];
+}
+
+function fiche(md, dossier) {
     const enfants = [];
     let code = null;
     let questions = [];
     let tableau = [];
+    let photos = [];
     const vider = () => {
         if (questions.length) enfants.push(tableauQuestions(code, questions));
         if (tableau.length) enfants.push(tableauEtapes(tableau));
+        for (const [chemin, legende] of photos) enfants.push(...photo(path.join(dossier, chemin), legende));
         questions = [];
         tableau = [];
+        photos = [];
     };
+    // lignes de texte qui se suivent : un seul paragraphe (le mode opératoire est coupé à 120 caractères)
+    const lignes = [];
     for (const brut of md.replace(/\r/g, "").split("\n")) {
         const l = brut.trim();
+        const precedente = lignes[lignes.length - 1];
+        const texte = (x) => x && !/^(#|- |\||!\[|\d+\. )/.test(x);
+        if (texte(l) && texte(precedente) && !/^Date :/.test(precedente) && !/^Date :/.test(l)) {
+            lignes[lignes.length - 1] = `${precedente} ${l}`;
+        } else {
+            lignes.push(l);
+        }
+    }
+    for (const l of lignes) {
         let m;
         if (!l) continue;
-        if ((m = /^# (.+)$/.exec(l))) {
+        if ((m = /^!\[(.*)\]\((.+)\)$/.exec(l))) {
+            photos.push([m[2], m[1]]);
+        } else if ((m = /^# (.+)$/.exec(l))) {
             enfants.push(titre(m[1]));
         } else if ((m = /^## (.+)$/.exec(l))) {
             vider();
@@ -181,5 +229,5 @@ if (!source) {
     throw new Error("indiquer le mode opératoire : node fiche.mjs <CODE>_mode_operatoire.md");
 }
 const sortie = source.replace(/_mode_operatoire\.md$/, "_fiche.docx");
-fs.writeFileSync(sortie, await Packer.toBuffer(fiche(fs.readFileSync(source, "utf8"))));
+fs.writeFileSync(sortie, await Packer.toBuffer(fiche(fs.readFileSync(source, "utf8"), path.dirname(source))));
 console.log(`${path.basename(source)} -> ${path.basename(sortie)}`);

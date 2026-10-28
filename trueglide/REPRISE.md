@@ -157,3 +157,8 @@ En attente de Johann :
   - Fiches de contrôle (forme des fiches XPro, contenu TrueGlide) : `trueglide/controle/`. Source
     `<CODE>_mode_operatoire.md`, fiche Word `<CODE>_fiche.docx` par `npm ci && node fiche.mjs <source>`. Première :
     TG-P2 (phase 2, F405 Mini à plat). LibreOffice affiche à tort les cases « non » cochées ; Word les montre vides.
+  - Méthode de contrôle (Johann, 28 octobre) : chaque fiche est d'abord déroulée en simulation dans le vrai logiciel
+    en ligne, avec le firmware exact de la carte (carte simulée, `trueglide/essai_navigateur/vraie_carte.py`, construite
+    sur la révision publiée) et sa configuration ; une photo par question, ce qu'il faut regarder entouré en rouge,
+    mise dans la fiche. TG-P2 : `trueglide/controle/TG-P2_derouler.cjs` (24 points vérifiés, 0 échec ; 12 demandent le
+    vrai matériel : radio, moteurs, lunettes, batterie), photos dans `trueglide/controle/photos/TG-P2/`.
