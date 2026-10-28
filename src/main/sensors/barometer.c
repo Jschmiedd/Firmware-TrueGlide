@@ -171,6 +171,10 @@ void pgResetFn_barometerConfig(barometerConfig_t *barometerConfig)
 #define NUM_CALIBRATION_CYCLES   100        // 10 seconds init_delay + 100 * 25 ms = 12.5 seconds before valid baro altitude
 #define NUM_GROUND_LEVEL_CYCLES   10        // calibrate baro to new ground level (10 * 25 ms = ~250 ms non blocking)
 
+// TrueGlide: plausible pressure range, about +9000 m to -1400 m (standard atmosphere)
+#define BARO_PRESSURE_MIN_PA   30000
+#define BARO_PRESSURE_MAX_PA  120000
+
 static uint16_t calibrationCycles = 0;      // baro calibration = get new ground pressure value
 static uint16_t calibrationCycleCount = 0;
 static float baroGroundAltitude = 0.0f;
@@ -506,7 +510,9 @@ uint32_t baroUpdate(timeUs_t currentTimeUs)
             baro.dev.calculate(&baro.pressure, &baro.temperature);
 
             // If baro.pressure is invalid then skip altitude counting / call of calibration cycle
-            if (baro.pressure > 0) {
+            // TrueGlide: a pressure outside what can exist where a drone flies (corrupted sample, seen as -65 km
+            // on a SpeedyBee F405 Mini DPS310) is invalid too, so it can't shift the ground level or the altitude
+            if (baro.pressure >= BARO_PRESSURE_MIN_PA && baro.pressure <= BARO_PRESSURE_MAX_PA) {
                 const float altitude = pressureToAltitude(baro.pressure);
                 if (baroIsCalibrated()) {
                     // zero baro altitude
