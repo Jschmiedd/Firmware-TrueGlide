@@ -9,7 +9,7 @@ Configurator, onglet « Ligne de commande (CLI) ». Les fonctions sont essayées
 
 ## Avant de commencer (rien à cocher)
 
-1. TG-P3 faite (vols en ANGLE et en ACRO comme sous Betaflight).
+1. TG-P3 faite (vols en ANGLE et en ACRO comme sous Betaflight) et TG-P3A faite (les mêmes fonctions au banc, sans hélices).
 2. Batterie pleine (environ 16,8 V). Onglet Blackbox : « Effacer la mémoire interne ».
 3. Après chaque partie : batterie rechargée ou changée, et noter dans « Autres remarques » ce qui a surpris.
 
