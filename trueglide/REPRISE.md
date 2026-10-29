@@ -177,5 +177,9 @@ En attente de Johann :
     officiel en ligne (e0b7bb01b, même config ligne par ligne, 13,8 s) : aucune. Le baromètre est bon ; le défaut vient
     du .hex TRUEGLIDE (le code TrueGlide ne touche ni le baromètre, ni l'I2C, ni l'ordonnanceur ; autre différence :
     construction complète, avec magnétomètre sur le même I2C). Cause exacte non trouvée.
-  - Correction def66f9 : pression hors 300 à 1 200 hPa ignorée (ni sol, ni altitude). .hex SPEEDYBEEF405MINI donné à
-    Johann ; pas encore vérifié sur la carte. Essai possible : `.hex` construit avec les options du Betaflight en ligne.
+  - Correction (def66f9 puis f9fc6d5) : pression hors 300 à 1 200 hPa ignorée, et saut de plus de 20 m d'une mesure à
+    l'autre ignoré (5 au plus de suite) ; rejouée sur les journaux : les 4 mesures fausses écartées, les normales
+    gardées. .hex SPEEDYBEEF405MINI f9fc6d5 donné à Johann ; pas encore vérifié sur la carte. Cause d'origine inconnue.
+  - Décision de Johann (29 octobre) : aucune autre carte reconstruite pour le moment (ni 42 courantes, ni 629). Les .hex
+    publiés en 1791465 ont le défaut du baromètre.
+  - Méthode : pour tout défaut, comparer d'abord avec Betaflight officiel sur la même carte et la même config.
