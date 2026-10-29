@@ -183,3 +183,5 @@ En attente de Johann :
   - Décision de Johann (29 octobre) : aucune autre carte reconstruite pour le moment (ni 42 courantes, ni 629). Les .hex
     publiés en 1791465 ont le défaut du baromètre.
   - Méthode : pour tout défaut, comparer d'abord avec Betaflight officiel sur la même carte et la même config.
+  - Décision de Johann (29 octobre) : plus de photos en simulation dans les fiches (trop long). Fiches texte seulement :
+    TG-P2B (contrôle du baromètre f9fc6d5, préalable) et TG-P3 (premiers vols, fonctions TrueGlide désactivées).
