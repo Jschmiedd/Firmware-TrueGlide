@@ -185,3 +185,9 @@ En attente de Johann :
   - Méthode : pour tout défaut, comparer d'abord avec Betaflight officiel sur la même carte et la même config.
   - Décision de Johann (29 octobre) : plus de photos en simulation dans les fiches (trop long). Fiches texte seulement :
     TG-P2B (contrôle du baromètre f9fc6d5, préalable) et TG-P3 (premiers vols, fonctions TrueGlide désactivées).
+  - TG-P2B faite par Johann le 29 octobre (f9fc6d5, debug_mode = BARO) : 8 « oui » sur 8. Journal 20261029_093729
+    (29,7 s armé) : 3 mesures fausses (à 5,3 s, 10,3 s et 12,4 s), toutes écartées ; baroAlt 1,6 à 3,0 m ; altitude OSD
+    (.osd AvatarG0026) −1,0 à +0,4 m. Correction validée sur la vraie carte. Dans les mesures fausses, pression ET
+    température sont fausses ensemble (−7 540 hPa et 258 à 275 °C) : les 6 octets lus du DPS310 sont faux en bloc,
+    souvent à 5 s d'écart. Cause d'origine à chercher (lecture I2C), non bloquante pour TG-P3.
+
