@@ -190,4 +190,12 @@ En attente de Johann :
     (.osd AvatarG0026) −1,0 à +0,4 m. Correction validée sur la vraie carte. Dans les mesures fausses, pression ET
     température sont fausses ensemble (−7 540 hPa et 258 à 275 °C) : les 6 octets lus du DPS310 sont faux en bloc,
     souvent à 5 s d'écart. Cause d'origine à chercher (lecture I2C), non bloquante pour TG-P3.
+  - TG-P3 (premiers vols, f9fc6d5, config identique à Betaflight sauf acc_calibration) faite par Johann le 29 octobre :
+    fiche 16 « oui », 2.2 (batterie pleine) non cochée. Journal 20261029_162404 : 2 vols en ANGLE (27,5 s et 22,3 s) et
+    1 en ACRO (28,8 s), batterie au départ 14,5 à 15,0 V (pas pleine). Suivi des commandes 1 à 3 °/s, moteurs
+    équilibrés, pas d'oscillation, aucune mesure fausse du baromètre. Vibration du roulis à la fréquence des moteurs
+    (≈ 240 Hz, gyro brut σ ≈ 35 °/s, filtré 4 à 7 °/s) : hélice ou moteur à contrôler. Creux du baromètre de 2 à 6 m
+    (50 à 200 ms) en stationnaire bas, au moment des accélérations verticales : souffle des hélices probable, à comparer
+    avec un vol Betaflight avant ALTHOLD (TG-P4). Chocs de 5 à 8 g à chaque atterrissage (rebonds). Radio : manche
+    gauche (Yaw) réglé, vis D. Note : le champ flightModeFlags du Blackbox contient les interrupteurs (bit 0 = ARM).
 
