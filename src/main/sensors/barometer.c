@@ -440,6 +440,27 @@ static float pressureToAltitude(const float pressure)
 
 static void performBaroCalibrationCycle(const float altitude);
 
+// TrueGlide: a sample more than BARO_MAX_STEP_CM away from the previous kept one (impossible within one sample,
+// 50 ms) is dropped; after BARO_MAX_DROPPED_SAMPLES in a row the new level is accepted, so a real change is followed
+#define BARO_MAX_STEP_CM          2000.0f
+#define BARO_MAX_DROPPED_SAMPLES  5
+
+static bool baroAltitudeStepIsPlausible(const float altitude)
+{
+    static float lastKeptAltitude;
+    static bool haveLastKept = false;
+    static uint8_t droppedSamples = 0;
+
+    if (haveLastKept && fabsf(altitude - lastKeptAltitude) > BARO_MAX_STEP_CM && droppedSamples < BARO_MAX_DROPPED_SAMPLES) {
+        droppedSamples++;
+        return false;
+    }
+    droppedSamples = 0;
+    lastKeptAltitude = altitude;
+    haveLastKept = true;
+    return true;
+}
+
 uint32_t baroUpdate(timeUs_t currentTimeUs)
 {
     static timeUs_t baroStateDurationUs[BARO_STATE_COUNT];
@@ -512,7 +533,8 @@ uint32_t baroUpdate(timeUs_t currentTimeUs)
             // If baro.pressure is invalid then skip altitude counting / call of calibration cycle
             // TrueGlide: a pressure outside what can exist where a drone flies (corrupted sample, seen as -65 km
             // on a SpeedyBee F405 Mini DPS310) is invalid too, so it can't shift the ground level or the altitude
-            if (baro.pressure >= BARO_PRESSURE_MIN_PA && baro.pressure <= BARO_PRESSURE_MAX_PA) {
+            if (baro.pressure >= BARO_PRESSURE_MIN_PA && baro.pressure <= BARO_PRESSURE_MAX_PA
+                && baroAltitudeStepIsPlausible(pressureToAltitude(baro.pressure))) {
                 const float altitude = pressureToAltitude(baro.pressure);
                 if (baroIsCalibrated()) {
                     // zero baro altitude
