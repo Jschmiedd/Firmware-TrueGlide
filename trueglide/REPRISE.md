@@ -227,3 +227,6 @@ En attente de Johann :
   Cause trouvée dans le code d'ExpressLRS (`src/lib/Telemetry/telemetry.cpp`) : jusqu'à 3.5.x le récepteur ne relaie
   que GPS, BATTERY, ATTITUDE, DEVICE_INFO, FLIGHT_MODE, VARIO, BARO_ALTITUDE ; la trame TEMP (0x0D) n'est relayée qu'à
   partir d'ELRS 3.6.0. Il faut donc EdgeTX ≥ 2.11.2 ET récepteur ELRS ≥ 3.6.0. Version du récepteur de Johann à lire.
+- Versions lues sur la radio de Johann : module ELRS de la Pocket 3.3.1 (LBT), récepteur SpeedyBee Nano 2.4 RX 3.5.1.
+  Le récepteur 3.5.1 ne relaie pas la trame TEMP : A4 = non, cause hors TrueGlide. Pour la valider : récepteur ELRS
+  ≥ 3.6.0 (décision de Johann, non nécessaire pour TG-P3B). La carte se présente bien à la radio (« TRUEGLIDE: F405 »).
