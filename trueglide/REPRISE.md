@@ -235,3 +235,8 @@ En attente de Johann :
   ISM2G4). Flash par Wi-Fi réussi pour les deux ; récepteur ESP8285 = fichier `.bin.gz` obligatoire. Script radio
   `elrs.lua` (4.1.0) copié dans SCRIPTS/TOOLS. Liaison vérifiée par Johann dans TrueGlide (récepteur appairé).
   Le second drone (ELRS 3.5.1, ne vole pas) devra passer en 4.1.0 avant usage. Reste : refaire A4.
+- A4 VALIDÉE (30/10 soir) : après EdgeTX 2.11.8 + ELRS 4.1.0 (radio et récepteur), « Discover new » trouve 4 capteurs
+  Temp (21 à 24 = moteurs 1 à 4) : 33 / 42 / 32 / 36 °C. TG-P3A complète : A1, A2, A3, A4, A5 = oui.
+  Chaîne requise pour crsf_tlm_esc_temp : dshot_edt = ON + armement après mise sous tension, EdgeTX ≥ 2.11.2,
+  récepteur ELRS ≥ 3.6.0. À noter dans l'aide du réglage. Observation : Alt 11.4 m affichée sur la radio au sol (à
+  regarder en TG-P4).
