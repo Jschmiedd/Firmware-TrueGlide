@@ -9,7 +9,8 @@ Configurator, onglet « Ligne de commande (CLI) ». Les fonctions sont essayées
 
 ## Avant de commencer (rien à cocher)
 
-1. TG-P3 faite (vols en ANGLE et en ACRO comme sous Betaflight) et TG-P3A faite (les mêmes fonctions au banc, sans hélices).
+1. TG-P3 faite (vols en ANGLE et en ACRO comme sous Betaflight) et TG-P3A faite le 30/10 (les mêmes fonctions au banc,
+   sans hélices : tout validé). Radio : EdgeTX 2.11.8, ExpressLRS 4.1.0 (radio et récepteur du KarRmen).
 2. Batterie pleine (environ 16,8 V). Onglet Blackbox : « Effacer la mémoire interne ».
 3. Après chaque partie : batterie rechargée ou changée, et noter dans « Autres remarques » ce qui a surpris.
 
@@ -28,18 +29,25 @@ montée franche, les gaz doivent être limités (jamais coupés) et l'OSD doit a
 
 ## TG-P3B-2. Limite de température des ESC
 
-Au repos, les ESC sont vers 25 à 35 °C (onglet Moteurs, ligne « Temp »). On met une limite basse, 40 °C, pour la voir
-agir : quand un ESC dépasse 40 °C, les gaz sont limités (au moins 50 %, jamais coupés) et l'OSD affiche « ESC HOT ».
+La carte ne reçoit la température des ESC qu'avec `dshot_edt = ON` et après un armement (vérifié au banc, TG-P3A-2).
+Au banc, les ESC étaient entre 28 et 42 °C. Avant le vol, on lit la température dans l'OSD, puis on met la limite
+10 °C au-dessus de la plus haute : quand un ESC la dépasse, les gaz sont limités (au moins 50 %, jamais coupés) et l'OSD
+affiche « ESC HOT ».
 
-1. CLI : taper `set dshot_edt = ON`, Entrée, puis `set power_guard_esc_temp = 40`, Entrée, puis `save`, Entrée. « Connexion ».
-2. Vol habituel en ACRO, 2 minutes, en restant près de soi.
-3. Atterrir, désarmer. CLI : taper `set power_guard_esc_temp = 0`, Entrée, puis `set dshot_edt = OFF`, Entrée, puis
-   `save`, Entrée. « Connexion ».
+1. CLI : taper `set dshot_edt = ON`, Entrée, puis `save`, Entrée. Débrancher l'USB.
+2. Brancher la batterie, lunettes allumées, armer au sol 3 secondes, désarmer : noter la température des ESC lue dans
+   l'OSD. Débrancher la batterie.
+3. Brancher l'USB, « Connexion ». CLI : taper `set power_guard_esc_temp = ` suivi de la température notée + 10 (exemple :
+   35 °C lus → `set power_guard_esc_temp = 45`), Entrée, puis `save`, Entrée. Débrancher l'USB.
+4. Vol habituel en ACRO, 2 minutes, en restant près de soi.
+5. Atterrir, désarmer. Brancher l'USB, « Connexion ». CLI : taper `set power_guard_esc_temp = 0`, Entrée, puis
+   `set dshot_edt = OFF`, Entrée, puis `save`, Entrée. « Connexion ».
 
-- Pendant le vol, l'OSD a affiché « ESC HOT » suivi d'un pourcentage ? (Si la température n'a jamais atteint 40 °C,
-  répondre « non » et l'écrire dans « Autres remarques » : ce n'est pas une panne.)
+- Avant le vol (étape 2), l'OSD affiche une température des ESC (pas 0 °C) ?
+- Pendant le vol, l'OSD a affiché « ESC HOT » suivi d'un pourcentage ? (Si la température n'a jamais atteint la limite,
+  répondre « non » et noter dans « Autres remarques » la température la plus haute vue : ce n'est pas une panne.)
 - Quand « ESC HOT » était affiché, le drone volait toujours, les moteurs ne se sont jamais coupés ?
-- Après l'étape 3, Tableau de bord : Protection anti-surchauffe sur « Désactivé » ?
+- Après l'étape 5, Tableau de bord : Protection anti-surchauffe sur « Désactivé » ?
 
 ## TG-P3B-3. Relance d'un moteur calé
 
@@ -53,24 +61,19 @@ On vérifie seulement que la fonction ne se déclenche pas à tort en vol normal
 - Le drone a volé comme d'habitude ?
 - Après l'étape 3, Tableau de bord : Relance moteur sur « Désactivé » ?
 
-## TG-P3B-4. Température des ESC envoyée à la radio
+## TG-P3B-4. Température des ESC sur la radio, en vol
 
-Au sol, hélices retirées, batterie branchée, radio allumée.
+Validé au banc le 30/10 (TG-P3A-4) : radio EdgeTX 2.11.8 et ExpressLRS 4.1.0, 4 capteurs « Temp » (un par moteur) déjà
+enregistrés dans le modèle. Ici on regarde les valeurs monter en vol.
 
-1. CLI : taper `set dshot_edt = ON`, Entrée, puis `set crsf_tlm_esc_temp = ON`, Entrée, puis `save`, Entrée. « Connexion ».
-   Débrancher l'USB, brancher la batterie, armer 3 secondes gaz en bas, désarmer.
-2. Radio RadioMaster Pocket (EdgeTX), sur le modèle du drone :
-   a. Appuyer sur la touche « MDL », puis sur « PAGE> » jusqu'à la page « TELEMETRY » (ou « Télémesure »).
-   b. Descendre avec la molette jusqu'à « Discover new » (« Découvrir nouveaux »), appuyer sur la molette : la liste se
-      remplit (RxBt, 1RSS, RQly… déjà connus, plus les nouveaux capteurs en bas).
-   c. Attendre 10 secondes, puis appuyer de nouveau sur la molette (« Stop discovery » / « Arrêter »).
-   d. Regarder en bas de la liste : un capteur de température (nom du type « Tmp », « TEMP » ou « Temp1 ») avec une
-      valeur en °C. Noter son nom et sa valeur dans « Autres remarques ». Touche « RTN » pour sortir.
-3. Débrancher la batterie, brancher l'USB, « Connexion ». CLI : taper `set crsf_tlm_esc_temp = OFF`, Entrée, puis
-   `set dshot_edt = OFF`, Entrée, puis `save`, Entrée. « Connexion ».
+1. CLI : taper `set dshot_edt = ON`, Entrée, puis `set crsf_tlm_esc_temp = ON`, Entrée, puis `save`, Entrée. Débrancher
+   l'USB.
+2. Vol habituel, 2 minutes (peut être le même vol que la partie 3).
+3. Après l'atterrissage, désarmer sans débrancher la batterie. Radio : « MDL », page « TELEMETRY » : lire les 4 « Temp ».
+4. Débrancher la batterie, brancher l'USB, « Connexion ». CLI : taper `set crsf_tlm_esc_temp = OFF`, Entrée, puis
+   `set dshot_edt = OFF`, Entrée, puis `save`, Entrée.
 
-- À l'étape 2, un nouveau capteur de température apparaît dans la liste de la radio, avec une valeur proche de celle
-  de l'onglet Moteurs (ligne « Temp ») ?
+- À l'étape 3, les 4 « Temp » de la radio ont une valeur, plus haute qu'avant le vol ? (Noter les 4 valeurs.)
 
 ## TG-P3B-5. Speeder (inclinaison automatique vers l'avant)
 
@@ -78,17 +81,17 @@ Le Speeder penche le drone vers l'avant d'un angle fixe, progressivement, quand 
 seulement. Premier essai avec un petit angle : 15°.
 
 1. CLI : taper `set speeder_cruise_angle = 15`, Entrée, puis `save`, Entrée. « Connexion ».
-2. Onglet Modes : sur la ligne SPEEDER, « Ajouter une plage » sur un interrupteur libre de la radio. S'il n'y en a pas,
-   prendre celui d'ALTHOLD (AUX4) : supprimer la plage d'ALTHOLD et mettre SPEEDER sur AUX4, 1900 à 2100. « Enregistrer ».
+2. Mettre SPEEDER sur l'interrupteur d'ALTHOLD (AUX4), par le CLI (l'onglet Modes déplace les plages par crans de 25) :
+   taper `aux 3 120 3 1900 2100 0 0`, Entrée, puis `save`, Entrée.
 3. Vol en ANGLE, stationnaire à 3 m, avec de la place devant (au moins 30 m). Basculer l'interrupteur SPEEDER pendant
    3 secondes, puis le remettre. Recommencer une fois.
-4. Atterrir, désarmer. Onglet Modes : supprimer la plage SPEEDER (et remettre ALTHOLD sur AUX4, 1900 à 2100, si on
-   l'avait enlevé). « Enregistrer ». CLI : taper `set speeder_cruise_angle = 60`, Entrée, puis `save`, Entrée.
+4. Atterrir, désarmer. CLI : taper `aux 3 3 3 1900 2100 0 0`, Entrée (ALTHOLD revient sur AUX4), puis
+   `set speeder_cruise_angle = 60`, Entrée, puis `save`, Entrée. Ne pas utiliser l'onglet Modes.
 
 - Interrupteur SPEEDER activé : le drone penche doucement vers l'avant (en une demi-seconde environ) et avance ?
 - Interrupteur remis : le drone revient doucement à plat ?
 - Pendant l'essai, le drone est resté stable (pas d'oscillation, pas de perte de hauteur brusque) ?
-- Après l'étape 4, onglet Modes : SPEEDER sans plage, et ALTHOLD comme avant ?
+- Après l'étape 4, `diff all` : la ligne `aux 3 3 3 1900 2100 0 0` est revenue et aucune ligne `speeder` ?
 
 ## TG-P3B-6. Après les essais (USB branché, batterie débranchée)
 
