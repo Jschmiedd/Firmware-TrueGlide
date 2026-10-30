@@ -215,3 +215,7 @@ En attente de Johann :
   « Protection anti-surchauffe » si une limite de température est réglée avec `dshot_edt = OFF`. Fiches TG-P3A-4 et
   TG-P3B-4 : manipulation radio RadioMaster Pocket (EdgeTX) détaillée. Non vérifié : qu'EdgeTX affiche bien la trame
   CRSF de température 0x0D (la fiche demande la version d'EdgeTX si le capteur n'apparaît pas).
+- Vérifié sur la carte (30/10, après armement USB débranché, batterie gardée) avec `dshot_edt = ON` :
+  `dshot_telemetry_info` = `RT--S` sur les 4 ESC, 29 / 38 / 28 / 31 °C. La température arrive bien : la seule cause de
+  A2 était `dshot_edt = OFF`. A4 : radio de Johann en EdgeTX d'usine (RM Factory 1fdb58ba, 27/07/2023) ; EdgeTX ne lit
+  la trame CRSF 0x0D qu'à partir de 2.11.2 (code source vérifié : absente en 2.11.1, présente en 2.11.2).
