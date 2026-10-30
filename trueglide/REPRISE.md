@@ -230,3 +230,8 @@ En attente de Johann :
 - Versions lues sur la radio de Johann : module ELRS de la Pocket 3.3.1 (LBT), récepteur SpeedyBee Nano 2.4 RX 3.5.1.
   Le récepteur 3.5.1 ne relaie pas la trame TEMP : A4 = non, cause hors TrueGlide. Pour la valider : récepteur ELRS
   ≥ 3.6.0 (décision de Johann, non nécessaire pour TG-P3B). La carte se présente bien à la radio (« TRUEGLIDE: F405 »).
+- 30/10 soir, décision de Johann : passage en ExpressLRS 4.1.0 (LBT, même phrase d'appairage) du module de la Pocket
+  (était LBT 3.3.1, sauvegarde du firmware gardée par Johann) et du récepteur SpeedyBee Nano du KarRmen (était 3.5.1
+  ISM2G4). Flash par Wi-Fi réussi pour les deux ; récepteur ESP8285 = fichier `.bin.gz` obligatoire. Script radio
+  `elrs.lua` (4.1.0) copié dans SCRIPTS/TOOLS. Liaison vérifiée par Johann dans TrueGlide (récepteur appairé).
+  Le second drone (ELRS 3.5.1, ne vole pas) devra passer en 4.1.0 avant usage. Reste : refaire A4.
