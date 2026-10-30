@@ -31,9 +31,10 @@ montée franche, les gaz doivent être limités (jamais coupés) et l'OSD doit a
 Au repos, les ESC sont vers 25 à 35 °C (onglet Moteurs, ligne « Temp »). On met une limite basse, 40 °C, pour la voir
 agir : quand un ESC dépasse 40 °C, les gaz sont limités (au moins 50 %, jamais coupés) et l'OSD affiche « ESC HOT ».
 
-1. CLI : taper `set power_guard_esc_temp = 40`, Entrée, puis `save`, Entrée. « Connexion ».
+1. CLI : taper `set dshot_edt = ON`, Entrée, puis `set power_guard_esc_temp = 40`, Entrée, puis `save`, Entrée. « Connexion ».
 2. Vol habituel en ACRO, 2 minutes, en restant près de soi.
-3. Atterrir, désarmer. CLI : taper `set power_guard_esc_temp = 0`, Entrée, puis `save`, Entrée. « Connexion ».
+3. Atterrir, désarmer. CLI : taper `set power_guard_esc_temp = 0`, Entrée, puis `set dshot_edt = OFF`, Entrée, puis
+   `save`, Entrée. « Connexion ».
 
 - Pendant le vol, l'OSD a affiché « ESC HOT » suivi d'un pourcentage ? (Si la température n'a jamais atteint 40 °C,
   répondre « non » et l'écrire dans « Autres remarques » : ce n'est pas une panne.)
@@ -56,9 +57,11 @@ On vérifie seulement que la fonction ne se déclenche pas à tort en vol normal
 
 Au sol, hélices retirées, batterie branchée, radio allumée.
 
-1. CLI : taper `set crsf_tlm_esc_temp = ON`, Entrée, puis `save`, Entrée. « Connexion ».
+1. CLI : taper `set dshot_edt = ON`, Entrée, puis `set crsf_tlm_esc_temp = ON`, Entrée, puis `save`, Entrée. « Connexion ».
+   Débrancher l'USB, brancher la batterie, armer 3 secondes gaz en bas, désarmer.
 2. Radio : page « Télémesure » du modèle, « Découvrir de nouveaux capteurs », attendre 10 secondes, « Arrêter ».
-3. CLI : taper `set crsf_tlm_esc_temp = OFF`, Entrée, puis `save`, Entrée. « Connexion ».
+3. Débrancher la batterie, brancher l'USB, « Connexion ». CLI : taper `set crsf_tlm_esc_temp = OFF`, Entrée, puis
+   `set dshot_edt = OFF`, Entrée, puis `save`, Entrée. « Connexion ».
 
 - À l'étape 2, un nouveau capteur de température apparaît dans la liste de la radio, avec une valeur proche de celle
   de l'onglet Moteurs (ligne « Temp ») ?

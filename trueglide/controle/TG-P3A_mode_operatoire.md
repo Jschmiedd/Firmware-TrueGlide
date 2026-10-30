@@ -37,11 +37,14 @@ Sans hélices, les moteurs consomment peu (quelques ampères à fond). On met un
 On met une limite **sous** la température la plus haute notée au repos (par exemple 30 °C si un ESC est à 34 °C) : la
 protection doit agir dès l'armement.
 
-1. CLI : taper `set power_guard_esc_temp = 30`, Entrée (ou la valeur choisie), puis `save`, Entrée. « Déconnecter »,
+1. CLI : taper `set dshot_edt = ON`, Entrée (sans lui, la carte ne reçoit pas la température des ESC et l'OSD affiche
+   0 °C), puis `set power_guard_esc_temp = 30`, Entrée (ou la valeur choisie), puis `save`, Entrée. « Déconnecter »,
    débrancher l'USB.
 2. Brancher la batterie, lunettes allumées. Armer, gaz à mi-course pendant 5 secondes, désarmer. Débrancher la batterie.
-3. Brancher l'USB, « Connexion ». CLI : taper `set power_guard_esc_temp = 0`, Entrée, puis `save`, Entrée. « Connexion ».
+3. Brancher l'USB, « Connexion ». CLI : taper `set power_guard_esc_temp = 0`, Entrée, puis `set dshot_edt = OFF`, Entrée,
+   puis `save`, Entrée. « Connexion ».
 
+- Armé : l'élément de température des ESC de l'OSD affiche une valeur proche de celles notées au début (pas 0 °C) ?
 - Armé : l'OSD affiche « ESC HOT » suivi d'un pourcentage ?
 - Pendant « ESC HOT », les moteurs tournent toujours (ils ne se coupent pas) ?
 - Après l'étape 3, Tableau de bord : Protection anti-surchauffe sur « Désactivé » ?
@@ -60,10 +63,13 @@ On vérifie qu'elle ne se déclenche pas à tort quand les moteurs tournent norm
 
 ## TG-P3A-4. Température des ESC envoyée à la radio
 
-1. CLI : taper `set crsf_tlm_esc_temp = ON`, Entrée, puis `save`, Entrée. « Déconnecter », débrancher l'USB.
-2. Brancher la batterie, radio allumée. Radio : page « Télémesure » du modèle, « Découvrir de nouveaux capteurs »,
+1. CLI : taper `set dshot_edt = ON`, Entrée, puis `set crsf_tlm_esc_temp = ON`, Entrée, puis `save`, Entrée.
+   « Déconnecter », débrancher l'USB.
+2. Brancher la batterie, radio allumée. Armer 3 secondes, gaz en bas, puis désarmer (la carte demande la température aux
+   ESC à l'armement). Radio : page « Télémesure » du modèle, « Découvrir de nouveaux capteurs »,
    attendre 10 secondes, « Arrêter ». Débrancher la batterie.
-3. Brancher l'USB, « Connexion ». CLI : taper `set crsf_tlm_esc_temp = OFF`, Entrée, puis `save`, Entrée. « Connexion ».
+3. Brancher l'USB, « Connexion ». CLI : taper `set crsf_tlm_esc_temp = OFF`, Entrée, puis `set dshot_edt = OFF`, Entrée,
+   puis `save`, Entrée. « Connexion ».
 
 - À l'étape 2, un nouveau capteur de température apparaît dans la liste de la radio, avec une valeur proche des
   températures notées au début ?

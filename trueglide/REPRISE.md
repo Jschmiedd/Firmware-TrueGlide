@@ -199,3 +199,15 @@ En attente de Johann :
     avec un vol Betaflight avant ALTHOLD (TG-P4). Chocs de 5 à 8 g à chaque atterrissage (rebonds). Radio : manche
     gauche (Yaw) réglé, vis D. Note : le champ flightModeFlags du Blackbox contient les interrupteurs (bit 0 = ARM).
 
+
+## 30/10/2026 — TG-P3A A2 : température des ESC à 0 °C une fois armé
+
+- OSD G0028 (A2) : « ESC HOT » jamais affiché, élément température ESC à 0 °C pendant l'armement.
+- Cause : la configuration de Johann a `dshot_edt = OFF` (défaut BETAFLIGHT). La carte n'envoie alors pas la commande
+  « télémesure étendue » aux ESC à l'armement (`fc/core.c`), et `dshotCleanTelemetryData()` efface tout à l'armement :
+  la température reste à 0. `power_guard` (température ≤ 0 = inconnue) et `crsf_tlm_esc_temp` (envoi seulement si
+  chaque ESC donne une température) n'agissent donc pas. Ce n'est pas un défaut de code : réglage manquant dans la fiche.
+- Correction : TG-P3A (A2, A4) et TG-P3B (2, 4) mettent `set dshot_edt = ON` pendant l'essai, puis `OFF` à la fin.
+- Origine des 19/27/18/21 °C vus dans l'onglet Moteurs au repos : pas encore expliquée (avec EDT OFF, la carte décode
+  tout comme des tours/min). À regarder avec `dshot_telemetry_info` au prochain essai.
+- À faire : le Tableau de bord ne devrait pas montrer la protection température comme active si `dshot_edt = OFF`.
