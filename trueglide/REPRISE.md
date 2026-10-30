@@ -219,3 +219,7 @@ En attente de Johann :
   `dshot_telemetry_info` = `RT--S` sur les 4 ESC, 29 / 38 / 28 / 31 °C. La température arrive bien : la seule cause de
   A2 était `dshot_edt = OFF`. A4 : radio de Johann en EdgeTX d'usine (RM Factory 1fdb58ba, 27/07/2023) ; EdgeTX ne lit
   la trame CRSF 0x0D qu'à partir de 2.11.2 (code source vérifié : absente en 2.11.1, présente en 2.11.2).
+- TG-P3A terminée (30/10) : A1 oui, A2 oui (refaite avec `dshot_edt = ON` : ESC HOT 50 %, ESC 28–32 °C, G0030/G0031),
+  A3 oui, A4 non (EdgeTX d'usine trop ancien, il faut ≥ 2.11.2), A5 oui (Blackbox : moteurs 1 et 3 ~780, 2 et 4 ~50–140
+  pendant SPEEDER 15°, 2 activations). `diff all` final identique ligne pour ligne à celui du matin (aux remis par CLI :
+  l'onglet Modes déplaçait les plages par crans de 25). Suite : TG-P3B en vol.
