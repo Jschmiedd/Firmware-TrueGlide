@@ -211,3 +211,7 @@ En attente de Johann :
 - Origine des 19/27/18/21 °C vus dans l'onglet Moteurs au repos : pas encore expliquée (avec EDT OFF, la carte décode
   tout comme des tours/min). À regarder avec `dshot_telemetry_info` au prochain essai.
 - À faire : le Tableau de bord ne devrait pas montrer la protection température comme active si `dshot_edt = OFF`.
+- Corrigé (30/10) : Tableau de bord du configurateur (d370128, essai-onglets, pas encore publié) : alerte sous
+  « Protection anti-surchauffe » si une limite de température est réglée avec `dshot_edt = OFF`. Fiches TG-P3A-4 et
+  TG-P3B-4 : manipulation radio RadioMaster Pocket (EdgeTX) détaillée. Non vérifié : qu'EdgeTX affiche bien la trame
+  CRSF de température 0x0D (la fiche demande la version d'EdgeTX si le capteur n'apparaît pas).

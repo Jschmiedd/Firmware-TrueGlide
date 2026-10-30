@@ -59,7 +59,13 @@ Au sol, hélices retirées, batterie branchée, radio allumée.
 
 1. CLI : taper `set dshot_edt = ON`, Entrée, puis `set crsf_tlm_esc_temp = ON`, Entrée, puis `save`, Entrée. « Connexion ».
    Débrancher l'USB, brancher la batterie, armer 3 secondes gaz en bas, désarmer.
-2. Radio : page « Télémesure » du modèle, « Découvrir de nouveaux capteurs », attendre 10 secondes, « Arrêter ».
+2. Radio RadioMaster Pocket (EdgeTX), sur le modèle du drone :
+   a. Appuyer sur la touche « MDL », puis sur « PAGE> » jusqu'à la page « TELEMETRY » (ou « Télémesure »).
+   b. Descendre avec la molette jusqu'à « Discover new » (« Découvrir nouveaux »), appuyer sur la molette : la liste se
+      remplit (RxBt, 1RSS, RQly… déjà connus, plus les nouveaux capteurs en bas).
+   c. Attendre 10 secondes, puis appuyer de nouveau sur la molette (« Stop discovery » / « Arrêter »).
+   d. Regarder en bas de la liste : un capteur de température (nom du type « Tmp », « TEMP » ou « Temp1 ») avec une
+      valeur en °C. Noter son nom et sa valeur dans « Autres remarques ». Touche « RTN » pour sortir.
 3. Débrancher la batterie, brancher l'USB, « Connexion ». CLI : taper `set crsf_tlm_esc_temp = OFF`, Entrée, puis
    `set dshot_edt = OFF`, Entrée, puis `save`, Entrée. « Connexion ».
 

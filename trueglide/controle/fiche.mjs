@@ -185,8 +185,10 @@ function fiche(md, dossier) {
     for (const brut of md.replace(/\r/g, "").split("\n")) {
         const l = brut.trim();
         const precedente = lignes[lignes.length - 1];
-        const texte = (x) => x && !/^(#|- |\||!\[|\d+\. )/.test(x);
-        if (texte(l) && texte(precedente) && !/^Date :/.test(precedente) && !/^Date :/.test(l)) {
+        const texte = (x) => x && !/^(#|- |\||!\[|\d+\. |[a-z]\. )/.test(x);
+        // ligne en retrait sous une question « - » ou une étape « 1. » : suite de la même ligne
+        const suite = /^\s+\S/.test(brut) && !/^([a-z]\. |- )/.test(l) && /^(- |\d+\. |[a-z]\. )/.test(precedente || "");
+        if (suite || (texte(l) && texte(precedente) && !/^Date :/.test(precedente) && !/^Date :/.test(l))) {
             lignes[lignes.length - 1] = `${precedente} ${l}`;
         } else {
             lignes.push(l);
@@ -213,6 +215,9 @@ function fiche(md, dossier) {
             enfants.push(new Paragraph({ spacing: { after: 60 }, indent: { left: 720, hanging: 240 }, children: morceaux(`•\t${m[1]}`) }));
         } else if (l.startsWith("|")) {
             tableau.push(l.replace(/^\||\|$/g, "").split("|").map((c) => c.trim()));
+        } else if ((m = /^([a-z])\. (.+)$/.exec(l))) {
+            // sous-étape « a. » d'une étape numérotée : en retrait
+            enfants.push(new Paragraph({ spacing: { after: 40 }, indent: { left: 720, hanging: 360 }, children: morceaux(`${m[1]}.\t${m[2]}`) }));
         } else if ((m = /^(\d+)\. (.+)$/.exec(l))) {
             enfants.push(new Paragraph({ spacing: { after: 60 }, indent: { left: 360, hanging: 360 }, children: morceaux(`${m[1]}.\t${m[2]}`) }));
         } else {
