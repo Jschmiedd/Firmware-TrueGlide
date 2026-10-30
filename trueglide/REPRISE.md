@@ -223,3 +223,7 @@ En attente de Johann :
   A3 oui, A4 non (EdgeTX d'usine trop ancien, il faut ≥ 2.11.2), A5 oui (Blackbox : moteurs 1 et 3 ~780, 2 et 4 ~50–140
   pendant SPEEDER 15°, 2 activations). `diff all` final identique ligne pour ligne à celui du matin (aux remis par CLI :
   l'onglet Modes déplaçait les plages par crans de 25). Suite : TG-P3B en vol.
+- A4 après mise à jour d'EdgeTX en 2.11.8 (30/10, sauvegarde SD faite, ancien .bin gardé) : toujours aucun capteur.
+  Cause trouvée dans le code d'ExpressLRS (`src/lib/Telemetry/telemetry.cpp`) : jusqu'à 3.5.x le récepteur ne relaie
+  que GPS, BATTERY, ATTITUDE, DEVICE_INFO, FLIGHT_MODE, VARIO, BARO_ALTITUDE ; la trame TEMP (0x0D) n'est relayée qu'à
+  partir d'ELRS 3.6.0. Il faut donc EdgeTX ≥ 2.11.2 ET récepteur ELRS ≥ 3.6.0. Version du récepteur de Johann à lire.
