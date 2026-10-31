@@ -109,6 +109,11 @@ void powerGuardStep(powerGuardState_t *state, const powerGuardLimits_t *limits,
     state->currentCap = constrainf(state->currentCap, floor, 1.0f);
 }
 
+bool powerGuardCapAllowed(bool gpsRescue, bool failsafe, bool missionRescueDescent)
+{
+    return !gpsRescue && !failsafe && !missionRescueDescent;
+}
+
 bool powerGuardIsEnabled(void)
 {
     return powerGuardConfig()->esc_temp_limit > 0 || powerGuardConfig()->current_limit > 0;

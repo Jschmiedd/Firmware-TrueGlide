@@ -736,7 +736,10 @@ FAST_CODE_NOINLINE void mixTable(timeUs_t currentTimeUs)
         }
 #endif
         powerGuardUpdate(currentTimeUs, flownThrottle, ARMING_FLAG(ARMED));
-        throttle = MIN(throttle, powerGuardGetThrottleCap());
+        // never in an emergency: a failsafe landing without altitude control flies failsafe_throttle here
+        if (powerGuardCapAllowed(FLIGHT_MODE(GPS_RESCUE_MODE), failsafeIsActive(), flightPlanNavIsRescueDescentActive())) {
+            throttle = MIN(throttle, powerGuardGetThrottleCap());
+        }
     }
 #endif
 
@@ -822,8 +825,8 @@ FAST_CODE_NOINLINE void mixTable(timeUs_t currentTimeUs)
 #ifdef USE_POWER_GUARD
         // TrueGlide: the ESC temperature / current cap applies to the altitude hold throttle too (it never goes under
         // power_guard_min_throttle). Never in an emergency: GPS Rescue, failsafe landing, mission rescue descent.
-        if (powerGuardIsEnabled() && !FLIGHT_MODE(GPS_RESCUE_MODE) && !failsafeIsActive()
-            && !flightPlanNavIsRescueDescentActive()) {
+        if (powerGuardIsEnabled()
+            && powerGuardCapAllowed(FLIGHT_MODE(GPS_RESCUE_MODE), failsafeIsActive(), flightPlanNavIsRescueDescentActive())) {
             throttle = MIN(throttle, powerGuardGetThrottleCap());
         }
 #endif

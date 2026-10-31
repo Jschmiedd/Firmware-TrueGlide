@@ -65,6 +65,9 @@ void powerGuardStateReset(powerGuardState_t *state);
 void powerGuardStep(powerGuardState_t *state, const powerGuardLimits_t *limits,
                     int escTempC, float currentA, float throttle, float dt);
 float powerGuardStateCap(const powerGuardState_t *state);
+// The cap never applies in an emergency descent: GPS Rescue, failsafe (landing at failsafe_throttle, or with the
+// altitude controller), mission rescue descent. These keep all their throttle.
+bool powerGuardCapAllowed(bool gpsRescue, bool failsafe, bool missionRescueDescent);
 
 // Firmware glue
 bool powerGuardIsEnabled(void);

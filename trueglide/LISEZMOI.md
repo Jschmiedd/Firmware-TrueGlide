@@ -259,6 +259,11 @@ reçue par la télémétrie. En plus, désactivé par défaut :
   point de départ, GPS, cap) ; sinon l'OSD affiche `BAT RTH N/A` et le pilote garde la main. Pendant le retour :
   `BAT RTH`. Régler `battery_rth_cell_voltage` suffit : le GPS RESCUE est alors considéré comme configuré, même sans
   interrupteur ni failsafe en mode rescue.
+- Conséquence, comme pour tout GPS RESCUE configuré dans Betaflight : **l'armement est refusé tant que le GPS n'a pas
+  son fix** (motif `GPS`, au moins `gps_rescue_min_sats` satellites), et l'OSD affiche `RESCUE N/A` pendant 5 s après
+  l'armement si le rescue n'est pas disponible, même sans interrupteur GPS RESCUE. Pour armer sans fix (essai au banc) :
+  `set gps_rescue_allow_arming_without_fix = ON` ; le retour batterie reste alors impossible tant que le GPS n'a pas de
+  fix ni de point de départ (`BAT RTH N/A`).
 - Le pilote reprend la main par un **nouveau** geste au manche de roulis ou de tangage au-delà de 30 % : un manche
   déjà tenu au moment où le retour part ne l'annule pas. L'OSD affiche alors `BAT RTH OFF` pendant 3 s, et le retour
   ne se relance plus avant le prochain désarmement.

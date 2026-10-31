@@ -275,20 +275,6 @@ void renderOsdWarning(char *warningText, bool *blinking, uint8_t *displayAttr)
     }
 #endif
 
-#ifdef USE_BATTERY_GUARD
-    // TrueGlide: return home on a low battery (battery_rth_cell_voltage); shown with the battery warnings
-    if (osdWarnGetState(OSD_WARNING_BATTERY_WARNING) && ARMING_FLAG(ARMED)) {
-        const batteryRthState_e rth = batteryGuardRthState();
-        if (rth == BATTERY_RTH_ACTIVE || rth == BATTERY_RTH_UNAVAILABLE) {
-            tfp_sprintf(warningText, rth == BATTERY_RTH_ACTIVE ? "BAT RTH" : "BAT RTH N/A");
-            *displayAttr = DISPLAYPORT_SEVERITY_CRITICAL;
-            *blinking = true;
-            return;
-        }
-
-    }
-#endif
-
     // Warn when in flip over after crash mode
     if (osdWarnGetState(OSD_WARNING_CRASHFLIP) && IS_RC_MODE_ACTIVE(BOXCRASHFLIP)) {
         if (isCrashFlipModeActive()) { // if was armed in crashflip mode
@@ -367,6 +353,20 @@ void renderOsdWarning(char *warningText, bool *blinking, uint8_t *displayAttr)
         *blinking = true;
         return;
     }
+
+#ifdef USE_BATTERY_GUARD
+    // TrueGlide: return home on a low battery (battery_rth_cell_voltage). After LAND NOW: « BAT RTH N/A » stays true
+    // while the voltage is low, it must never hide LAND NOW; before LOW BATTERY, which is always true at that point.
+    if (osdWarnGetState(OSD_WARNING_BATTERY_WARNING) && ARMING_FLAG(ARMED)) {
+        const batteryRthState_e rth = batteryGuardRthState();
+        if (rth == BATTERY_RTH_ACTIVE || rth == BATTERY_RTH_UNAVAILABLE) {
+            tfp_sprintf(warningText, rth == BATTERY_RTH_ACTIVE ? "BAT RTH" : "BAT RTH N/A");
+            *displayAttr = DISPLAYPORT_SEVERITY_CRITICAL;
+            *blinking = true;
+            return;
+        }
+    }
+#endif
 
     if (osdWarnGetState(OSD_WARNING_LOAD) && (getArmingDisableFlags() & ARMING_DISABLED_LOAD)) {
         tfp_sprintf(warningText, "CPU OVERLOAD");

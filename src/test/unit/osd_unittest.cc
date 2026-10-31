@@ -48,6 +48,7 @@ extern "C" {
     #include "flight/mixer.h"
     #include "flight/pid.h"
     #include "flight/power_guard.h"
+    #include "flight/battery_guard.h"
 
     #include "io/beeper.h"
     #include "io/gps.h"
@@ -115,6 +116,7 @@ extern "C" {
     int simulationPowerGuardReason;
     float simulationPowerGuardCap;
     int simulationRestartMotor;
+    batteryRthState_e simulationBatteryRth;
 }
 
 uint32_t simulationFeatureFlags = FEATURE_GPS;
@@ -152,6 +154,7 @@ void setDefaultSimulationState()
     simulationPowerGuardReason = 0;
     simulationPowerGuardCap = 1.0f;
     simulationRestartMotor = -1;
+    simulationBatteryRth = BATTERY_RTH_IDLE;
 
     rcData[PITCH] = 1500;
 
@@ -1568,6 +1571,27 @@ TEST_F(OsdTest, TestElementWarningsTrueGlide)
     osdRefresh();
     // then: LAND NOW is never hidden by the TrueGlide messages
     displayPortTestBufferSubstring(9, 10, " LAND NOW   ");
+
+    // when: battery critical on a drone whose rescue cannot fly (« BAT RTH N/A » stays true while the voltage is low)
+    simulationBatteryRth = BATTERY_RTH_UNAVAILABLE;
+    osdWarnSetState(OSD_WARNING_BATTERY_WARNING, true);
+    displayClearScreen(&testDisplayPort, DISPLAY_CLEAR_WAIT);
+    simulationTime += 1000000;
+    simulationTime -= simulationTime % 1000000;
+    simulationTime += 0.25e6;
+    osdRefresh();
+    // then: LAND NOW is not hidden either
+    displayPortTestBufferSubstring(9, 10, " LAND NOW   ");
+
+    // when: only a low battery: the return message comes before LOW BATTERY
+    simulationBatteryState = BATTERY_WARNING;
+    displayClearScreen(&testDisplayPort, DISPLAY_CLEAR_WAIT);
+    simulationTime += 1000000;
+    simulationTime -= simulationTime % 1000000;
+    simulationTime += 0.25e6;
+    osdRefresh();
+    displayPortTestBufferSubstring(9, 10, "BAT RTH N/A");
+    simulationBatteryRth = BATTERY_RTH_IDLE;
     simulationBatteryState = BATTERY_OK;
 
     // when: warnings disabled
@@ -1702,6 +1726,8 @@ extern "C" {
     powerGuardLimitReason_e powerGuardGetLimitReason(void) { return (powerGuardLimitReason_e)simulationPowerGuardReason; }
     float powerGuardGetThrottleCap(void) { return simulationPowerGuardCap; }
     int motorHealthRecentRestart(uint32_t) { return simulationRestartMotor; }
+    batteryRthState_e batteryGuardRthState(void) { return simulationBatteryRth; }
+    bool batteryGuardRthCancelledRecently(uint32_t) { return false; }
 
     float pidItermAccelerator(void) { return 1.0; }
     uint8_t getMotorCount(void){ return 4; }

@@ -218,6 +218,15 @@ TEST(PowerGuardTest, ClosedLoopCurrentSettlesNearLimit)
 
 // Firmware glue
 
+// recontrôle Fable N4: a failsafe landing at failsafe_throttle (no altitude control) is never capped
+TEST(PowerGuardTest, NeverCapsAnEmergencyDescent)
+{
+    EXPECT_TRUE(powerGuardCapAllowed(false, false, false));
+    EXPECT_FALSE(powerGuardCapAllowed(false, true, false));     // failsafe landing
+    EXPECT_FALSE(powerGuardCapAllowed(true, false, false));     // GPS Rescue
+    EXPECT_FALSE(powerGuardCapAllowed(false, false, true));     // mission rescue descent
+}
+
 TEST(PowerGuardTest, GlueDisabledByDefault)
 {
     pgResetAll();

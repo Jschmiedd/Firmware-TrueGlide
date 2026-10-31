@@ -346,6 +346,9 @@ msp_serial_unittest_DEFINES := \
 		USE_CLI= \
 		USE_MSP_DISPLAYPORT=
 
+bus_i2c_errors_unittest_SRC := \
+		$(USER_DIR)/common/maths.c
+
 osd_unittest_SRC := \
 		$(USER_DIR)/osd/osd.c \
 		$(USER_DIR)/osd/osd_elements.c \
@@ -362,6 +365,7 @@ osd_unittest_SRC := \
 osd_unittest_DEFINES := \
 		USE_OSD= \
 		USE_POWER_GUARD= \
+		USE_BATTERY_GUARD= \
 		USE_MOTOR_HEALTH= \
 		USE_GPS= \
 		USE_RTC_TIME= \
