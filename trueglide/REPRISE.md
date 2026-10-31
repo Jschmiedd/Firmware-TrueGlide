@@ -240,3 +240,19 @@ En attente de Johann :
   Chaîne requise pour crsf_tlm_esc_temp : dshot_edt = ON + armement après mise sous tension, EdgeTX ≥ 2.11.2,
   récepteur ELRS ≥ 3.6.0. À noter dans l'aide du réglage. Observation : Alt 11.4 m affichée sur la radio au sol (à
   regarder en TG-P4).
+
+## 31/10/2026 — Revue indépendante (Fable) du firmware et du logiciel, corrections
+
+- Firmware 1341bd2 (hex SpeedyBee F405 Mini sha256 be3cc44c…) :
+  - relance moteur (motor_desync_recovery) : ramenait le moteur à DSHOT_MIN_THROTTLE (arrêt) avec le ralenti
+    dynamique ; ramène maintenant au plancher courant motorRangeMin, et ne s'applique plus en 3D (marche arrière) ;
+  - alertes OSD M RESTART / ESC HOT / AMP LIM placées après LAND NOW, liaison, rescue, LOW BATTERY (test osd) ;
+  - température ESC série : par ESC et seulement si récente (dataAge) ;
+  - baromètre : cycle rejeté si le bus I2C signale une erreur ; compteur dans debug BARO [4].
+  Tests unitaires osd, power_guard, motor_health, battery_guard, telemetry_crsf, arming_prevention : OK.
+  À tester au banc : TG-P2B (debug_mode = BARO, debug[4] = cycles rejetés) ; relance moteur (TG-P3A-3) à refaire.
+- Logiciel cf8b799 (essai-onglets, non publié) : 9 défauts importants de la revue corrigés + 3 mineurs, 909 tests.
+- Non corrigé (à décider) : I-5 retour batterie annulé sans affichage ; I-6 bit d'armement LOW_BATTERY pour les outils
+  Betaflight tiers ; M-1 power guard inactif en ALT HOLD/POS HOLD/rescue ; flasheur : carte présélectionnée.
+- Piste baromètre n°1 (Fable) : feature LED_STRIP active par défaut dans la construction complète (pas dans le cloud) ;
+  à comparer avec `feature -LED_STRIP` (appliqué par Johann pendant TG-P3) sur un essai TG-P2B.
