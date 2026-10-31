@@ -296,8 +296,11 @@ static void i2c_er_handler(i2cDevice_e device)
     // Read the I2C1 status register
     volatile uint32_t SR1Register = I2Cx->SR1;
 
-    if (SR1Register & (I2C_SR1_BERR | I2C_SR1_ARLO | I2C_SR1_AF | I2C_SR1_OVR)) // an error
+    if (SR1Register & (I2C_SR1_BERR | I2C_SR1_ARLO | I2C_SR1_AF | I2C_SR1_OVR)) { // an error
         state->error = true;
+        // TrueGlide (Betaflight bug): count bus errors too (i2cErrorCount only counted timeouts before)
+        i2cErrorCount++;
+    }
 
     // If AF, BERR or ARLO, abandon the current job and commence new if there are jobs
     if (SR1Register & (I2C_SR1_BERR | I2C_SR1_ARLO | I2C_SR1_AF)) {
@@ -317,6 +320,13 @@ static void i2c_er_handler(i2cDevice_e device)
         }
     }
     I2Cx->SR1 &= ~(I2C_SR1_BERR | I2C_SR1_ARLO | I2C_SR1_AF | I2C_SR1_OVR);     // reset all the error bits to clear the interrupt
+    if (SR1Register & (I2C_SR1_BERR | I2C_SR1_ARLO | I2C_SR1_AF)) {
+        // TrueGlide (Betaflight bug): the aborted job is abandoned, so its event state must be cleared too.
+        // subaddress_sent used to stay at 1 after a NACK/BERR/ARLO that followed the register address: the next
+        // read on this bus then skipped writing its register address and returned the bytes at the device's current
+        // register pointer (DPS310: its configuration block, read as -7 540 hPa / 258 degC).
+        memset(&i2c_ev_state[device], 0, sizeof(i2c_ev_state[device]));
+    }
     state->busy = 0;
 }
 
@@ -451,6 +461,7 @@ void i2cInit(i2cDevice_e device)
     I2C_TypeDef *I2Cx = (I2C_TypeDef *)hw->reg;
 
     memset(&pDev->state, 0, sizeof(pDev->state));
+    memset(&i2c_ev_state[device], 0, sizeof(i2c_ev_state[device]));   // TrueGlide: event state starts clean too
 
     NVIC_InitTypeDef nvic;
     I2C_InitTypeDef i2cInit;

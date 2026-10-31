@@ -100,7 +100,10 @@ void batteryGuardUpdate(timeUs_t currentTimeUs)
     lastUpdateUs = currentTimeUs;
     bool rescueAvailable = false;
 #ifdef USE_GPS_RESCUE
-    rescueAvailable = gpsRescueIsAvailable();
+    // The rescue controller only runs (gpsRescueUpdate) when GPS Rescue is configured (switch or failsafe procedure);
+    // otherwise isAvailable stays at its init value (true) and GPS_RESCUE_MODE would engage with no controller:
+    // idle throttle, level attitude, sticks ignored. Without it the battery return is "unavailable" (OSD warning only).
+    rescueAvailable = gpsRescueIsConfigured() && gpsRescueIsAvailable();
 #endif
     const float stick = MAX(getRcDeflectionAbs(FD_ROLL), getRcDeflectionAbs(FD_PITCH));
     const batteryRthState_e before = rthStatus.state;

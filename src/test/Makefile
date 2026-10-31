@@ -275,7 +275,8 @@ battery_guard_unittest_SRC := \
 		$(USER_DIR)/common/maths.c
 
 battery_guard_unittest_DEFINES := \
-		USE_BATTERY_GUARD=
+		USE_BATTERY_GUARD= \
+		USE_GPS_RESCUE=
 
 
 gps_conversion_unittest_SRC := \

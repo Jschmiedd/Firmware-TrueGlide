@@ -35,12 +35,18 @@ extern "C" {
 
     #include "flight/battery_guard.h"
 
-    // stubs for the firmware glue (not exercised here)
+    // stubs for the firmware glue
     uint8_t armingFlags = 0;
     float getRcDeflectionAbs(int) { return 0.0f; }
     uint8_t getBatteryCellCount(void) { return 4; }
-    uint16_t getBatteryAverageCellVoltage(void) { return 380; }
+    static uint16_t stubCellCv = 380;
+    uint16_t getBatteryAverageCellVoltage(void) { return stubCellCv; }
     uint32_t millis(void) { return 0; }
+    // GPS Rescue: isAvailable stays at its init value (true) while the rescue task does not run (not configured)
+    static bool stubRescueConfigured = false;
+    static bool stubRescueAvailable = true;
+    bool gpsRescueIsConfigured(void) { return stubRescueConfigured; }
+    bool gpsRescueIsAvailable(void) { return stubRescueAvailable; }
 }
 
 #include "unittest_macros.h"
@@ -142,4 +148,36 @@ TEST(BatteryGuardTest, OffOrUnmeasuredDoesNothing)
         batteryRthStep(&s, 350, 10, true, 0, 0, true, 0.0f, 0.1f);       // no battery measured
     }
     EXPECT_EQ(BATTERY_RTH_IDLE, s.state);
+}
+
+// Audit Fable 31/10/2026 (critique) : sans GPS Rescue configuré (ni interrupteur, ni failsafe GPS-RESCUE), le retour
+// batterie ne doit jamais s'enclencher : le mode GPS RESCUE n'aurait pas de contrôleur (gaz au ralenti, manches ignorés).
+static void runGuardSeconds(int seconds, timeUs_t *t)
+{
+    for (int i = 0; i < seconds * 10; i++) {
+        *t += 100000;
+        batteryGuardUpdate(*t);
+    }
+}
+
+TEST(BatteryGuardTest, ReturnNeverEngagesWhenRescueNotConfigured)
+{
+    pgResetAll();
+    batteryGuardConfigMutable()->rth_cell_voltage = 340;
+    batteryGuardConfigMutable()->rth_delay = 2;
+    armingFlags = ARMED;
+    stubCellCv = 330;
+    timeUs_t t = 1000;
+    stubRescueConfigured = false;
+    stubRescueAvailable = true;      // stale init value of the rescue state
+    runGuardSeconds(5, &t);
+    EXPECT_EQ(BATTERY_RTH_UNAVAILABLE, batteryGuardRthState());
+    EXPECT_FALSE(batteryGuardRthRequested());
+
+    stubRescueConfigured = true;     // switch or failsafe GPS-RESCUE: the rescue controller runs
+    runGuardSeconds(5, &t);
+    EXPECT_EQ(BATTERY_RTH_ACTIVE, batteryGuardRthState());
+    EXPECT_TRUE(batteryGuardRthRequested());
+    armingFlags = 0;
+    stubCellCv = 380;
 }
