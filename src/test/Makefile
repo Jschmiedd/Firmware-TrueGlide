@@ -266,6 +266,15 @@ power_guard_unittest_DEFINES := \
 		USE_ESC_SENSOR=
 
 
+dshot_telemetry_unittest_SRC := \
+		$(USER_DIR)/drivers/dshot.c \
+		$(USER_DIR)/common/filter.c \
+		$(USER_DIR)/common/maths.c
+
+dshot_telemetry_unittest_DEFINES := \
+		USE_DSHOT= \
+		USE_DSHOT_TELEMETRY=
+
 battery_guard_unittest_SRC := \
 		$(USER_DIR)/flight/battery_guard.c \
 		$(USER_DIR)/pg/battery_guard.c \
@@ -275,7 +284,8 @@ battery_guard_unittest_SRC := \
 		$(USER_DIR)/common/maths.c
 
 battery_guard_unittest_DEFINES := \
-		USE_BATTERY_GUARD=
+		USE_BATTERY_GUARD= \
+		USE_GPS_RESCUE=
 
 
 gps_conversion_unittest_SRC := \

@@ -49,6 +49,7 @@
 #include "io/gps.h"
 #include "rx/rx.h"
 #include "pg/autopilot.h"
+#include "pg/battery_guard.h"
 #include "sensors/acceleration.h"
 #include "sensors/compass.h"
 
@@ -730,7 +731,13 @@ float gpsRescueGetMaxAltitudeCm(void)
 
 bool gpsRescueIsConfigured(void)
 {
-    return failsafeConfig()->failsafe_procedure == FAILSAFE_PROCEDURE_GPS_RESCUE || isModeActivationConditionPresent(BOXGPSRESCUE);
+    return failsafeConfig()->failsafe_procedure == FAILSAFE_PROCEDURE_GPS_RESCUE || isModeActivationConditionPresent(BOXGPSRESCUE)
+#ifdef USE_BATTERY_GUARD
+        // TrueGlide: the low-battery return home flies the rescue too: its task must run (availability, sanity
+        // checks) and arming needs the GPS fix, as with a rescue switch
+        || batteryGuardConfig()->rth_cell_voltage > 0
+#endif
+        ;
 }
 
 bool gpsRescueIsAvailable(void)

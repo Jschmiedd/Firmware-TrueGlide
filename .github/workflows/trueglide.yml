@@ -102,7 +102,7 @@ jobs:
           mkdir -p hex
           ECHECS=""
           for c in $LISTE; do
-            if make -j"$(nproc)" CONFIG="$c" MODELE="$MODELE" > "build_$c.log" 2>&1 \
+            if make -j"$(nproc)" CONFIG="$c" MODELE="$MODELE" EXTRA_FLAGS=-Werror > "build_$c.log" 2>&1 \
                 && ls obj/*_"$c".hex > /dev/null 2>&1; then
               cp obj/*_"$c".hex hex/
               echo "OK    $c"

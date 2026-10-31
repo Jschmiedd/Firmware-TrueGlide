@@ -39,7 +39,11 @@ extern "C" {
     uint8_t armingFlags = 0;
     float getRcDeflectionAbs(int) { return 0.0f; }
     uint8_t getBatteryCellCount(void) { return 4; }
-    uint16_t getBatteryAverageCellVoltage(void) { return 380; }
+    uint16_t simulationCellCv = 380;
+    uint16_t getBatteryAverageCellVoltage(void) { return simulationCellCv; }
+    bool simulationRescueConfigured = false;
+    bool gpsRescueIsConfigured(void) { return simulationRescueConfigured; }
+    bool gpsRescueIsAvailable(void) { return true; }      // what the rescue says when its task never runs
     uint32_t millis(void) { return 0; }
 }
 
@@ -142,4 +146,33 @@ TEST(BatteryGuardTest, OffOrUnmeasuredDoesNothing)
         batteryRthStep(&s, 350, 10, true, 0, 0, true, 0.0f, 0.1f);       // no battery measured
     }
     EXPECT_EQ(BATTERY_RTH_IDLE, s.state);
+}
+
+// The real chain: without a rescue that runs (no switch, failsafe_procedure DROP), gpsRescueIsAvailable() stays true
+// from init. The return must then be a warning only, never GPS_RESCUE_MODE without its controller.
+TEST(BatteryGuardTest, NoReturnWhenTheRescueDoesNotRun)
+{
+    pgResetAll();
+    batteryGuardConfigMutable()->rth_cell_voltage = 350;
+    batteryGuardConfigMutable()->rth_delay = 1;
+    simulationCellCv = 340;
+    ENABLE_ARMING_FLAG(ARMED);
+    simulationRescueConfigured = false;
+    for (int i = 0; i <= 20; i++) {
+        batteryGuardUpdate(1 + i * 100000);                 // 2 s, 0.1 s steps
+    }
+    EXPECT_FALSE(batteryGuardRthRequested());
+    EXPECT_EQ(BATTERY_RTH_UNAVAILABLE, batteryGuardRthState());
+
+    // with a rescue that runs, the same voltage asks for the return
+    DISABLE_ARMING_FLAG(ARMED);
+    batteryGuardUpdate(3000000);
+    ENABLE_ARMING_FLAG(ARMED);
+    simulationRescueConfigured = true;
+    for (int i = 0; i <= 20; i++) {
+        batteryGuardUpdate(3100000 + i * 100000);
+    }
+    EXPECT_TRUE(batteryGuardRthRequested());
+    DISABLE_ARMING_FLAG(ARMED);
+    simulationCellCv = 380;
 }

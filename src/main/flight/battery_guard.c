@@ -100,7 +100,9 @@ void batteryGuardUpdate(timeUs_t currentTimeUs)
     lastUpdateUs = currentTimeUs;
     bool rescueAvailable = false;
 #ifdef USE_GPS_RESCUE
-    rescueAvailable = gpsRescueIsAvailable();
+    // only a rescue that really runs can fly the return: gpsRescueIsAvailable() stays true from init when the rescue
+    // task does not run (not configured, or a wing build where the rescue does nothing)
+    rescueAvailable = gpsRescueIsConfigured() && gpsRescueIsAvailable();
 #endif
     const float stick = MAX(getRcDeflectionAbs(FD_ROLL), getRcDeflectionAbs(FD_PITCH));
     const batteryRthState_e before = rthStatus.state;

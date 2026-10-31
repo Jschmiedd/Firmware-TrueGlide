@@ -296,8 +296,13 @@ static void i2c_er_handler(i2cDevice_e device)
     // Read the I2C1 status register
     volatile uint32_t SR1Register = I2Cx->SR1;
 
-    if (SR1Register & (I2C_SR1_BERR | I2C_SR1_ARLO | I2C_SR1_AF | I2C_SR1_OVR)) // an error
+    if (SR1Register & (I2C_SR1_BERR | I2C_SR1_ARLO | I2C_SR1_AF | I2C_SR1_OVR)) { // an error
         state->error = true;
+        // TrueGlide: count the bus errors too (status "I2C=n (m errors)" counted only the timeouts)
+        if (i2cErrorCount < UINT16_MAX) {
+            i2cErrorCount++;
+        }
+    }
 
     // If AF, BERR or ARLO, abandon the current job and commence new if there are jobs
     if (SR1Register & (I2C_SR1_BERR | I2C_SR1_ARLO | I2C_SR1_AF)) {
@@ -317,6 +322,11 @@ static void i2c_er_handler(i2cDevice_e device)
         }
     }
     I2Cx->SR1 &= ~(I2C_SR1_BERR | I2C_SR1_ARLO | I2C_SR1_AF | I2C_SR1_OVR);     // reset all the error bits to clear the interrupt
+    // TrueGlide: the aborted job must not leak into the next one. subaddress_sent was cleared only at the end of a
+    // completed job: after an error during a register read it stayed 1, and the next read then skipped writing its
+    // register address and read whatever register the device pointed at (DPS310: its configuration registers,
+    // decoded as -7540 hPa / 258 °C)
+    memset(&i2c_ev_state[device], 0, sizeof(i2c_ev_state[device]));
     state->busy = 0;
 }
 
@@ -451,6 +461,7 @@ void i2cInit(i2cDevice_e device)
     I2C_TypeDef *I2Cx = (I2C_TypeDef *)hw->reg;
 
     memset(&pDev->state, 0, sizeof(pDev->state));
+    memset(&i2c_ev_state[device], 0, sizeof(i2c_ev_state[device]));   // TrueGlide: no job state left from before
 
     NVIC_InitTypeDef nvic;
     I2C_InitTypeDef i2cInit;

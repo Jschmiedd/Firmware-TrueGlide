@@ -290,16 +290,19 @@ FAST_CODE_NOINLINE void updateDshotTelemetry(void)
         uint32_t value;
 
         // TrueGlide: drivers keep the previous raw value when a frame is invalid or missing,
-        // count the cycles without a new frame to know how old the speed is
+        // count the cycles without a new speed frame to know how old the speed is
         const uint8_t seq = dshotTelemetryState.motorState[k].rawValueSeq;
-        if (seq != dshotLastSeq[k]) {
-            dshotLastSeq[k] = seq;
+        const bool newFrame = seq != dshotLastSeq[k];
+        dshotLastSeq[k] = seq;
+
+        dshot_decode_telemetry_value(k, &value, &type);
+
+        // an extended telemetry frame (temperature, voltage, current) is new but carries no speed: the speed stays old
+        if (newFrame && value != DSHOT_TELEMETRY_INVALID && type == DSHOT_TELEMETRY_TYPE_eRPM) {
             dshotStaleFrames[k] = 0;
         } else if (dshotStaleFrames[k] < UINT8_MAX) {
             dshotStaleFrames[k]++;
         }
-
-        dshot_decode_telemetry_value(k, &value, &type);
 
         if (value != DSHOT_TELEMETRY_INVALID) {
             dshotUpdateTelemetryData(k, type, value);
