@@ -40,6 +40,7 @@ extern "C" {
     float getRcDeflectionAbs(int) { return 0.0f; }
     uint8_t getBatteryCellCount(void) { return 4; }
     uint16_t getBatteryAverageCellVoltage(void) { return 380; }
+    uint32_t millis(void) { return 0; }
 }
 
 #include "unittest_macros.h"
@@ -104,6 +105,19 @@ TEST(BatteryGuardTest, PilotCancelsUntilDisarm)
     EXPECT_EQ(BATTERY_RTH_CANCELLED, s.state);
     steps(&s, 1, 320, false);                               // disarm resets
     EXPECT_EQ(BATTERY_RTH_IDLE, s.state);
+}
+
+TEST(BatteryGuardTest, StickHeldWhenTheReturnStartsDoesNotCancelIt)
+{
+    batteryRthStatus_t s;
+    batteryRthReset(&s);
+    steps(&s, 110, 340, true, true, 0.6f);                  // flying forward, stick held, battery low
+    ASSERT_EQ(BATTERY_RTH_ACTIVE, s.state);
+    steps(&s, 5, 340, true, true, 0.6f);                    // still held: the return goes on
+    EXPECT_EQ(BATTERY_RTH_ACTIVE, s.state);
+    steps(&s, 1, 340, true, true, 0.0f);                    // sticks released
+    steps(&s, 1, 340, true, true, 0.6f);                    // a new input cancels
+    EXPECT_EQ(BATTERY_RTH_CANCELLED, s.state);
 }
 
 TEST(BatteryGuardTest, NoRescueAvailableMeansWarningOnly)

@@ -285,6 +285,12 @@ void renderOsdWarning(char *warningText, bool *blinking, uint8_t *displayAttr)
             *blinking = true;
             return;
         }
+        // the pilot cancelled the return with the sticks: say so, the battery is still low
+        if (batteryGuardRthCancelledRecently(millis())) {
+            tfp_sprintf(warningText, "BAT RTH OFF");
+            *displayAttr = DISPLAYPORT_SEVERITY_WARNING;
+            return;
+        }
     }
 #endif
 

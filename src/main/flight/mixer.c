@@ -811,6 +811,13 @@ FAST_CODE_NOINLINE void mixTable(timeUs_t currentTimeUs)
     // Throttle value to be used during altitude hold mode (and failsafe landing mode)
     if (FLIGHT_MODE(ALT_HOLD_MODE)) {
         throttle = getAutopilotThrottle();
+#ifdef USE_POWER_GUARD
+        // TrueGlide: the ESC temperature / current cap applies to the altitude hold throttle too (it never goes under
+        // power_guard_min_throttle, above a normal hover). Not in GPS Rescue: the return home is never limited.
+        if (powerGuardIsEnabled() && !FLIGHT_MODE(GPS_RESCUE_MODE)) {
+            throttle = MIN(throttle, powerGuardGetThrottleCap());
+        }
+#endif
     }
 #endif
 

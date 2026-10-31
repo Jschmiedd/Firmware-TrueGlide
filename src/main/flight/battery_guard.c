@@ -28,6 +28,8 @@
 
 #include "common/maths.h"
 
+#include "drivers/time.h"
+
 #include "fc/rc.h"
 #include "fc/runtime_config.h"
 
@@ -41,6 +43,8 @@
 
 static batteryRthStatus_t rthStatus;
 static timeUs_t lastUpdateUs;
+static uint32_t cancelledAtMs;
+static bool cancelSeen;
 
 bool batteryGuardArmingBlocked(uint16_t armMinCellCv, uint8_t cellCount, uint16_t cellCv)
 {
@@ -52,6 +56,7 @@ void batteryRthReset(batteryRthStatus_t *s)
 {
     s->state = BATTERY_RTH_IDLE;
     s->secondsBelow = 0.0f;
+    s->stickReleased = false;
 }
 
 void batteryRthStep(batteryRthStatus_t *s, uint16_t thresholdCv, uint8_t delayS, bool armed, uint8_t cellCount,
@@ -65,7 +70,11 @@ void batteryRthStep(batteryRthStatus_t *s, uint16_t thresholdCv, uint8_t delayS,
         return;     // the pilot decided: no new request until the next disarm
     }
     if (s->state == BATTERY_RTH_ACTIVE) {
-        if (stickDeflection >= BATTERY_GUARD_CANCEL_STICK) {
+        // only a new stick input cancels: a stick already held when the return started (pilot flying forward) must
+        // first come back under the threshold, or the return would be cancelled at once without the pilot knowing
+        if (stickDeflection < BATTERY_GUARD_CANCEL_STICK) {
+            s->stickReleased = true;
+        } else if (s->stickReleased) {
             s->state = BATTERY_RTH_CANCELLED;
         }
         return;
@@ -79,6 +88,7 @@ void batteryRthStep(batteryRthStatus_t *s, uint16_t thresholdCv, uint8_t delayS,
     s->secondsBelow = (cellCv < thresholdCv) ? s->secondsBelow + dt : 0.0f;
     if (s->secondsBelow >= (float)MAX(delayS, 1)) {
         s->state = rescueAvailable ? BATTERY_RTH_ACTIVE : BATTERY_RTH_UNAVAILABLE;
+        s->stickReleased = false;
     } else {
         s->state = BATTERY_RTH_IDLE;
     }
@@ -93,9 +103,19 @@ void batteryGuardUpdate(timeUs_t currentTimeUs)
     rescueAvailable = gpsRescueIsAvailable();
 #endif
     const float stick = MAX(getRcDeflectionAbs(FD_ROLL), getRcDeflectionAbs(FD_PITCH));
+    const batteryRthState_e before = rthStatus.state;
     batteryRthStep(&rthStatus, batteryGuardConfig()->rth_cell_voltage, batteryGuardConfig()->rth_delay,
                    ARMING_FLAG(ARMED), getBatteryCellCount(), getBatteryAverageCellVoltage(), rescueAvailable,
                    stick, constrainf(dt, 0.0f, 1.0f));
+    if (before != BATTERY_RTH_CANCELLED && rthStatus.state == BATTERY_RTH_CANCELLED) {
+        cancelledAtMs = millis();
+        cancelSeen = true;
+    }
+}
+
+bool batteryGuardRthCancelledRecently(uint32_t nowMs)
+{
+    return cancelSeen && rthStatus.state == BATTERY_RTH_CANCELLED && nowMs - cancelledAtMs < BATTERY_GUARD_CANCEL_OSD_MS;
 }
 
 bool batteryGuardArmingDisabled(void)

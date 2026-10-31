@@ -50,9 +50,12 @@ typedef enum {
     BATTERY_RTH_UNAVAILABLE,    // voltage low long enough but the rescue cannot fly: warning only
 } batteryRthState_e;
 
+#define BATTERY_GUARD_CANCEL_OSD_MS     3000    // "BAT RTH OFF" shown after a cancel
+
 typedef struct batteryRthStatus_s {
     batteryRthState_e state;
     float secondsBelow;
+    bool stickReleased;     // the sticks were back under the cancel threshold since the return started
 } batteryRthStatus_t;
 
 // Pure logic, no hardware access (unit tested)
@@ -66,3 +69,4 @@ void batteryGuardUpdate(timeUs_t currentTimeUs);
 bool batteryGuardArmingDisabled(void);
 bool batteryGuardRthRequested(void);
 batteryRthState_e batteryGuardRthState(void);
+bool batteryGuardRthCancelledRecently(uint32_t nowMs);
