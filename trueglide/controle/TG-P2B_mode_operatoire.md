@@ -1,11 +1,11 @@
-# Essai TG-P2B (TRUEGLIDE 2026.6.2, révision f9fc6d5) : contrôle du baromètre
+# Essai TG-P2B (TRUEGLIDE 2026.6.2, révision 253de3b) : contrôle du baromètre
 
 Date : …… Drone : …… Fait par : ……
 
 Drone : KarRmen (SpeedyBee F405 Mini), posé à plat sur la table, **HÉLICES RETIRÉES**. Logiciel : TrueGlide
 Configurator (https://jschmiedd.github.io/TrueGlide-Configurator/app/), dans Chrome ou Edge sur ordinateur. Matériel :
-batterie, radio, lunettes FPV, câble USB. But : vérifier que la révision f9fc6d5 corrige le baromètre (sous la révision
-1791465, des mesures fausses faisaient partir l'altitude à des milliers de mètres). Le journal Blackbox enregistre la
+batterie, radio, lunettes FPV, câble USB. But : vérifier que la révision 253de3b corrige le baromètre (sous les révisions
+1791465 et f9fc6d5, des mesures fausses faisaient partir l'altitude à des milliers de mètres). Le journal Blackbox enregistre la
 pression et l'altitude du baromètre (`debug_mode = BARO`).
 
 ## Avant de commencer (rien à cocher)
