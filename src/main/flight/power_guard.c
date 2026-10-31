@@ -132,9 +132,12 @@ static int getHottestEscTemperature(void)
 
 #ifdef USE_ESC_SENSOR
     if (featureIsEnabled(FEATURE_ESC_SENSOR)) {
-        const escSensorData_t *data = getEscSensorData(ESC_SENSOR_COMBINED);
-        if (data) {
-            hottest = MAX(hottest, data->temperature);
+        // per ESC and only recent data: the combined value keeps the last temperature of an ESC that went silent
+        for (int i = 0; i < getMotorCount(); i++) {
+            const escSensorData_t *data = getEscSensorData(i);
+            if (data && data->dataAge <= ESC_BATTERY_AGE_MAX) {
+                hottest = MAX(hottest, data->temperature);
+            }
         }
     }
 #endif

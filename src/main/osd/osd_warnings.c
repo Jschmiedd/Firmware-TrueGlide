@@ -275,19 +275,6 @@ void renderOsdWarning(char *warningText, bool *blinking, uint8_t *displayAttr)
     }
 #endif
 
-#ifdef USE_MOTOR_HEALTH
-    // TrueGlide: a stalled or desynced motor was just restarted (motor_desync_recovery)
-    if (osdWarnGetState(OSD_WARNING_MOTOR_RESTART) && ARMING_FLAG(ARMED)) {
-        const int motor = motorHealthRecentRestart(millis());
-        if (motor >= 0) {
-            tfp_sprintf(warningText, "M%d RESTART", motor + 1);
-            *displayAttr = DISPLAYPORT_SEVERITY_WARNING;
-            *blinking = true;
-            return;
-        }
-    }
-#endif
-
 #ifdef USE_BATTERY_GUARD
     // TrueGlide: return home on a low battery (battery_rth_cell_voltage); shown with the battery warnings
     if (osdWarnGetState(OSD_WARNING_BATTERY_WARNING) && ARMING_FLAG(ARMED)) {
@@ -296,19 +283,6 @@ void renderOsdWarning(char *warningText, bool *blinking, uint8_t *displayAttr)
             tfp_sprintf(warningText, rth == BATTERY_RTH_ACTIVE ? "BAT RTH" : "BAT RTH N/A");
             *displayAttr = DISPLAYPORT_SEVERITY_CRITICAL;
             *blinking = true;
-            return;
-        }
-    }
-#endif
-
-#ifdef USE_POWER_GUARD
-    // TrueGlide: throttle limited by the power guard (power_guard_esc_temp / power_guard_current)
-    if (osdWarnGetState(OSD_WARNING_POWER_GUARD) && ARMING_FLAG(ARMED)) {
-        const powerGuardLimitReason_e reason = powerGuardGetLimitReason();
-        if (reason != POWER_GUARD_LIMIT_NONE) {
-            tfp_sprintf(warningText, "%s %d%%", reason == POWER_GUARD_LIMIT_TEMPERATURE ? "ESC HOT" : "AMP LIM",
-                        (int)lrintf(powerGuardGetThrottleCap() * 100));
-            *displayAttr = DISPLAYPORT_SEVERITY_WARNING;
             return;
         }
     }
@@ -528,6 +502,34 @@ void renderOsdWarning(char *warningText, bool *blinking, uint8_t *displayAttr)
         *blinking = true;
         return;
     }
+
+    // TrueGlide: motor restart and power guard messages come after the Betaflight flight warnings (LAND NOW, link, rescue,
+    // autopilot abort, LOW BATTERY) so they never hide them: the power guard can last tens of seconds
+#ifdef USE_MOTOR_HEALTH
+    // TrueGlide: a stalled or desynced motor was just restarted (motor_desync_recovery)
+    if (osdWarnGetState(OSD_WARNING_MOTOR_RESTART) && ARMING_FLAG(ARMED)) {
+        const int motor = motorHealthRecentRestart(millis());
+        if (motor >= 0) {
+            tfp_sprintf(warningText, "M%d RESTART", motor + 1);
+            *displayAttr = DISPLAYPORT_SEVERITY_WARNING;
+            *blinking = true;
+            return;
+        }
+    }
+#endif
+
+#ifdef USE_POWER_GUARD
+    // TrueGlide: throttle limited by the power guard (power_guard_esc_temp / power_guard_current)
+    if (osdWarnGetState(OSD_WARNING_POWER_GUARD) && ARMING_FLAG(ARMED)) {
+        const powerGuardLimitReason_e reason = powerGuardGetLimitReason();
+        if (reason != POWER_GUARD_LIMIT_NONE) {
+            tfp_sprintf(warningText, "%s %d%%", reason == POWER_GUARD_LIMIT_TEMPERATURE ? "ESC HOT" : "AMP LIM",
+                        (int)lrintf(powerGuardGetThrottleCap() * 100));
+            *displayAttr = DISPLAYPORT_SEVERITY_WARNING;
+            return;
+        }
+    }
+#endif
 
     // Show warning if mah consumed is over the configured limit
     if (osdWarnGetState(OSD_WARNING_OVER_CAP) && ARMING_FLAG(ARMED) && osdConfig()->cap_alarm > 0 && getMAhDrawn() >= osdConfig()->cap_alarm) {

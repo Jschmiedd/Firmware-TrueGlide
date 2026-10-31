@@ -1558,6 +1558,18 @@ TEST_F(OsdTest, TestElementWarningsTrueGlide)
     // then
     displayPortTestBufferSubstring(9, 10, "M2 RESTART");
 
+    // when: battery critical while the throttle is capped and a motor was restarted
+    osdWarnSetState(OSD_WARNING_BATTERY_CRITICAL, true);
+    simulationBatteryState = BATTERY_CRITICAL;
+    displayClearScreen(&testDisplayPort, DISPLAY_CLEAR_WAIT);
+    simulationTime += 1000000;
+    simulationTime -= simulationTime % 1000000;
+    simulationTime += 0.25e6;
+    osdRefresh();
+    // then: LAND NOW is never hidden by the TrueGlide messages
+    displayPortTestBufferSubstring(9, 10, " LAND NOW   ");
+    simulationBatteryState = BATTERY_OK;
+
     // when: warnings disabled
     osdConfigMutable()->enabledWarnings = 0;
     displayClearScreen(&testDisplayPort, DISPLAY_CLEAR_WAIT);

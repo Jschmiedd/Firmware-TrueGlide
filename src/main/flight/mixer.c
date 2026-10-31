@@ -852,8 +852,12 @@ FAST_CODE_NOINLINE void mixTable(timeUs_t currentTimeUs)
         // Apply the mix to motor endpoints
         applyMixToMotors(motorMix, activeMixer);
 #ifdef USE_MOTOR_HEALTH
-        // TrueGlide: restart a desynced or blocked motor (motor_desync_recovery)
-        motorHealthApplyDesyncRecovery(motor, mixerRuntime.motorCount, mixerRuntime.motorOutputLow, mixerRuntime.motorOutputHigh, pidGetDT());
+        // TrueGlide: restart a desynced or blocked motor (motor_desync_recovery). The motor is brought back to the
+        // current idle floor (motorRangeMin, includes dynamic idle), never to motorOutputLow, which dynamic idle lowers
+        // to DSHOT_MIN_THROTTLE (motor stopped). Not in 3D: the low end there is the reverse direction.
+        if (!mixerRuntime.feature3dEnabled) {
+            motorHealthApplyDesyncRecovery(motor, mixerRuntime.motorCount, motorRangeMin, mixerRuntime.motorOutputHigh, pidGetDT());
+        }
 #endif
     }
 }

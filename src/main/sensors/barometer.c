@@ -472,16 +472,25 @@ uint32_t baroUpdate(timeUs_t currentTimeUs)
 
     DEBUG_SET(DEBUG_BARO, 0, state);
 
-    if (busBusy(&baro.dev.dev, NULL)) {
+    // TrueGlide: an I2C transfer aborted by a bus error (AF/BERR/ARLO/OVR) still ends with the bus free, and the
+    // sample buffer then holds a mix of old and missing bytes; such a cycle is not used (the driver used to accept it)
+    static bool cycleBusError = false;
+    static uint16_t busErrorCount = 0;
+    bool busError = false;
+    if (busBusy(&baro.dev.dev, &busError)) {
         // If the bus is busy, simply return to have another go later
         schedulerIgnoreTaskStateTime();
         return sleepTime;
+    }
+    if (busError) {
+        cycleBusError = true;
     }
 
     switch (state) {
         default:
         case BARO_STATE_TEMPERATURE_START:
             cycleStartUs = currentTimeUs;
+            cycleBusError = false;
             baro.dev.start_ut(&baro.dev);
             state = BARO_STATE_TEMPERATURE_READ;
             sleepTime = baro.dev.ut_delay;
@@ -506,6 +515,9 @@ uint32_t baroUpdate(timeUs_t currentTimeUs)
             break;
 
         case BARO_STATE_PRESSURE_START:
+            if (baro.dev.combined_read) {
+                cycleBusError = false;
+            }
             baro.dev.start_up(&baro.dev);
             state = BARO_STATE_PRESSURE_READ;
             sleepTime = baro.dev.up_delay;
@@ -533,7 +545,10 @@ uint32_t baroUpdate(timeUs_t currentTimeUs)
             // If baro.pressure is invalid then skip altitude counting / call of calibration cycle
             // TrueGlide: a pressure outside what can exist where a drone flies (corrupted sample, seen as -65 km
             // on a SpeedyBee F405 Mini DPS310) is invalid too, so it can't shift the ground level or the altitude
-            if (baro.pressure >= BARO_PRESSURE_MIN_PA && baro.pressure <= BARO_PRESSURE_MAX_PA
+            if (cycleBusError && busErrorCount < UINT16_MAX) {
+                busErrorCount++;
+            }
+            if (!cycleBusError && baro.pressure >= BARO_PRESSURE_MIN_PA && baro.pressure <= BARO_PRESSURE_MAX_PA
                 && baroAltitudeStepIsPlausible(pressureToAltitude(baro.pressure))) {
                 const float altitude = pressureToAltitude(baro.pressure);
                 if (baroIsCalibrated()) {
@@ -555,6 +570,7 @@ uint32_t baroUpdate(timeUs_t currentTimeUs)
                 DEBUG_SET(DEBUG_BARO, 1, lrintf(baro.pressure / 100.0f));   // hPa
                 DEBUG_SET(DEBUG_BARO, 2, baro.temperature);                 // c°C
                 DEBUG_SET(DEBUG_BARO, 3, lrintf(baro.altitude));            // cm
+                DEBUG_SET(DEBUG_BARO, 4, busErrorCount);                    // TrueGlide: cycles dropped on an I2C error
             }
 
             if (baro.dev.combined_read) {
