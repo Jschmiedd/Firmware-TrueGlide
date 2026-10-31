@@ -290,3 +290,6 @@ En attente de Johann :
   seulement si Johann écrit explicitement « publie sur /app/ ». Toujours poser la question en nommant l'adresse exacte.
   Les 4 publications /app/ du 31/10 (25d3c4e, 7f334ae, 085d032, 7530e37) n'avaient pas son accord pour /app/ :
   gh-pages laissé tel quel en attendant sa décision (garder, ou revenir à 4aa2fa5 du 23/10).
+- 31/10 (demande de Johann) : firmware en ligne retiré (gh-pages d656a82) : liste vide (revision « retire »), fichiers
+  1791465 supprimés ; les deux pages répondent « non publié ». Nouvelle liste (24a71eb ou suivante, 621 cartes)
+  seulement après TG-P3B, et mise en ligne sur accord écrit. La page d'accueil parle encore de « mise à jour en ligne ».
