@@ -271,3 +271,6 @@ En attente de Johann :
   SPEEDYBEEF405MINI sha256 7f22058d…, cause probable du baromètre : ISR I2C F4 pas remise à zéro après une erreur),
   972f8bf, doc b1d35cb. Logiciel 397587f (essai-onglets) : 917 tests. Restent : TG-P2B au banc (F2, F7), essai dans
   l'application des fenêtres de confirmation (C3, C8), C13 (onglet ESC externe), fusion vers main sur demande.
+- 31/10 : à la demande de Johann (« publie »), logiciel essai-onglets 75631b5 publié sur /app/ (gh-pages 25d3c4e),
+  vérifié en ligne (nouvelle version servie, Studio 200). Fiche TG-P2B : titre corrigé à 253de3b. Johann refait
+  TG-P2B en entier avec le hex 253de3b.
