@@ -276,3 +276,8 @@ En attente de Johann :
   TG-P2B en entier avec le hex 253de3b.
 - Recontrôle Fable (N1–N8) corrigé : firmware 24a71eb (hex SPEEDYBEEF405MINI sha256 69448950…), fiche TG-P2B 8c26247
   (LED_STRIP active pendant l'essai), logiciel de6b010 publié sur /app/. Johann fait TG-P2B avec 24a71eb.
+- TG-P2B (31/10, firmware 24a71eb) : firmware, debug_mode et DPS310 OK ; baromètre stable (−0,45 à +0,48 m, journal
+  de 8,5 s armé) ; debug[4] = 0 (aucune erreur I2C) ; mais LED_STRIP était coupée (features 272892936, bit 16 à 0 ;
+  les journaux du défaut, 28-29/10, l'avaient : 272958472). Donc F2 pas encore prouvé : refaire 30 s armé avec
+  `feature LED_STRIP`, batterie laissée branchée pour `status`. Le `status` de la fiche était après redémarrage
+  (uptime 80 s) : fiche corrigée (1502cba).
