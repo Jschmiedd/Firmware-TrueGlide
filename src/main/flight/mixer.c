@@ -48,6 +48,7 @@
 #include "flight/alt_hold.h"
 #include "flight/autopilot.h"
 #include "flight/failsafe.h"
+#include "flight/flight_plan_nav.h"
 #include "flight/gps_rescue.h"
 #include "flight/imu.h"
 #include "flight/mixer_init.h"
@@ -727,7 +728,14 @@ FAST_CODE_NOINLINE void mixTable(timeUs_t currentTimeUs)
 #ifdef USE_POWER_GUARD
     // cap the throttle when the ESCs are too hot or the battery current is too high
     if (powerGuardIsEnabled()) {
-        powerGuardUpdate(currentTimeUs, throttle, ARMING_FLAG(ARMED));
+        // the cap starts from the throttle actually flown: the altitude hold throttle in ALT HOLD, not the stick
+        float flownThrottle = throttle;
+#ifdef USE_ALTITUDE_HOLD
+        if (FLIGHT_MODE(ALT_HOLD_MODE)) {
+            flownThrottle = getAutopilotThrottle();
+        }
+#endif
+        powerGuardUpdate(currentTimeUs, flownThrottle, ARMING_FLAG(ARMED));
         throttle = MIN(throttle, powerGuardGetThrottleCap());
     }
 #endif
@@ -813,8 +821,9 @@ FAST_CODE_NOINLINE void mixTable(timeUs_t currentTimeUs)
         throttle = getAutopilotThrottle();
 #ifdef USE_POWER_GUARD
         // TrueGlide: the ESC temperature / current cap applies to the altitude hold throttle too (it never goes under
-        // power_guard_min_throttle, above a normal hover). Not in GPS Rescue: the return home is never limited.
-        if (powerGuardIsEnabled() && !FLIGHT_MODE(GPS_RESCUE_MODE)) {
+        // power_guard_min_throttle). Never in an emergency: GPS Rescue, failsafe landing, mission rescue descent.
+        if (powerGuardIsEnabled() && !FLIGHT_MODE(GPS_RESCUE_MODE) && !failsafeIsActive()
+            && !flightPlanNavIsRescueDescentActive()) {
             throttle = MIN(throttle, powerGuardGetThrottleCap());
         }
 #endif

@@ -29,6 +29,7 @@
 #include "drivers/bus.h"
 #include "drivers/bus_i2c.h"
 #include "drivers/bus_i2c_busdev.h"
+#include "drivers/bus_i2c_impl.h"
 
 static uint8_t i2cRegisteredDeviceCount = 0;
 
@@ -91,7 +92,18 @@ bool i2cBusBusy(const extDevice_t *dev, bool *error)
         }
         return true;
     }
-    return i2cBusy(dev->bus->busType_u.i2c.device, error);
+    const bool busy = i2cBusy(dev->bus->busType_u.i2c.device, error);
+    if (error && *error) {
+        // TrueGlide: the error flag belongs to the bus, not to one device. Report it only when the last transfer
+        // addressed this device: a failing compass on the same bus must not be taken for a barometer error. Without
+        // the transfer state (HAL platforms) the owner is unknown: no error is reported (no sample dropped, as in Betaflight).
+#if I2C_TRAIT_STATE
+        *error = (i2cDevice[dev->bus->busType_u.i2c.device].state.addr >> 1) == dev->busType_u.i2c.address;
+#else
+        *error = false;
+#endif
+    }
+    return busy;
 }
 
 bool i2cBusSetInstance(extDevice_t *dev, uint32_t device)

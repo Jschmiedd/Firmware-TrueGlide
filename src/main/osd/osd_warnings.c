@@ -285,12 +285,7 @@ void renderOsdWarning(char *warningText, bool *blinking, uint8_t *displayAttr)
             *blinking = true;
             return;
         }
-        // the pilot cancelled the return with the sticks: say so, the battery is still low
-        if (batteryGuardRthCancelledRecently(millis())) {
-            tfp_sprintf(warningText, "BAT RTH OFF");
-            *displayAttr = DISPLAYPORT_SEVERITY_WARNING;
-            return;
-        }
+
     }
 #endif
 
@@ -511,6 +506,15 @@ void renderOsdWarning(char *warningText, bool *blinking, uint8_t *displayAttr)
 
     // TrueGlide: motor restart and power guard messages come after the Betaflight flight warnings (LAND NOW, link, rescue,
     // autopilot abort, LOW BATTERY) so they never hide them: the power guard can last tens of seconds
+#ifdef USE_BATTERY_GUARD
+    // TrueGlide: the pilot cancelled the low-battery return with the sticks: say so, the battery is still low
+    if (osdWarnGetState(OSD_WARNING_BATTERY_WARNING) && ARMING_FLAG(ARMED) && batteryGuardRthCancelledRecently(millis())) {
+        tfp_sprintf(warningText, "BAT RTH OFF");
+        *displayAttr = DISPLAYPORT_SEVERITY_WARNING;
+        return;
+    }
+#endif
+
 #ifdef USE_MOTOR_HEALTH
     // TrueGlide: a stalled or desynced motor was just restarted (motor_desync_recovery)
     if (osdWarnGetState(OSD_WARNING_MOTOR_RESTART) && ARMING_FLAG(ARMED)) {
