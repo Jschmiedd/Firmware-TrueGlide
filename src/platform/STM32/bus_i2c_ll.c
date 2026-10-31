@@ -270,6 +270,7 @@ bool i2cWrite(i2cDevice_e device, uint8_t addr_, uint8_t reg_, uint8_t data)
 
     state->busy = true;
     state->error = false;
+    state->addr = addr_ << 1;   // TrueGlide: who the transfer is for, so a bus error is given to the right device
     state->transactionStartUs = microsISR();
 
     timeUs_t timeoutStartUs = microsISR();
@@ -432,6 +433,7 @@ bool i2cRead(i2cDevice_e device, uint8_t addr_, uint8_t reg_, uint8_t len, uint8
 
     state->busy = true;
     state->error = false;
+    state->addr = addr_ << 1;   // TrueGlide: who the transfer is for, so a bus error is given to the right device
     state->transactionStartUs = microsISR();
 
     timeUs_t timeoutStartUs = microsISR();

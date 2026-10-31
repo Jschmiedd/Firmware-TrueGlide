@@ -259,3 +259,10 @@ En attente de Johann :
   dernier. Contre-vérification des corrections confiée à Fable.
 - Piste baromètre n°1 (Fable) : feature LED_STRIP active par défaut dans la construction complète (pas dans le cloud) ;
   à comparer avec `feature -LED_STRIP` (appliqué par Johann pendant TG-P3) sur un essai TG-P2B.
+- Contre-vérification Fable de 63d0b1a → corrigé dans a01092b (erreur I2C attribuée au baro seulement si le transfert
+  fautif lui était adressé ; plafond jamais en failsafe / descente de secours, départ depuis le throttle volé ;
+  « BAT RTH OFF » après LOW BATTERY) puis vérification finale → pilote LL (F7/H7/G4) : les transferts bloquants
+  i2cWrite/i2cRead n'enregistraient pas l'adresse (state->addr), corrigé ensuite. Le code F4 (SpeedyBee F405 Mini)
+  est identique entre a01092b et ce dernier commit : Johann teste avec le hex a01092b (sha256 1d708911…).
+  Constructions -Werror OK : SPEEDYBEEF405MINI (TRUEGLIDE, TRUENAV, TRUENAV_LIGHT), SPEEDYBEEF7V3, MATEKH743,
+  AIRBOTSUPERF4, JHEF435 (AT32). 71 suites de tests unitaires OK.
