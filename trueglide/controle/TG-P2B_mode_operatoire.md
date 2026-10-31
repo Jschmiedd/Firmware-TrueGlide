@@ -34,13 +34,15 @@ pression et l'altitude du baromètre (`debug_mode = BARO`).
 2. « Déconnecter », puis débrancher l'USB. Pas d'USB pendant l'essai.
 3. Brancher la batterie. Allumer les lunettes et lancer l'enregistrement vidéo.
 4. Drone posé, armer et laisser armé **2 minutes** en regardant l'altitude (en haut à droite de l'OSD). Désarmer.
-5. Débrancher la batterie. Brancher l'USB, « Connexion ».
+5. **Laisser la batterie branchée** (débrancher la batterie redémarre la carte et remet le compteur d'erreurs I2C à
+   zéro). Brancher l'USB, « Connexion ». Après les deux contrôles ci-dessous, débrancher la batterie.
 
 - À l'étape 1, après « Effacer la mémoire interne », la barre de la mémoire est vide (tout l'espace est libre, environ 8 Mo) ?
 - Pendant les 2 minutes, l'altitude de l'OSD reste entre −10 et +10 m (une lente dérive de quelques mètres est normale), sans jamais sauter à des centaines ou des milliers de mètres ?
 - Onglet « Ligne de commande (CLI) » (étape 5) : taper `status`, Entrée. La ligne « I2C=1 (n errors) » montre au
   moins 1 erreur (n plus grand que 0) ? Noter n dans « Autres remarques ». Depuis cette révision, il compte aussi les
-  erreurs de bus. Seul le cas « erreurs I2C au-dessus de 0 **et** altitude stable » prouve la correction : avec 0
+  erreurs de bus. « System Uptime » doit dépasser la durée de l'essai (sinon la carte a redémarré et le compte est
+  perdu ; le journal Blackbox le garde : debug[4]). Seul le cas « erreurs I2C au-dessus de 0 **et** altitude stable » prouve la correction : avec 0
   erreur, le défaut ne s'est pas produit pendant l'essai, il faudra le refaire.
 - Onglet Blackbox (étape 5) : « Espace utilisé » apparaît (la mémoire n'est plus vide), et « Enregistrer sous… » a créé le fichier du journal ?
 
