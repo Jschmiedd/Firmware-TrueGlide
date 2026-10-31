@@ -281,3 +281,8 @@ En attente de Johann :
   les journaux du défaut, 28-29/10, l'avaient : 272958472). Donc F2 pas encore prouvé : refaire 30 s armé avec
   `feature LED_STRIP`, batterie laissée branchée pour `status`. Le `status` de la fiche était après redémarrage
   (uptime 80 s) : fiche corrigée (1502cba).
+- TG-P2C (31/10, 24a71eb) : 31,7 s armé, LED_STRIP activée (features 272958472, comme les journaux du défaut),
+  status uptime 105 s : 0 erreur I2C. Journal debug BARO : pression brute 970 hPa et 19,9-20,9 °C à chaque cycle
+  (le défaut donnait −7540 hPa / 258 °C), debug[4] = 0, altitude 0,84 → 3,25 m (dérive lente, plus grand pas 9 cm).
+  Mêmes conditions que les journaux 1791465 du 28/10 (−66 km en quelques secondes) : défaut plus reproduit. Baromètre
+  confirmé au banc ; ALT HOLD en vol à voir dans TG-P3B.

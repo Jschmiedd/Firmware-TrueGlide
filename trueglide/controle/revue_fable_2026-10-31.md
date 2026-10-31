@@ -9,7 +9,7 @@ Firmware : dépôt Firmware-TrueGlide, branche `main`. Configurateur : dépôt T
 | N° | Erreur trouvée | Correction appliquée | Commit | Preuve |
 |---|---|---|---|---|
 | F1 | Retour batterie : le mode GPS RESCUE pouvait s'enclencher sans que le rescue tourne (gaz à zéro, manches ignorés) | Retour seulement si le GPS RESCUE est configuré **et** disponible ; sinon `BAT RTH N/A`, le pilote garde la main | 253de3b | test `NoReturnWhenTheRescueDoesNotRun` |
-| F2 | Baromètre DPS310 : lectures fausses (−7540 hPa, 258 °C) après une erreur I2C | Pilote I2C F4 remis à zéro après une erreur (l'adresse du registre était sautée) ; lecture rejetée sur erreur ; erreur attribuée au bon capteur (bus partagé) | 1341bd2, a01092b, d5244da, 253de3b | compilation ARM ; **à confirmer au banc : fiche TG-P2B** |
+| F2 | Baromètre DPS310 : lectures fausses (−7540 hPa, 258 °C) après une erreur I2C | Pilote I2C F4 remis à zéro après une erreur (l'adresse du registre était sautée) ; lecture rejetée sur erreur ; erreur attribuée au bon capteur (bus partagé) | 1341bd2, a01092b, d5244da, 253de3b | **confirmé au banc (TG-P2C, 31/10)** : 31,7 s armé, bande LED activée, 0 erreur I2C, aucune mesure brute fausse (970 hPa, 20-21 °C), altitude sans saut |
 | F3 | Motif d'armement `LOW_BATTERY` affiché `ARM_SWITCH` dans les outils Betaflight | Gardé : `ARM_SWITCH` doit rester le dernier motif, tout autre emplacement donnerait un faux nom à un motif Betaflight. TrueGlide Configurator l'affiche juste ; documenté | b1d35cb (doc) | `status` en CLI donne le vrai motif |
 | F4 | Le .hex contient toutes les options de la carte, pas seulement celles de la construction en ligne Betaflight | Texte corrigé : même code de vol, options en plus inactives tant qu'on ne les règle pas. Changer la construction = décision de Johann | b1d35cb (doc) | — |
 | F5 | Une trame DShot étendue (température) rendait la vitesse moteur « fraîche » | Vitesse fraîche seulement sur une nouvelle trame de vitesse valide | 253de3b | test `ExtendedFrameDoesNotMakeTheSpeedFresh` |
@@ -64,6 +64,6 @@ Logiciel de6b010 publié sur /app/.
 
 ## Reste à faire
 
-- **TG-P2B** au banc avec 24a71eb, LED_STRIP active : confirme F2, F7 et N1 (erreurs I2C > 0 et altitude stable).
+- Fait : TG-P2B et TG-P2C au banc avec 24a71eb (31/10). Baromètre sain avec la bande LED. Aucune erreur I2C pendant l'essai : la reprise après erreur (F7, N1) n'a pas eu à agir ; elle reste couverte par les tests.
 - **TG-P3B** en vol : limite de courant, température ESC, relance moteur, Speeder.
 - Logiciel publié sur /app/ le 31/10 (C1, C6, C7, C9, C11 en ligne). Branche `main` du dépôt du configurateur : fusion sur demande de Johann.
