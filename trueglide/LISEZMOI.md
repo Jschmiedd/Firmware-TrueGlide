@@ -12,7 +12,9 @@ Firmware de contrôleur de vol basé sur **Betaflight 2026.6.2**, avec en plus :
 | **TrueGlide Studio** (`trueglide/studio/index.html`) | Réglage de départ selon le drone (Tiny Whoop 1,2" à 15"), analyse de configuration, ports (UART) et fichier drone préparés sans la carte, missions GPS (modèles TRUENAV) | — |
 
 Sans réglage TrueGlide, le firmware vole **exactement comme Betaflight 2026.6.2** : les ajouts ne font rien tant
-qu'on ne les active pas.
+qu'on ne les active pas. Le code de vol est celui de Betaflight ; le fichier .hex, lui, n'est pas identique à celui
+de la construction en ligne de Betaflight : il contient toutes les options prévues pour la carte (pilotes de
+capteurs, protocoles de récepteur et de télémétrie), inactives tant qu'on ne les règle pas.
 
 ## TRUEGLIDE et ses deux dérivés
 
@@ -214,6 +216,14 @@ un ESC mal réglé restent possibles. Ces étapes sont là pour les détecter sa
 Seuls les gaz (collectif) sont limités, jamais les corrections PID : le drone reste stable et pilotable. La limite
 démarre aux gaz du moment, descend progressivement, et se relâche (25 %/s) quand on repasse sous la limite.
 
+- La limite agit aussi en maintien d'altitude (ALTHOLD, POSHOLD), mais jamais pendant le GPS RESCUE, l'atterrissage
+  du failsafe ou la descente de secours d'une mission : ces descentes gardent tous leurs gaz.
+- **`power_guard_current` bien au-dessus du courant de stationnaire** : la limite ne remonte que sous 90 % de
+  `power_guard_current`. Si le drone tire plus que cette valeur en stationnaire, les gaz restent au plancher
+  (`power_guard_min_throttle`) jusqu'au désarmement, sans pleins gaz pour rattraper une descente.
+- La température vient de la télémétrie DShot étendue (`dshot_edt = ON`) ou du fil de télémétrie série ; un ESC
+  série qui ne répond plus (10 demandes sans réponse) n'est plus compté.
+
 ## Mode SPEEDER
 
 Pour les speeders qui décollent fuselage vertical (90°) et volent vite fuselage presque horizontal.
@@ -245,10 +255,13 @@ reçue par la télémétrie. En plus, désactivé par défaut :
 | `battery_rth_delay` | durée (s) pendant laquelle la tension doit rester sous le seuil ; une chute brève sur un coup de gaz remet le compte à zéro | 10 |
 
 - Sans batterie mesurée (nombre d'éléments inconnu), rien n'est bloqué ni déclenché.
-- Le retour ne part que si le GPS RESCUE est disponible à ce moment (point de départ, GPS, cap) ; sinon l'OSD affiche
-  `BAT RTH N/A` et le pilote garde la main. Pendant le retour : `BAT RTH`.
-- Le pilote reprend la main en bougeant le manche de roulis ou de tangage au-delà de 30 % : le retour ne se relance
-  plus avant le prochain désarmement.
+- Le retour ne part que si le GPS RESCUE peut vraiment tourner à ce moment (GPS RESCUE présent dans le firmware,
+  point de départ, GPS, cap) ; sinon l'OSD affiche `BAT RTH N/A` et le pilote garde la main. Pendant le retour :
+  `BAT RTH`. Régler `battery_rth_cell_voltage` suffit : le GPS RESCUE est alors considéré comme configuré, même sans
+  interrupteur ni failsafe en mode rescue.
+- Le pilote reprend la main par un **nouveau** geste au manche de roulis ou de tangage au-delà de 30 % : un manche
+  déjà tenu au moment où le retour part ne l'annule pas. L'OSD affiche alors `BAT RTH OFF` pendant 3 s, et le retour
+  ne se relance plus avant le prochain désarmement.
 - Retour au départ seulement avec le GPS RESCUE : **TRUENAV**, **TRUENAV_LIGHT**, et **TRUEGLIDE** sur les cartes à
   1 Mo et plus.
 
@@ -304,6 +317,8 @@ X8 coaxial, Quad X pusher (moteurs à l'envers) ; pour le X8, la poussée est es
 le flux de ceux du haut), une estimation à vérifier au stationnaire.
 
 ## Santé moteurs (DShot bidirectionnel)
+
+La relance est désactivée en mode 3D (moteurs réversibles) : elle n'est prévue que pour les moteurs à un seul sens.
 
 | Réglage | Rôle | Défaut |
 |---|---|---|
@@ -414,6 +429,21 @@ de la première fenêtre, cap B = A + 180 ± 30°.
 
 Pour régler les PID à partir de mesures, Betaflight 2026.6 a aussi un onglet **Réglage automatique** (Autotune, excitation « chirp ») :
 il reste disponible dans TrueGlide Configurator, à côté de l'Assistant de réglage.
+
+## Avec les outils Betaflight d'origine
+
+Betaflight Configurator, Blackbox Explorer et les scripts de la radio ne connaissent pas les ajouts TrueGlide. Le
+vol n'en dépend pas, mais certains noms y sont faux ou absents ; **TrueGlide Configurator** les affiche juste.
+
+| Ajout TrueGlide | Dans les outils Betaflight |
+|---|---|
+| Motif de refus d'armement `LOW_BATTERY` (`battery_arm_min_cell_voltage`) | affiché **`ARM_SWITCH`** ; un vrai `ARM_SWITCH` apparaît alors sans nom. La commande CLI `status` donne le vrai motif |
+| Mode **SPEEDER** (onglet Modes) | lu sur la carte : nom juste, sans texte d'aide |
+| Modes debug `POWER_GUARD`, `MOTOR_HEALTH` | sans nom, ou avec un autre nom dans Blackbox Explorer |
+| Alertes OSD `ESC HOT` / `AMP LIM`, `M RESTART` | sans nom dans la liste des alertes de l'onglet OSD |
+
+`LOW_BATTERY` est placé juste avant `ARM_SWITCH`, qui doit rester le dernier motif : un autre emplacement donnerait
+un nom faux à un motif de Betaflight à la place.
 
 ## Vérifications faites
 
