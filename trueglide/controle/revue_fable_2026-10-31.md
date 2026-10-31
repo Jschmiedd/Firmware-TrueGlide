@@ -44,8 +44,26 @@ Firmware : dépôt Firmware-TrueGlide, branche `main`. Configurateur : dépôt T
 | — | Tableau de bord : protections affichées actives sans DShot EDT, capteur de courant ou vitesse moteur | Alertes ajoutées ; RSSI, armement, température, chute de tension « — » tant qu'inconnus | d370128, cf8b799 | tests `trueglide_dashboard`, `trueglide_settings` |
 | — | Envoi refusé : réglages déjà envoyés gardés, « Enregistré » affiché quand même | Redémarrage sans sauvegarde ; « Enregistré » seulement après réussite | cf8b799 | test `trueglide_settings` |
 
+## Recontrôle Fable (après les corrections)
+
+Aucune erreur majeure ni régression trouvée. Points restants, tous corrigés :
+
+| N° | Erreur trouvée | Correction appliquée | Commit | Preuve |
+|---|---|---|---|---|
+| N1 | Erreur I2C par bus : une lecture réussie du compas effaçait l'erreur du baromètre, qui gardait un échantillon partiel | Erreur gardée pour chaque appareil du bus, jusqu'à son transfert suivant | 24a71eb | test `bus_i2c_errors` (4 cas) |
+| N2 | Branche START de l'interruption I2C (Betaflight d'origine) | Rien à faire, sans conséquence | — | — |
+| N3 | « BAT RTH N/A » pouvait masquer LAND NOW tout le reste du vol | Messages de retour batterie placés après LAND NOW | 24a71eb | test OSD (échoue sans la correction) |
+| N4 | Limite ESC / courant appliquée à `failsafe_throttle` pendant un atterrissage de failsafe | Jamais pendant le failsafe, le GPS RESCUE ni la descente de secours | 24a71eb | test `power_guard` |
+| N5 | Avec `battery_rth_cell_voltage`, armement refusé sans fix GPS et `RESCUE N/A`, non documenté | Documenté, avec le réglage pour armer au banc | 24a71eb | — |
+| N6 | Studio : ajouts du configurateur absents de la source du firmware | Reportés ; copie aller-retour identique | 24a71eb | 49 tests Studio, 918 tests configurateur |
+| N7 | Fiche TG-P2B : LED_STRIP coupée, un baromètre stable ne prouvait rien | LED_STRIP remise pendant l'essai ; preuve = erreurs I2C > 0 **et** altitude stable | 8c26247 | fiche TG-P2B |
+| N8 | Flasheur en mode DFU : carte inconnue ou nom périmé, aucune vérification | Fichier local sans carte lue = confirmation obligatoire | de6b010 | test `trueglide_firmware_source` (échoue sans) |
+
+Firmware 24a71eb : 73 suites de tests OK ; SPEEDYBEEF405MINI, SPEEDYBEEF7V3, MATEKH743, JHEF435 construits avec -Werror.
+Logiciel de6b010 publié sur /app/.
+
 ## Reste à faire
 
-- **TG-P2B** au banc avec 253de3b : confirme F2 et F7 (baromètre stable, erreurs I2C relevées).
+- **TG-P2B** au banc avec 24a71eb, LED_STRIP active : confirme F2, F7 et N1 (erreurs I2C > 0 et altitude stable).
 - **TG-P3B** en vol : limite de courant, température ESC, relance moteur, Speeder.
-- Fusion `essai-onglets` → `main` du configurateur (C1, C6, C7, C9, C11) : sur demande de Johann.
+- Logiciel publié sur /app/ le 31/10 (C1, C6, C7, C9, C11 en ligne). Branche `main` du dépôt du configurateur : fusion sur demande de Johann.

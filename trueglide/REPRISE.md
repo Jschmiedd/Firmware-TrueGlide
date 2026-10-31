@@ -274,3 +274,5 @@ En attente de Johann :
 - 31/10 : à la demande de Johann (« publie »), logiciel essai-onglets 75631b5 publié sur /app/ (gh-pages 25d3c4e),
   vérifié en ligne (nouvelle version servie, Studio 200). Fiche TG-P2B : titre corrigé à 253de3b. Johann refait
   TG-P2B en entier avec le hex 253de3b.
+- Recontrôle Fable (N1–N8) corrigé : firmware 24a71eb (hex SPEEDYBEEF405MINI sha256 69448950…), fiche TG-P2B 8c26247
+  (LED_STRIP active pendant l'essai), logiciel de6b010 publié sur /app/. Johann fait TG-P2B avec 24a71eb.
