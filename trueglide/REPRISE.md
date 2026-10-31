@@ -286,3 +286,7 @@ En attente de Johann :
   (le défaut donnait −7540 hPa / 258 °C), debug[4] = 0, altitude 0,84 → 3,25 m (dérive lente, plus grand pas 9 cm).
   Mêmes conditions que les journaux 1791465 du 28/10 (−66 km en quelques secondes) : défaut plus reproduit. Baromètre
   confirmé au banc ; ALT HOLD en vol à voir dans TG-P3B.
+- RÈGLE DE PUBLICATION (Johann, 31/10) : « publie » = seulement la page d'essai /test/ du configurateur. /app/ =
+  seulement si Johann écrit explicitement « publie sur /app/ ». Toujours poser la question en nommant l'adresse exacte.
+  Les 4 publications /app/ du 31/10 (25d3c4e, 7f334ae, 085d032, 7530e37) n'avaient pas son accord pour /app/ :
+  gh-pages laissé tel quel en attendant sa décision (garder, ou revenir à 4aa2fa5 du 23/10).
