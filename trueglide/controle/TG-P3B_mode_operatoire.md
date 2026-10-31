@@ -1,4 +1,4 @@
-# Essai TG-P3B (TRUEGLIDE 2026.6.2, révision f9fc6d5) : fonctions TrueGlide en vol
+# Essai TG-P3B (TRUEGLIDE 2026.6.2, révision 24a71eb) : fonctions TrueGlide en vol
 
 Date : …… Drone : …… Fait par : ……
 
@@ -11,6 +11,8 @@ Configurator, onglet « Ligne de commande (CLI) ». Les fonctions sont essayées
 
 1. TG-P3 faite (vols en ANGLE et en ACRO comme sous Betaflight) et TG-P3A faite le 30/10 (les mêmes fonctions au banc,
    sans hélices : tout validé). Radio : EdgeTX 2.11.8, ExpressLRS 4.1.0 (radio et récepteur du KarRmen).
+   Firmware 24a71eb flashé le 31/10 et baromètre contrôlé au banc (TG-P2B, TG-P2C) : rien à reflasher.
+   Tableau de bord, case Firmware : « TRUEGLIDE 2026.6.2 (24a71eb) ».
 2. Batterie pleine (environ 16,8 V). Onglet Blackbox : « Effacer la mémoire interne ».
 3. Après chaque partie : batterie rechargée ou changée, et noter dans « Autres remarques » ce qui a surpris.
 
