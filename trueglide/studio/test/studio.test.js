@@ -612,3 +612,18 @@ test('USB : pas de bouton dans TrueGlide Configurator (Studio dans un cadre) ni 
   assert.equal(U.disponible({ serial: {} }, { parent: {} }), false);
   assert.equal(U.disponible({}, w), false);
 });
+
+test('analyse : la valeur actuelle d\'un réglage de profil vient du profil actif, pas du dernier profil listé', () => {
+  const diff = [
+    '# TrueGlide / STM32F405 (S405) 2026.6.2 Oct 12 2026 / 20:00:00 (d53eca0) MSP API: 1.48',
+    'profile 1', '# profile 1',
+    'profile 3', '# profile 3', 'set simplified_pi_gain = 130',
+    '# restore original profile selection', 'profile 1',
+    'rateprofile 0', 'set roll_srate = 70', 'rateprofile 2', 'set roll_srate = 50',
+    '# restore original rateprofile selection', 'rateprofile 2'].join('\n');
+  const cfg = A.lire(diff);
+  const db = { simplified_pi_gain: { default: '100' }, roll_srate: { default: '70' } };
+  assert.equal(A.valeur(cfg, 'simplified_pi_gain', db), '100');  // profil actif 1 : valeur par défaut
+  assert.equal(A.valeur(cfg, 'roll_srate', db), '50');            // rates actifs 2
+  assert.deepEqual(A.ecarts(cfg, db, [{ nom: 'simplified_pi_gain', valeur: '130', pourquoi: '' }]).map(e => e.actuel), ['100']);
+});
