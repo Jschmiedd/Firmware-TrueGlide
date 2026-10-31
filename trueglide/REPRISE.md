@@ -266,3 +266,8 @@ En attente de Johann :
   est identique entre a01092b et ce dernier commit : Johann teste avec le hex a01092b (sha256 1d708911…).
   Constructions -Werror OK : SPEEDYBEEF405MINI (TRUEGLIDE, TRUENAV, TRUENAV_LIGHT), SPEEDYBEEF7V3, MATEKH743,
   AIRBOTSUPERF4, JHEF435 (AT32). 71 suites de tests unitaires OK.
+- Deuxième revue Fable (rapports dans TrueGlide-XPro, `docs/controle/2026-10-31_fable/`) : tout est repris dans
+  `trueglide/controle/revue_fable_2026-10-31.md` (n° → correction → commit → preuve). Firmware 253de3b (hex
+  SPEEDYBEEF405MINI sha256 7f22058d…, cause probable du baromètre : ISR I2C F4 pas remise à zéro après une erreur),
+  972f8bf, doc b1d35cb. Logiciel 397587f (essai-onglets) : 917 tests. Restent : TG-P2B au banc (F2, F7), essai dans
+  l'application des fenêtres de confirmation (C3, C8), C13 (onglet ESC externe), fusion vers main sur demande.
