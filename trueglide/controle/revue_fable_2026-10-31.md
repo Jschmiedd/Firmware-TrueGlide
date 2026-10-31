@@ -40,7 +40,7 @@ Firmware : dépôt Firmware-TrueGlide, branche `main`. Configurateur : dépôt T
 | C10 | Flasheur : fichier Betaflight pour une autre carte pas contrôlé | Carte lue dans le nom `betaflight_…` ; même confirmation | 397587f | test `trueglide_firmware_source` |
 | C11 | `main` : 10 fichiers de tests ne se chargeaient pas | Corrigé dans `essai-onglets` ; arrive sur `main` à la fusion | (essai-onglets) | 917 tests OK |
 | C12 | Configuration : horizon et cap masqués sur TRUEGLIDE | Affichés sur tous les firmwares | 397587f | compilation |
-| C13 | Onglet ESC : page externe chargée en direct | Non corrigé ici (page hors de ce dépôt) : à intégrer au configurateur plus tard | — | — |
+| C13 | Onglet ESC : page externe chargée en direct | Onglet passé sur la version v8 de la page (hélices retirées obligatoire, moteurs arrêtés en quittant, processeur vérifié au flash). La page reste hors du configurateur : à intégrer plus tard | 75631b5 | test `trueglide_esc_tab` |
 | — | Tableau de bord : protections affichées actives sans DShot EDT, capteur de courant ou vitesse moteur | Alertes ajoutées ; RSSI, armement, température, chute de tension « — » tant qu'inconnus | d370128, cf8b799 | tests `trueglide_dashboard`, `trueglide_settings` |
 | — | Envoi refusé : réglages déjà envoyés gardés, « Enregistré » affiché quand même | Redémarrage sans sauvegarde ; « Enregistré » seulement après réussite | cf8b799 | test `trueglide_settings` |
 
