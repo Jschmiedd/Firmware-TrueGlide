@@ -252,7 +252,10 @@ En attente de Johann :
   Tests unitaires osd, power_guard, motor_health, battery_guard, telemetry_crsf, arming_prevention : OK.
   À tester au banc : TG-P2B (debug_mode = BARO, debug[4] = cycles rejetés) ; relance moteur (TG-P3A-3) à refaire.
 - Logiciel cf8b799 (essai-onglets, non publié) : 9 défauts importants de la revue corrigés + 3 mineurs, 909 tests.
-- Non corrigé (à décider) : I-5 retour batterie annulé sans affichage ; I-6 bit d'armement LOW_BATTERY pour les outils
-  Betaflight tiers ; M-1 power guard inactif en ALT HOLD/POS HOLD/rescue ; flasheur : carte présélectionnée.
+- Suite (Johann : « je ne veux pas d'erreur ») : firmware 63d0b1a (hex sha256 9456bc42…) : retour batterie annulé
+  seulement par un nouveau geste au manche + « BAT RTH OFF » 3 s ; plafond power guard aussi en ALT HOLD (jamais en GPS
+  Rescue). 71 suites de tests unitaires OK. Logiciel 46e2617 : flasheur = carte réellement connectée. I-6 (bit
+  LOW_BATTERY) laissé : Betaflight Configurator prend le dernier bit (count-1) comme ARM_SWITCH, TrueGlide le garde
+  dernier. Contre-vérification des corrections confiée à Fable.
 - Piste baromètre n°1 (Fable) : feature LED_STRIP active par défaut dans la construction complète (pas dans le cloud) ;
   à comparer avec `feature -LED_STRIP` (appliqué par Johann pendant TG-P3) sur un essai TG-P2B.
