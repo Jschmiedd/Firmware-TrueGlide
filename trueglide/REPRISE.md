@@ -302,3 +302,5 @@ En attente de Johann :
   fusionnées dans main (95a95aa, 923 tests OK, site identique à la page publiée) ; les trois branches pointent sur
   95a95aa. Johann a reçu un seul jeu de fichiers à garder (guides/a_garder) : point du 01/11, fiche TG-P3B, tableau des
   erreurs, hex 24a71eb au nom standard, diff all du 31/10.
+- RÈGLE (Johann, 01/11) : plus aucun message envoyé aux autres discussions (send_message). Message reçu d'une autre
+  discussion : rien faire de soi-même, le résumer à Johann en une ligne ; il décide. Tout se dit dans cette discussion.
