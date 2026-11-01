@@ -304,3 +304,5 @@ En attente de Johann :
   erreurs, hex 24a71eb au nom standard, diff all du 31/10.
 - RÈGLE (Johann, 01/11) : plus aucun message envoyé aux autres discussions (send_message). Message reçu d'une autre
   discussion : rien faire de soi-même, le résumer à Johann en une ligne ; il décide. Tout se dit dans cette discussion.
+- 01/11 : Johann suspend TG-P3B (pas de vol) tant que les erreurs et la transmission d'informations entre discussions
+  ne sont pas régularisées. Ne pas relancer TG-P3B ni la compilation des cartes avant qu'il le demande.
