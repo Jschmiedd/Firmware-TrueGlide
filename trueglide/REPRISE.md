@@ -298,3 +298,7 @@ En attente de Johann :
   toute la hauteur, Plan de vol en m / km/h (liste, profil, échelle en m à droite, distances en m / km). Firmware en
   ligne toujours retiré. Reste : TG-P3B en vol, puis compilation des cartes ; branche main du configurateur pas mise
   à jour (essai-onglets en avance), fusion sur demande.
+- 01/11, rangement (demande de Johann : tout ranger et mettre à jour) : configurateur, essai-onglets et essai-site
+  fusionnées dans main (95a95aa, 923 tests OK, site identique à la page publiée) ; les trois branches pointent sur
+  95a95aa. Johann a reçu un seul jeu de fichiers à garder (guides/a_garder) : point du 01/11, fiche TG-P3B, tableau des
+  erreurs, hex 24a71eb au nom standard, diff all du 31/10.
