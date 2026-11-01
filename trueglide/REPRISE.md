@@ -293,3 +293,8 @@ En attente de Johann :
 - 31/10 (demande de Johann) : firmware en ligne retiré (gh-pages d656a82) : liste vide (revision « retire »), fichiers
   1791465 supprimés ; les deux pages répondent « non publié ». Nouvelle liste (24a71eb ou suivante, 621 cartes)
   seulement après TG-P3B, et mise en ligne sur accord écrit. La page d'accueil parle encore de « mise à jour en ligne ».
+- 01/11 : configurateur publié sur /app/ et /test/ avec l'accord écrit de Johann (gh-pages 80b761e puis 8e05337,
+  essai-onglets 4850f99) : onglet ESC v14 (arrêt des moteurs en quittant l'onglet, essayé par Johann), cadre ESC sur
+  toute la hauteur, Plan de vol en m / km/h (liste, profil, échelle en m à droite, distances en m / km). Firmware en
+  ligne toujours retiré. Reste : TG-P3B en vol, puis compilation des cartes ; branche main du configurateur pas mise
+  à jour (essai-onglets en avance), fusion sur demande.
