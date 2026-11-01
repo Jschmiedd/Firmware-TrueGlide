@@ -306,3 +306,6 @@ En attente de Johann :
   discussion : rien faire de soi-même, le résumer à Johann en une ligne ; il décide. Tout se dit dans cette discussion.
 - 01/11 : Johann suspend TG-P3B (pas de vol) tant que les erreurs et la transmission d'informations entre discussions
   ne sont pas régularisées. Ne pas relancer TG-P3B ni la compilation des cartes avant qu'il le demande.
+- 01/11 : /test/ du configurateur = onglet ESC v15 (broches AM32 PA0, PA15, PB2, PC6, en essai), branche
+  essai-onglets 6a62756, gh-pages c67e335 ; /app/ et main restent en v14. Après l'essai TGE-P2 réussi : v15 sur /app/
+  et main, sur accord écrit de Johann.
