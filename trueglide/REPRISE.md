@@ -312,3 +312,7 @@ En attente de Johann :
 - 02/11 : carte hors ligne, ports jugés comme par le firmware (isSerialConfigValid) : alerte et envoi bloqué si la
   vraie carte les remettrait par défaut (essai-onglets b46cefd, 930 tests). Publié sur /test/ (gh-pages 785bfa8) à la
   demande de Johann ; /app/ inchangé. À essayer : nouvelle récolte en TRUEGLIDE 24a71eb puis port invalide hors ligne.
+- 02/11 : /test/ (gh-pages cf4c445, essai-onglets f5d5cf7) : modèle 3D de l'onglet Configuration qui suit les gaz
+  (décalage de la vue, angle inchangé), contrôle des ports hors ligne corrigé (numéros du firmware : USB 20, logiciels
+  30-39, UART1 = 51 ; la version 785bfa8 donnait une fausse alerte « aucun port avec MSP »). /app/ inchangé (n'a jamais
+  eu le contrôle des ports).
