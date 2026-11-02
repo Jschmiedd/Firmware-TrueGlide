@@ -639,3 +639,21 @@ test('iterm_relax_cutoff : explication propre à la taille du drone (3" pris pou
   assert.match(pourquoi(7).pourquoi, /5,5 à 8"/);
   assert.match(pourquoi(10).pourquoi, /Plus de 8"/);
 });
+
+test('chaque réglage proposé a son explication (vu à l\'essai du 02/11 : 4 lignes vides)', () => {
+  for (const pouces of [1.6, 3.1, 5, 7, 10]) {
+    for (const style of Object.keys(T.STYLES)) {
+      const r = T.recommander({ ...base, pouces, style, kv: 4000, cellules: 4, masse: 383 });
+      for (const x of r.reglages) assert.ok(String(x.pourquoi || '').trim(), `${pouces}" ${style} : ${x.nom} sans explication`);
+    }
+  }
+});
+
+test('diff all : KV des moteurs repris seulement s\'il est réglé sur la carte (motor_kv)', () => {
+  const P = require('../js/ports.js');
+  const avec = P.ouvrir('# version\nboard_name SPEEDYBEEF405MINI\nset motor_kv = 4000\n');
+  assert.equal(avec.drone.kv, '4000');
+  assert.ok(avec.messages.some(m => /4000/.test(m.texte)));
+  const sans = P.ouvrir('# version\nboard_name SPEEDYBEEF405MINI\n');
+  assert.equal(sans.drone.kv, undefined);
+});
