@@ -323,3 +323,11 @@ En attente de Johann :
   qui monte avec les gaz (rotations aux manches comme Betaflight). Mouvement à confirmer par Johann sur la vraie carte
   (le vieux fichier carte SITL du 25/10 ne charge pas bien l'onglet Récepteur hors ligne : CRC MSP_FEATURE_CONFIG,
   à regarder).
+- 02/11 : /test/ (gh-pages 75c4269, essai-onglets 328329f) : aperçu Récepteur encore agrandi (3/5 colonnes et 36 rem
+  au-delà de 1536 px, 30 rem sinon). Installation et Récepteur confirmés par Johann (tous les axes). KarRmen reflashé
+  TRUEGLIDE 24a71eb avec effacement complet, diff du 31/10 recollé (identique), craft_name = Mini Pouce (essai Studio).
+- 02/11, essais Studio (étapes du mode d'emploi XPRO adaptées) : 1 à 5 faites. Corrigé : explication fausse de
+  iterm_relax_cutoff pour un 3" (firmware aeb17b6, essai-onglets 9dbe984, pas encore sur /test/). À faire après les
+  essais : KV lu sur la carte (motor_kv) pour remplir « KV des moteurs » ; résultat de « Calculer » affiché loin du
+  bouton ; explications vides (anti_gravity_gain, simplified_pitch_d_gain, filtres). Envoi des commandes Studio =
+  profil actif (profile 3) remplacé : étape 31 = recoller le diff du 31/10 puis remettre craft_name.
