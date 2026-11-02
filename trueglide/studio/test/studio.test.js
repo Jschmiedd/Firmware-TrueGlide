@@ -627,3 +627,15 @@ test('analyse : la valeur actuelle d\'un réglage de profil vient du profil acti
   assert.equal(A.valeur(cfg, 'roll_srate', db), '50');            // rates actifs 2
   assert.deepEqual(A.ecarts(cfg, db, [{ nom: 'simplified_pi_gain', valeur: '130', pourquoi: '' }]).map(e => e.actuel), ['100']);
 });
+
+test('iterm_relax_cutoff : explication propre à la taille du drone (3" pris pour un gros drone le 02/11)', () => {
+  const pourquoi = pouces => T.recommander({ ...base, pouces, kv: 4000, cellules: 4, masse: 383 })
+    .reglages.find(x => x.nom === 'iterm_relax_cutoff');
+  const petit = pourquoi(3.1);
+  assert.equal(String(petit.valeur), '10');
+  assert.doesNotMatch(petit.pourquoi, /Gros|7"/);
+  assert.match(petit.pourquoi, /4"/);
+  assert.match(pourquoi(5).pourquoi, /origine de Betaflight/);
+  assert.match(pourquoi(7).pourquoi, /5,5 à 8"/);
+  assert.match(pourquoi(10).pourquoi, /Plus de 8"/);
+});
