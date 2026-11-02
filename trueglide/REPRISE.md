@@ -319,3 +319,7 @@ En attente de Johann :
 - 02/11 : jusqu'à 3 cartes hors ligne (essai-onglets 47a556f, 940 tests), publié sur /test/ (gh-pages 124b35d) à la
   demande de Johann ; /app/ inchangé. Johann commence les essais Studio / hors ligne (étape 0 : nom du drone), captures
   pour le mode d'emploi TRUEGLIDE STUDIO (forme du modèle XPRO, contenu TrueGlide).
+- 02/11 : /test/ (gh-pages 0515a6b, essai-onglets d44371e) : aperçu de l'onglet Récepteur agrandi (26 rem) et modèle
+  qui monte avec les gaz (rotations aux manches comme Betaflight). Mouvement à confirmer par Johann sur la vraie carte
+  (le vieux fichier carte SITL du 25/10 ne charge pas bien l'onglet Récepteur hors ligne : CRC MSP_FEATURE_CONFIG,
+  à regarder).
