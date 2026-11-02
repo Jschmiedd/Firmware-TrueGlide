@@ -331,3 +331,8 @@ En attente de Johann :
   essais : KV lu sur la carte (motor_kv) pour remplir « KV des moteurs » ; résultat de « Calculer » affiché loin du
   bouton ; explications vides (anti_gravity_gain, simplified_pitch_d_gain, filtres). Envoi des commandes Studio =
   profil actif (profile 3) remplacé : étape 31 = recoller le diff du 31/10 puis remettre craft_name.
+- 02/11, fin des essais Studio : étapes faites (connexion, lecture, calcul, envoi, récolte, hors ligne PID + taux,
+  envoi des changements préparés, retour par le diff du 31/10, nouvelle récolte « KarRmen » 23:14). Sautées (propres
+  à XPRO, décision de Johann) : comparer / rapport / flotte, sécurité des ports. Corrigé : aide de l'onglet PID
+  (essai-onglets 7c14f55, pas encore sur /test/). Mode d'emploi TRUEGLIDE STUDIO (Word + PDF, 21 étapes) chez Johann,
+  hors dépôt public. À faire : liste des commandes dans la question d'envoi hors ligne.
