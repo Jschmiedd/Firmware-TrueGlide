@@ -316,3 +316,6 @@ En attente de Johann :
   (décalage de la vue, angle inchangé), contrôle des ports hors ligne corrigé (numéros du firmware : USB 20, logiciels
   30-39, UART1 = 51 ; la version 785bfa8 donnait une fausse alerte « aucun port avec MSP »). /app/ inchangé (n'a jamais
   eu le contrôle des ports).
+- 02/11 : jusqu'à 3 cartes hors ligne (essai-onglets 47a556f, 940 tests), publié sur /test/ (gh-pages 124b35d) à la
+  demande de Johann ; /app/ inchangé. Johann commence les essais Studio / hors ligne (étape 0 : nom du drone), captures
+  pour le mode d'emploi TRUEGLIDE STUDIO (forme du modèle XPRO, contenu TrueGlide).
