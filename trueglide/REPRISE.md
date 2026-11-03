@@ -348,3 +348,7 @@ En attente de Johann :
 - 03/11 : **/app/ publié** sur demande écrite de Johann (« publie sur /app/ ») : gh-pages 88263e2, copie exacte de /test/
   (essai-onglets 62f647b), même main-3VMAglHI.js en ligne, onglet ESC v15. Liste des firmwares en ligne inchangée
   (« retire »). Branche main du dépôt du configurateur : toujours pas fusionnée (sur demande de Johann seulement).
+- 03/11 : modes d'emploi (Word + PDF, forme du modèle XPRO, captures de Johann) chez Johann, hors dépôt public :
+  TRUEGLIDE_STUDIO (mis à jour 62f647b), TRUEGLIDE_carte_hors_ligne (récolte, réglage, ports UART remis par défaut
+  comme Betaflight, envoi avec liste), TRUEGLIDE_plan_de_vol. Reste : mise en route complète (captures guidées à
+  demander à Johann : flasheur et les 9 étapes).
