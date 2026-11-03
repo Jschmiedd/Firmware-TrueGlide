@@ -39,20 +39,23 @@ forte, réaction bizarre aux manches) : **atterrir et désarmer tout de suite**,
 1. Armer. Monter les gaz doucement jusqu'à décoller, puis rester à environ 1 m de haut.
 2. Stationnaire 30 secondes, sans toucher aux manches de direction.
 3. Petits déplacements : avant, arrière, gauche, droite, puis un lent tour sur place (lacet).
-4. Atterrir doucement, désarmer, débrancher la batterie.
+4. Atterrir doucement, désarmer. **Laisser la batterie branchée** (le compteur d'erreurs I2C de `status` se remet à zéro
+   si la carte s'éteint).
 
 - Le drone s'arme normalement ?
 - En stationnaire, il reste stable, sans oscillation ni bruit aigu ?
 - Il répond aux manches comme sous Betaflight ?
 - Pendant le vol, l'OSD n'affiche aucune alerte TrueGlide (« BAT RTH », « AMP LIM », « ESC HOT », « RESTART ») ?
-- Après l'atterrissage, batterie débranchée : les moteurs sont tièdes, pas chauds au toucher ?
+- Après l'atterrissage (désarmé) : les moteurs sont tièdes, pas chauds au toucher ?
 
-## TG-V1-4. Relevé (USB branché, batterie débranchée)
+## TG-V1-4. Relevé (BATTERIE TOUJOURS BRANCHÉE)
 
-1. Brancher l'USB, « Connexion ».
+1. Désarmé, batterie toujours branchée : retirer les 4 hélices, puis brancher l'USB, « Connexion ».
 2. Onglet Blackbox : « Enregistrer sous… ».
 3. Onglet « Ligne de commande (CLI) » : taper `status`, Entrée. Copier toute la réponse dans le cadre « status (après) » du bas.
+4. Débrancher la batterie.
 
+- Dans la réponse de `status`, « System Uptime » est plus long que la durée du vol (la carte ne s'est pas éteinte) ?
 - Le fichier du journal Blackbox est enregistré ?
 - Dans la réponse de `status`, le compteur d'erreurs I2C est à 0 ?
 
