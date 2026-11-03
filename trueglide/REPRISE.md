@@ -377,3 +377,12 @@ En attente de Johann :
   ouverture (1000-1300, 3D 1350-1650, comme l'onglet ESC), confirmation pour la lever ; logiciel seulement. Tests
   unitaires OK ; pas vu dans le navigateur ici (le vieux fichier carte SITL du 25/10 casse l'onglet Moteurs hors ligne,
   aussi sur /app/ : features non chargées, à corriger) : contrôle de Johann sur sa vraie carte. /app/ inchangé.
+- 03/11 : **33 cartes en ligne** : ajout de TMOTORVELOXF7SE et HOBBYWING_XROTORF7CONV (cartes d'un ami de Johann, sous
+  Betaflight 4.5.5 et 4.4.0), même révision 24a71eb02, -Werror, dossier du firmware ramené à 24a71eb ; sha256 en ligne
+  vérifiés (gh-pages 02bf237). Site : 33 cartes ; encart « essayé seulement en simulateur » remplacé par le premier vol
+  réel. Mode d'emploi pour l'ami : guides/a_garder/TRUEGLIDE_mise_en_route_depuis_Betaflight (.docx, .pdf).
+- **À retenir pour tout passage Betaflight → TRUEGLIDE** : ne **jamais** conseiller de recoller l'ancien diff all en
+  entier (4.4 / 4.5 / 2025.12 : réglages disparus ou renommés, sens du D inversé : d_roll = D de base, d_max_roll =
+  maximum ; un PID recollé tel quel est faux sans message d'erreur). Recopier seulement le matériel (ports, modes,
+  alignement, ordre des moteurs) ; PID par défaut, Preset ou STUDIO. gps_rescue_allow_arming_without_fix : OFF par
+  défaut, remis à OFF par l'effacement complet ; dire seulement « ne pas le remettre à ON ».
