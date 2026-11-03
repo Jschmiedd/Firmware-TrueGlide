@@ -355,5 +355,6 @@ En attente de Johann :
 - 03/11 : **main du configurateur fusionné** sur demande écrite de Johann (« oui fusionne ») : avance rapide
   95a95aa -> 62f647b, main = essai-onglets = /app/ = /test/. Le « Download ZIP » de GitHub donne la version en ligne.
 - RÈGLE (Johann, 03/11) : « publie sur /app/ » = publier /app/ **et** fusionner `main` du configurateur au même
-  niveau (main = /app/), sans qu'il ait à écrire « fusionne », et poser l'étiquette app-AAAA-MM-JJ sur cette version
-  (première : app-2026-11-03 = 62f647b). /test/ seul ne touche jamais à main.
+  niveau (main = /app/), sans qu'il ait à écrire « fusionne », et garder cette version sur la branche version/app-AAAA-MM-JJ (les étiquettes « tag » sont refusées
+  depuis cet espace de travail)
+  (première : version/app-2026-11-03 = 62f647b). /test/ seul ne touche jamais à main.
