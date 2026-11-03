@@ -342,3 +342,6 @@ En attente de Johann :
   citées, extrapolation > 10", phrase sur le pas de l'hélice : firmware f4feda4 / 6d5d831, essai-onglets 8296072 /
   471b338) : pas encore sur /test/. Copie locale fpv-calculateur-v4 du 23/10 sauvegardée sur la branche
   sauvegarde/copie-locale-2026-10-23, dossier remis sur claude/appli4-integration.
+- 03/11 : /test/ (essai-onglets 62f647b) : plan de vol, carte affichée tout de suite et centrée sur la position quand
+  elle est connue ; point « + » au centre de la carte (avant : 0°, 0°, en mer, carte satellite blanche). Contrôlé par
+  Johann : unités m / km / km/h, Studio (références, pas de l'hélice). /app/ : sur « publie sur /app/ » de Johann.
