@@ -354,3 +354,5 @@ En attente de Johann :
   demander à Johann : flasheur et les 9 étapes).
 - 03/11 : **main du configurateur fusionné** sur demande écrite de Johann (« oui fusionne ») : avance rapide
   95a95aa -> 62f647b, main = essai-onglets = /app/ = /test/. Le « Download ZIP » de GitHub donne la version en ligne.
+- RÈGLE (Johann, 03/11) : « publie sur /app/ » = publier /app/ **et** fusionner `main` du configurateur au même
+  niveau (main = /app/), sans qu'il ait à écrire « fusionne ». /test/ seul ne touche jamais à main.
