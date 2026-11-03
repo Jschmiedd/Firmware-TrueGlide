@@ -358,3 +358,8 @@ En attente de Johann :
   niveau (main = /app/), sans qu'il ait à écrire « fusionne », et garder cette version sur la branche version/app-AAAA-MM-JJ (les étiquettes « tag » sont refusées
   depuis cet espace de travail)
   (première : version/app-2026-11-03 = 62f647b). /test/ seul ne touche jamais à main.
+- 03/11 : **TG-V1 fait** (premier vol en intérieur, 24a71eb, fonctions TrueGlide coupées, config du 31/10) : tout « oui »
+  (1.3 coché « non » mais « tout ok » écrit : question à tournure négative), « parfaitement stable, très agréable ».
+  Blackbox : 50,7 s, aucun défaut (analyse_blackbox), pôles 14 mesurés = réglés, 13,9-15,3 V, 19,4 A max, 7,9 A moyen ;
+  status après : uptime 236 s, 0 erreur I2C. Le .BBL commençait par d'anciennes données XPRO (« XPJ 0.8.6 ») :
+  journal TrueGlide à l'octet 3020800. Construction de 31 cartes courantes lancée (-Werror), pas de publication.
