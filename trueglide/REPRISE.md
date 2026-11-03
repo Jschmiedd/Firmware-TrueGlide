@@ -352,3 +352,5 @@ En attente de Johann :
   TRUEGLIDE_STUDIO (mis à jour 62f647b), TRUEGLIDE_carte_hors_ligne (récolte, réglage, ports UART remis par défaut
   comme Betaflight, envoi avec liste), TRUEGLIDE_plan_de_vol. Reste : mise en route complète (captures guidées à
   demander à Johann : flasheur et les 9 étapes).
+- 03/11 : **main du configurateur fusionné** sur demande écrite de Johann (« oui fusionne ») : avance rapide
+  95a95aa -> 62f647b, main = essai-onglets = /app/ = /test/. Le « Download ZIP » de GitHub donne la version en ligne.
