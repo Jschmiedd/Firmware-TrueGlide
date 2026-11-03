@@ -363,3 +363,7 @@ En attente de Johann :
   Blackbox : 50,7 s, aucun défaut (analyse_blackbox), pôles 14 mesurés = réglés, 13,9-15,3 V, 19,4 A max, 7,9 A moyen ;
   status après : uptime 236 s, 0 erreur I2C. Le .BBL commençait par d'anciennes données XPRO (« XPJ 0.8.6 ») :
   journal TrueGlide à l'octet 3020800. Construction de 31 cartes courantes lancée (-Werror), pas de publication.
+- 03/11 : 31 cartes courantes construites avec 24a71eb et -Werror : **31 sur 31 OK** (F405, F411, F722, F745, H743,
+  AT32F435). F405 Mini : même sha256 que le fichier flashé par Johann (69448950…), construction reproductible. Fichiers
+  .hex + SHA256SUMS chez Johann (guides/firmware_24a71eb_31cartes), hors dépôt. **Pas publiés** : en attente de TG-P3B
+  (fonctions TrueGlide en vol dehors) et de l'accord de Johann pour un test limité.
