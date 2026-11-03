@@ -657,3 +657,14 @@ test('diff all : KV des moteurs repris seulement s\'il est réglé sur la carte 
   const sans = P.ouvrir('# version\nboard_name SPEEDYBEEF405MINI\n');
   assert.equal(sans.drone.kv, undefined);
 });
+
+test('références citées = celles du calcul (3,1" : 1,2" et 3,5", pas les 5") ; au-delà de 10" : tendance 7" -> 10"', () => {
+  const r = T.recommander({ ...base, pouces: 3.1, kv: 4000, cellules: 4, masse: 383 });
+  assert.ok(r.sources.includes('AOS 3.5 (Chris Rosser)'));
+  assert.ok(!r.sources.some(s => /5"|AOS 5|7"/.test(s)), r.sources.join(', '));
+  // juste au-delà de 10", les PID partent de la référence 10" (avant : de la 7"), avec la prudence de 15 % hors des
+  // points d'appui
+  const p10 = T.recommander({ ...base, pouces: 10, kv: 925, masse: 1550 }).pids.roll.P;
+  const p101 = T.recommander({ ...base, pouces: 10.1, kv: 925, masse: 1550 }).pids.roll.P;
+  assert.ok(Math.abs(p101 - 0.85 * p10) <= 1.5, `${p10} -> ${p101}`);
+});
