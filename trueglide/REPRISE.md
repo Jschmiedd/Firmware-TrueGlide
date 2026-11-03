@@ -345,3 +345,6 @@ En attente de Johann :
 - 03/11 : /test/ (essai-onglets 62f647b) : plan de vol, carte affichée tout de suite et centrée sur la position quand
   elle est connue ; point « + » au centre de la carte (avant : 0°, 0°, en mer, carte satellite blanche). Contrôlé par
   Johann : unités m / km / km/h, Studio (références, pas de l'hélice). /app/ : sur « publie sur /app/ » de Johann.
+- 03/11 : **/app/ publié** sur demande écrite de Johann (« publie sur /app/ ») : gh-pages 88263e2, copie exacte de /test/
+  (essai-onglets 62f647b), même main-3VMAglHI.js en ligne, onglet ESC v15. Liste des firmwares en ligne inchangée
+  (« retire »). Branche main du dépôt du configurateur : toujours pas fusionnée (sur demande de Johann seulement).
