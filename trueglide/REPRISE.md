@@ -373,3 +373,7 @@ En attente de Johann :
   (une copie « worktree » donnait « norevision » : à ne pas refaire). Site public mis à jour (accueil, flasheur, notes
   de version, assistant, réglage automatique, moteurs : premier vol, version d'essai, ESC essayé sur BLS 35A),
   source essai-onglets = main = 4ad11b7. TRUENAV / TRUENAV_LIGHT non publiés. Reste : TG-P3B.
+- 03/11 : /test/ (essai-onglets 65c1a25) : onglet Moteurs, case « Limite au banc (30 % des gaz) » cochée à chaque
+  ouverture (1000-1300, 3D 1350-1650, comme l'onglet ESC), confirmation pour la lever ; logiciel seulement. Tests
+  unitaires OK ; pas vu dans le navigateur ici (le vieux fichier carte SITL du 25/10 casse l'onglet Moteurs hors ligne,
+  aussi sur /app/ : features non chargées, à corriger) : contrôle de Johann sur sa vraie carte. /app/ inchangé.
