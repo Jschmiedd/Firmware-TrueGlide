@@ -386,3 +386,8 @@ En attente de Johann :
   maximum ; un PID recollé tel quel est faux sans message d'erreur). Recopier seulement le matériel (ports, modes,
   alignement, ordre des moteurs) ; PID par défaut, Preset ou STUDIO. gps_rescue_allow_arming_without_fix : OFF par
   défaut, remis à OFF par l'effacement complet ; dire seulement « ne pas le remettre à ON ».
+- 03/11 : **/app/ publiée** (« tu peux le mettre sur APP », contrôle de Johann en vidéo : curseurs arrêtés à 1300) :
+  configurateur e521669 = essai-onglets = main = version/app-2026-11-03-2, gh-pages 21f1a2d, /test/ et /app/ identiques
+  (main-DGoB_Ozu.js vérifié en ligne). Contient la limite au banc de l'onglet Moteurs + correction du texte « de 1300 à
+  {{2}} » : $t de i18next-vue ne prend pas un tableau, écrire { 1: a, 2: b } (corrigé aussi ESC / cellules du Réglage ;
+  test trueglide_t_parametres interdit la forme tableau).
