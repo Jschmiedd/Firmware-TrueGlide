@@ -336,3 +336,9 @@ En attente de Johann :
   à XPRO, décision de Johann) : comparer / rapport / flotte, sécurité des ports. Corrigé : aide de l'onglet PID
   (essai-onglets 7c14f55, pas encore sur /test/). Mode d'emploi TRUEGLIDE STUDIO (Word + PDF, 21 étapes) chez Johann,
   hors dépôt public. À faire : liste des commandes dans la question d'envoi hors ligne.
+- 03/11 : essai ports hors ligne fait par Johann sur /test/ (carte simulée Mini Pouce) : UART1 VTX(MSP) seul refusé par
+  le firmware -> tous les ports remis par défaut au redémarrage, comme Betaflight ; question d'envoi avec la liste
+  (« serial UART1 0 … »), annulée ; nouvelle récolte 10:01:10, 0 changement. Studio corrigé depuis (références
+  citées, extrapolation > 10", phrase sur le pas de l'hélice : firmware f4feda4 / 6d5d831, essai-onglets 8296072 /
+  471b338) : pas encore sur /test/. Copie locale fpv-calculateur-v4 du 23/10 sauvegardée sur la branche
+  sauvegarde/copie-locale-2026-10-23, dossier remis sur claude/appli4-integration.
