@@ -391,3 +391,7 @@ En attente de Johann :
   (main-DGoB_Ozu.js vérifié en ligne). Contient la limite au banc de l'onglet Moteurs + correction du texte « de 1300 à
   {{2}} » : $t de i18next-vue ne prend pas un tableau, écrire { 1: a, 2: b } (corrigé aussi ESC / cellules du Réglage ;
   test trueglide_t_parametres interdit la forme tableau).
+- 04/11 : contrôle de la version en ligne (main-DGoB_Ozu.js = /app/ = /test/) avec le vieux fichier carte SITL du 25/10 :
+  les 12 onglets (Ports, Configuration, Récepteur, Modes, Moteurs, Failsafe, PID, Alimentation, GPS, Blackbox,
+  Protections, Tableau de bord) s'ouvrent **sans erreur** : le plantage noté le 03/11 est réglé par la garde de testRange
+  publiée. Point fermé. Script : scratchpad hl3/essai.js <fichier carte>.
