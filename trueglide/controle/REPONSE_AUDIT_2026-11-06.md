@@ -66,3 +66,9 @@ sauvegarde, question « carte changée », question « réglages à risque », r
 W8 (TG-P3A-3). Pas dans la fiche : W1 (3D sur ESC : demande un réglage 3D des ESC de Johann), W4 (coupure USB : l'envoi
 dure quelques secondes, impossible à viser à la main), W6 (DFU : flash complet de la carte) ; leurs comportements sont
 couverts par les tests et les essais dans le navigateur.
+
+## Constat 8 : décision écrite de Johann (06/11/2026)
+
+« OUI OK » à la proposition : **les firmwares ne sont pas signés tant qu'ils sont hébergés au même endroit que le
+logiciel (GitHub Pages, même dépôt). À reprendre s'ils sont hébergés ailleurs.** Protections en place : HTTPS, somme
+SHA-256 de chaque fichier vérifiée avant le flash, nom de la carte contrôlé dans le contenu du .hex.

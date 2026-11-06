@@ -430,3 +430,5 @@ En attente de Johann :
   onglets TrueGlide qui écrivent, sauvegardes gardées dans le navigateur, messages exacts, site. Fiche TG-A1 complétée
   (7 parties). Réponse point par point : REPONSE_AUDIT_2026-11-06.md. Restent : publication /app/ et workflow sur main
   (ordre de Johann), signature (acceptation écrite de Johann), essais au banc TG-A1.
+- 06/11 : décision de Johann (« OUI OK ») : firmwares **non signés** tant qu'ils sont hébergés avec le logiciel ; à
+  reprendre s'ils sont hébergés ailleurs. Inscrit dans REPONSE_AUDIT_2026-11-06.md.
