@@ -39,3 +39,30 @@ simulateur SITL) ; **L** = vérifié par lecture du code ; **M** = à vérifier 
 
 1. Envoi hors ligne vers la vraie carte en USB : sauvegarde téléchargée, puis relecture après `save` (constat 6).
 2. Relance moteur TG-P3A-3 sur le firmware actuel (constat 11).
+
+# Réponse au contre-audit du 06/11/2026 (versions logiciel 4adf6a4, firmware de ce commit)
+
+Logiciel : branche `essai-onglets`, commits 5271b5f et 4adf6a4, en ligne sur /test/ (main-Chmb5sh9.js). 978 tests,
+lint et construction OK. Essais dans le navigateur avec le simulateur SITL : question « réglages à risque » affichée
+(MSP_SET_MIXER_CONFIG, MSP_SET_RX_MAP…) puis annulation sans écriture, envoi accepté, sauvegarde listée dans le
+Tableau de bord, CLI hors ligne, 12 onglets sans erreur.
+
+| Point | Fait / pas fait | Où | Preuve |
+|---|---|---|---|
+| N1 /app/ sans les corrections | **Pas fait** : /app/ ne se publie que sur l'ordre écrit de Johann (« publie sur /app/ »), après la fiche TG-A1 | — | — |
+| N2 arrêt à 3d_neutral (1460) en DShot + 3D | Fait : `motorStopValue` = 1500 en DShot + 3D, 3d_neutral seulement en PWM ; utilisé pour tous les arrêts et le départ des curseurs ; limite au banc centrée sur 1500 | `motor_bench.js`, `MotorsTab.vue` | E : test de comportement qui reproduit `dshotConvertFromExternal` (1460 → marche arrière ; valeur choisie → commande d'arrêt) |
+| N3 commande cachée derrière un « set » (\r, \n) | Fait : tout caractère de contrôle refusé dans `isSettingCommand` (donc CLI hors ligne, Studio, envoi, ouverture d'un fichier carte) | `cli_safety.js` | E : test (\n, \r, \0, \t, ESC) |
+| N4 confirmation spécifique | Fait : Studio montre la liste complète ; question à part pour mixer, mmix, smix, resource, timer, dma, map, aux, feature 3D, failsafe_*, yaw_motors_reversed, motor_output_reordering, 3d_*, motor_pwm_protocol, align_board_*, small_angle, runaway_takeoff_*, mixer_type, avec la ligne d'avant lue dans la sauvegarde ; envoi hors ligne : aussi pour les écritures d'onglet à risque (avant = « comparer avec la sauvegarde ») ; aussi dans l'onglet Réglage | `write_guard.js` (`riskyChanges`, `riskyQuestion`), `offline/send.js`, `TrueGlideStudioTab.vue`, `TrueGlideTuneTab.vue`, `TrueGlideOfflineBox.vue` | E : tests ; navigateur |
+| Constat 4 partiel | Fait : sauvegarde avant écriture et relecture aussi pour l'onglet TrueGlide, la caméra et l'onglet Réglage ; sauvegarde gardée aussi dans le navigateur (10 dernières), téléchargeable depuis le Tableau de bord si le navigateur a bloqué le téléchargement | `TrueGlideTab.vue`, `TrueGlideTuneTab.vue`, `write_guard.js` (`keepBackup`) | E : tests ; navigateur (liste affichée) |
+| Constat 6 messages | Fait : coupure USB = « rien d'enregistré ; batterie branchée : changements actifs jusqu'au redémarrage, débrancher avant de voler » ; relecture réglage par réglage (`get` de chaque `set` hors changement de profil, autres lignes cherchées dans le diff relu) ; « tous en place » seulement si chaque réglage relu a la valeur envoyée ; sinon nombre non relus ou écarts, alerte | `write_guard.js` (`verifySent`, `verificationMessage`), locales | E : tests (écart détecté, jamais « en place » sans relecture) ; **M** : relecture sur la vraie carte (TG-A1-1) |
+| Constat 11 | Pas annoncé : site « relance en essai » ; Johann a choisi de garder les nouveaux essais (A) ; essai TG-A1-4 à faire | `site/index.html` | M |
+| Constat 12 | Pas fait : les journaux Blackbox restent chez Johann (dépôt public) ; les résultats sont dans RESULTATS.md ; TG-A1 sera remplie | — | — |
+| Constat 13 | **Pas fait** : `main` du logiciel = /app/ (règle de Johann) ; le workflow arrivera sur `main` avec la prochaine publication /app/ ; les commits restent « [skip ci] » (règle de Johann) | — | — |
+| Constat 8 | Pas fait, raison plus haut ; acceptation écrite demandée à Johann | — | — |
+| Mineurs | Fait : site (« vole comme Betaflight » nuancé, liste des envois décrite exactement, AM32 « pas encore essayé », relance « en essai »). Pas fait : CSP et fonds de carte / polices Google (plan de vol), failsafe DROP sans confirmation dans l'onglet Failsafe (comportement Betaflight), minimum de power_guard_current (0 = arrêt ; 2 A sert aux essais au banc), limite au banc hors curseurs | `site/index.html` | — |
+
+Fiche matériel : `TG-A1_mode_operatoire.md` couvre W2 (commande moteur jamais envoyée), W3 (envoi hors ligne complet,
+sauvegarde, question « carte changée », question « réglages à risque », relecture), W5 (restauration), W7 (ESC v14),
+W8 (TG-P3A-3). Pas dans la fiche : W1 (3D sur ESC : demande un réglage 3D des ESC de Johann), W4 (coupure USB : l'envoi
+dure quelques secondes, impossible à viser à la main), W6 (DFU : flash complet de la carte) ; leurs comportements sont
+couverts par les tests et les essais dans le navigateur.

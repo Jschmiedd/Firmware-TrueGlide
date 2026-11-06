@@ -24,7 +24,8 @@ départ. Fiche qui contrôle sur la vraie carte ce que le simulateur ne peut pas
 6. Attendre la fin (la carte redémarre et se reconnecte seule, jusqu'à 45 secondes).
 
 - À l'étape 5, un fichier « …_sauvegarde_avant_envoi_….txt » est arrivé dans les Téléchargements de l'ordinateur ?
-- Après l'étape 6, le message dit « Carte relue après l'enregistrement : configuration en place. » ?
+- Après l'étape 6, le message dit « Carte relue après l'enregistrement : … réglage(s) contrôlé(s) un par un, tous en
+  place » ?
 - Le Tableau de bord affiche maintenant le nom AUDIT ?
 
 ## TG-A1-2. La carte a changé depuis la récolte : question avant d'écraser
@@ -49,11 +50,14 @@ répond comme la vraie carte. Ce qu'on contrôle : une commande moteur tapée ho
 1. « Déconnecter ». Carte hors ligne du Mini Pouce, « Connexion ».
 2. Onglet CLI : taper `motor 0 1100`, Entrée. Puis `set small_angle = 180`, Entrée (sa valeur de départ).
 3. « Déconnecter ». Port USB, « Connexion ». Tableau de bord : « Envoyer les changements préparés ». Lire la liste
-   « Ce qui partira », puis « OK ». À la deuxième question (carte changée), « OK » cette fois.
+   « Ce qui partira », puis « OK ». À la question « carte changée », « OK » cette fois. Une autre question s'ouvre :
+   « ATTENTION : ces changements touchent … » avec la ligne `set small_angle = 180` et « avant : set small_angle = 30 ».
+   La lire, puis « OK ».
 
 - À l'étape 2, l'écran du CLI affiche les réponses (il n'est pas vide) ?
 - À l'étape 3, la liste « Ce qui partira » contient `small_angle` (et le nom de l'appareil), mais **aucune** ligne
   `motor` ?
+- À l'étape 3, la question « ATTENTION » montre bien `set small_angle = 180` avec « avant : set small_angle = 30 » ?
 - Après la fin, le Tableau de bord affiche de nouveau le nom « Mini Pouce » ?
 - Onglet CLI : `get small_angle` répond `small_angle = 180` (comme au départ) ?
 
@@ -70,7 +74,22 @@ On vérifie qu'elle ne se déclenche pas à tort quand les moteurs tournent norm
 - Pendant les 30 secondes, l'OSD n'a jamais affiché « M1 RESTART », « M2 RESTART », « M3 RESTART » ni « M4 RESTART » ?
 - Après l'étape 3, Tableau de bord : Relance moteur sur « Désactivé » ?
 
-## TG-A1-5. Fin (USB branché, batterie débranchée)
+## TG-A1-5. Onglet ESC (version v14)
+
+1. Batterie branchée, drone tenu, hélices retirées. Onglet ESC : se connecter et lire les ESC comme d'habitude.
+   Débrancher la batterie à la fin.
+
+- La page ESC s'ouvre et lit les 4 ESC (BLHeli_S / Bluejay), comme avant ?
+
+## TG-A1-6. Restauration depuis la sauvegarde (USB branché, batterie débranchée)
+
+1. Onglet CLI : « Charger à partir du fichier », choisir le `diff all` enregistré au début (avant de commencer,
+   étape 3). Une fenêtre montre les commandes chargées : les envoyer. Attendre la fin : la carte enregistre et
+   redémarre. « Connexion ».
+
+- Après la restauration, le Tableau de bord affiche le nom « Mini Pouce » ?
+
+## TG-A1-7. Fin (USB branché, batterie débranchée)
 
 - Onglet CLI : taper `diff all`, Entrée : à part l'ordre, c'est le même que la sauvegarde de départ ?
 - Les fichiers « …_sauvegarde_avant_envoi_….txt » sont gardés (à envoyer) ?
@@ -79,6 +98,6 @@ On vérifie qu'elle ne se déclenche pas à tort quand les moteurs tournent norm
 
 ### Fichiers envoyés (sauvegardes avant envoi, diff all de départ et de fin)
 
-### Réponse de « diff all » (partie 5) [grand]
+### Réponse de « diff all » (partie 7) [grand]
 
 ### Autres remarques (messages affichés, ce qui a surpris)

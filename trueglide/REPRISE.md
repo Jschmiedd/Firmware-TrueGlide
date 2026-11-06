@@ -424,3 +424,9 @@ En attente de Johann :
   inchangé. Réponse complète pour l'auditeur suivant : trueglide/controle/REPONSE_AUDIT_2026-11-06.md. Restent sur
   matériel : relecture après save (envoi hors ligne vers la carte USB) et TG-P3A-3. Point 8 (signature) : non fait,
   raison écrite dans la réponse.
+- 06/11 nuit : **contre-audit** reçu (session d'audit, transmis à la demande de Johann). Corrigé (logiciel 5271b5f +
+  4adf6a4 sur /test/, main-Chmb5sh9.js vérifié) : N2 arrêt 1500 en DShot + 3D, N3 caractères de contrôle refusés, N4
+  question des réglages à risque avec la valeur d'avant, sauvegarde + relecture réglage par réglage dans tous les
+  onglets TrueGlide qui écrivent, sauvegardes gardées dans le navigateur, messages exacts, site. Fiche TG-A1 complétée
+  (7 parties). Réponse point par point : REPONSE_AUDIT_2026-11-06.md. Restent : publication /app/ et workflow sur main
+  (ordre de Johann), signature (acceptation écrite de Johann), essais au banc TG-A1.
