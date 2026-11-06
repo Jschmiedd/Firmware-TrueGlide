@@ -415,3 +415,6 @@ En attente de Johann :
   8 signature des firmwares (même dépôt que l'application : peu utile) ; 11 limite des relances moteur (couper encore
   un moteur bloqué protège l'ESC, ne plus le couper évite une boucle sur fausse détection) + TG-P3A-3 à refaire.
   Remarque : l'onglet CLI en carte hors ligne n'affiche rien (les réglages passent par les autres onglets).
+- 06/11, décision de Johann (point 11 de l'audit) : **relance moteur A** = on garde le comportement actuel (nouvel essai
+  tant que le moteur bloqué ne repart pas, protège l'ESC) ; pas de limite ajoutée. TG-P3A-3 à refaire au banc sur le
+  firmware actuel. Points 7 (v14 ou v15 sur /app/) et 8 (signature, recommandé : non) : en attente de Johann.
