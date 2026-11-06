@@ -432,3 +432,6 @@ En attente de Johann :
   (ordre de Johann), signature (acceptation écrite de Johann), essais au banc TG-A1.
 - 06/11 : décision de Johann (« OUI OK ») : firmwares **non signés** tant qu'ils sont hébergés avec le logiciel ; à
   reprendre s'ils sont hébergés ailleurs. Inscrit dans REPONSE_AUDIT_2026-11-06.md.
+- 06/11 : onglet ESC **v16** sur /test/ (demande de Johann ; configurateur 17ca114, gh-pages a8b2cd4, vérifié en ligne).
+  /app/ toujours en v15 : passera en v16 avec la prochaine publication /app/, après la fiche TG-A1 (partie 5 = ESC).
+  La discussion ESC garde v14 et v15 en ligne jusque-là (v15 encore chargée par /app/).
