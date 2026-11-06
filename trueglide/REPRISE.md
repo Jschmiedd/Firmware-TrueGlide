@@ -418,3 +418,9 @@ En attente de Johann :
 - 06/11, décision de Johann (point 11 de l'audit) : **relance moteur A** = on garde le comportement actuel (nouvel essai
   tant que le moteur bloqué ne repart pas, protège l'ESC) ; pas de limite ajoutée. TG-P3A-3 à refaire au banc sur le
   firmware actuel. Points 7 (v14 ou v15 sur /app/) et 8 (signature, recommandé : non) : en attente de Johann.
+- 06/11 soir, suite de l'audit (Johann : « tout faire avant le test, dans les règles de l'art », un autre audit suivra) :
+  onglet CLI en carte hors ligne (mode texte, liste blanche, lectures comme « mixer list » jamais gardées), onglet ESC
+  remis en v14, npm audit 0 haute / 0 critique. Logiciel ebde305 sur /test/ (main-BQltdc32.js vérifié en ligne), /app/
+  inchangé. Réponse complète pour l'auditeur suivant : trueglide/controle/REPONSE_AUDIT_2026-11-06.md. Restent sur
+  matériel : relecture après save (envoi hors ligne vers la carte USB) et TG-P3A-3. Point 8 (signature) : non fait,
+  raison écrite dans la réponse.
