@@ -395,3 +395,23 @@ En attente de Johann :
   les 12 onglets (Ports, Configuration, Récepteur, Modes, Moteurs, Failsafe, PID, Alimentation, GPS, Blackbox,
   Protections, Tableau de bord) s'ouvrent **sans erreur** : le plantage noté le 03/11 est réglé par la garde de testRange
   publiée. Point fermé. Script : scratchpad hl3/essai.js <fichier carte>.
+- 06/11 : **audit indépendant** (discussion séparée « Audit indépendant TRUEGLIDE », note de correction de 15 constats).
+  Corrigé et testé (logiciel essai-onglets 2d5185a, pas publié ; firmware main) :
+  1 arrêt des moteurs au neutre (3D) partout dans l'onglet Moteurs ; 2 liste blanche des commandes de réglage
+  (cli_safety.js) pour la carte hors ligne, Studio et l'envoi ; 3 fichier carte refusé s'il contient une commande
+  immédiate (offline/safety.js) ; 4-6 envoi hors ligne et Studio : diff all de la carte téléchargé avant toute écriture,
+  comparaison avec la récolte (question si la carte a changé), relecture après save (configuration perdue signalée),
+  coupure USB signalée (write_guard.js) ; 8 adresse tf_update_url lue seulement sur localhost ; 9 contenu du .hex
+  contrôlé (nom de carte dans le binaire ; fichier renommé refusé, essayé dans le navigateur) ; 10 filtre du baromètre
+  sorti dans sensors/baro_step_filter.c + test unitaire (3/3), README précisé ; 12 trueglide/controle/RESULTATS.md ;
+  13 lint réparé (src/dist exclu), workflow Tests chaque nuit (configurateur), tests firmware chaque nuit ;
+  14 npm audit : 0 critique (Capacitor 8.6.0, DOMPurify 3.4.17, Vue 3.5.45, Vite 8.3.6, overrides) ; restent 2 hautes
+  hors du logiciel publié (tiptap non embarqué, brace-expansion outil) ; 15 sources des carte.wasm : branche
+  essai-vraie-carte 35b1d53 (trueglide/SOURCES_CARTES_SIMULEES.md, simulee/LISEZMOI.txt).
+  Essais réels (simulateur SITL + navigateur) : sauvegarde téléchargée, question « carte changée » avec la vraie
+  différence, annulation sans écriture, 12 onglets hors ligne sans erreur, fichier .hex renommé refusé. Relecture après
+  save NON essayée : le SITL (port manuel) ne se reconnecte pas seul ; à contrôler sur la vraie carte USB.
+  Restent à décider par Johann : 7 onglet ESC v15 sur /app/ (publié le 02/11 sur son accord ; broches AM32 pas essayées) ;
+  8 signature des firmwares (même dépôt que l'application : peu utile) ; 11 limite des relances moteur (couper encore
+  un moteur bloqué protège l'ESC, ne plus le couper évite une boucle sur fausse détection) + TG-P3A-3 à refaire.
+  Remarque : l'onglet CLI en carte hors ligne n'affiche rien (les réglages passent par les autres onglets).

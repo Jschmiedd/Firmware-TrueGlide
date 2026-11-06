@@ -79,6 +79,9 @@ compass_ist8310_unittest_SRC := \
 compass_ist8310_unittest_DEFINES := \
                 USE_MAG_IST8310=
 
+baro_step_filter_unittest_SRC := \
+		$(USER_DIR)/sensors/baro_step_filter.c
+
 baro_bmp085_unittest_SRC := \
 		$(USER_DIR)/drivers/barometer/barometer_bmp085.c
 

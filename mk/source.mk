@@ -290,6 +290,7 @@ COMMON_SRC = \
             osd/osd_nav_map.c \
             osd/osd_warnings.c \
             sensors/barometer.c \
+            sensors/baro_step_filter.c \
             sensors/rangefinder.c \
             sensors/opticalflow.c \
             telemetry/telemetry.c \

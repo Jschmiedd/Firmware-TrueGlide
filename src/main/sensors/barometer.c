@@ -55,6 +55,7 @@
 #include "fc/runtime_config.h"
 
 #include "sensors/sensors.h"
+#include "sensors/baro_step_filter.h"
 
 #include "scheduler/scheduler.h"
 
@@ -440,26 +441,8 @@ static float pressureToAltitude(const float pressure)
 
 static void performBaroCalibrationCycle(const float altitude);
 
-// TrueGlide: a sample more than BARO_MAX_STEP_CM away from the previous kept one (impossible within one sample,
-// 50 ms) is dropped; after BARO_MAX_DROPPED_SAMPLES in a row the new level is accepted, so a real change is followed
-#define BARO_MAX_STEP_CM          2000.0f
-#define BARO_MAX_DROPPED_SAMPLES  5
-
-static bool baroAltitudeStepIsPlausible(const float altitude)
-{
-    static float lastKeptAltitude;
-    static bool haveLastKept = false;
-    static uint8_t droppedSamples = 0;
-
-    if (haveLastKept && fabsf(altitude - lastKeptAltitude) > BARO_MAX_STEP_CM && droppedSamples < BARO_MAX_DROPPED_SAMPLES) {
-        droppedSamples++;
-        return false;
-    }
-    droppedSamples = 0;
-    lastKeptAltitude = altitude;
-    haveLastKept = true;
-    return true;
-}
+// TrueGlide: impossible altitude steps are dropped (sensors/baro_step_filter.c, unit test baro_step_filter_unittest)
+static baroStepFilter_t baroStepFilter;
 
 uint32_t baroUpdate(timeUs_t currentTimeUs)
 {
@@ -549,7 +532,7 @@ uint32_t baroUpdate(timeUs_t currentTimeUs)
                 busErrorCount++;
             }
             if (!cycleBusError && baro.pressure >= BARO_PRESSURE_MIN_PA && baro.pressure <= BARO_PRESSURE_MAX_PA
-                && baroAltitudeStepIsPlausible(pressureToAltitude(baro.pressure))) {
+                && baroStepFilterAccept(&baroStepFilter, pressureToAltitude(baro.pressure))) {
                 const float altitude = pressureToAltitude(baro.pressure);
                 if (baroIsCalibrated()) {
                     // zero baro altitude

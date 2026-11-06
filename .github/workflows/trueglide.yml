@@ -7,7 +7,11 @@
 name: TrueGlide
 
 on:
-  # Pas de construction automatique : lancer à la main (Run workflow) pour garder les minutes gratuites de GitHub.
+  # Audit du 06/11/2026 (constat 13) : chaque nuit, tests unitaires + Studio + construction de SPEEDYBEEF405MINI
+  # (dépôt public : minutes gratuites). Les commits « [skip ci] » ne lancent rien.
+  schedule:
+    - cron: "43 2 * * *"
+  # Construction de plus de cartes : lancer à la main (Run workflow).
   # Lancer à la main : onglet Actions > TrueGlide > Run workflow.
   workflow_dispatch:
     inputs:

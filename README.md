@@ -25,8 +25,9 @@ Un seul fichier à flasher, au choix ; on peut changer à tout moment.
 - **Température des ESC sur la radio** (ELRS / CRSF), en option.
 - **Navigation GPS** (TRUENAV) : missions, ALTHOLD, POSHOLD, GPS RESCUE, zone de vol.
 
-**Tout est désactivé par défaut** : sans réglage, le drone vole exactement comme avec Betaflight 2026.6.2 (même
-code de vol ; le .hex contient en plus toutes les options prévues pour la carte, inactives tant qu'on ne les règle pas).
+**Toutes les fonctions TrueGlide sont désactivées par défaut** : sans réglage, le drone vole comme avec Betaflight 2026.6.2 (même
+code de vol ; le .hex contient en plus toutes les options prévues pour la carte, inactives tant qu'on ne les règle pas). Une seule correction est toujours active : le baromètre ignore une mesure impossible (saut de plus de 20 m
+d'une mesure à l'autre, 5 au plus de suite), défaut vu sur une SpeedyBee F405 Mini (altitude OSD qui sautait).
 
 ## Installer
 
