@@ -558,3 +558,5 @@ mis en majuscules par l'onglet Configuration hors ligne ; cadres « À envoyer �
   tant qu'ee050eb n'est pas publié) ; M4 tests.yml sur main + une exécution réussie. Mineurs : message « test refusé »
   clair, 3D sans redémarrage, « Dernière carte connectée : ? », rxfail/PID absents des réglages à risque ; garder la
   relance moteur désactivée par défaut (TG-A1-4 ne teste pas un vrai moteur calé).
+- 07/11 17 h : RÈGLE (Johann, « OUI CORRECTION MISE A JOUR AUDIT ») : corrections de l'audit faites sans redemander, sur /test/ d'abord, contre-vérifiées par l'audit ; /app/ mis à jour sur son OUI sans redemander à Johann. Firmwares (.hex) : toujours l'accord de Johann. Johann seulement pour un essai au banc indispensable (une ligne).
+- 391767f (essai-onglets, /test/ gh-pages a9965fc) : M1 molette avec focus, M2 fenêtres moteurs fermées page cachée, rxfail/PID réglages à risque, flasheur dernière carte ; 998 tests. Envoyé à l'audit ; exécution tests.yml lancée sur main (M4).
