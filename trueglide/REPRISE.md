@@ -516,3 +516,20 @@ cas séparés : test actif / jamais activé / quitter l'onglet / dialogues), ave
 **Autres défauts notés :** Tableau de bord « 1S » au lieu de 4S ; carte hors ligne sans reconnexion auto ; fausse
 alerte « mettre à jour » ; OK sélectionné par défaut dans « carte changée » ; carte simulée 16 Mo / norevis ; nom
 mis en majuscules par l'onglet Configuration hors ligne ; cadres « À envoyer » inutiles dans les fiches.
+
+## 07/11/2026 fin d'après-midi — corrections, 3e relecture, fiche 6 + 5 bis
+
+- 2e relecture corrigée : firmware (garde MSP par port, module `flight/msp_motor_guard.c`, test unitaire + SITL
+  `trueglide/sitl_bench/test_msp_motor_safety.py` 7/7) ; logiciel ebee781 (arrêt jamais pris sur l'écran, relecture
+  double cohérente, onglet caché, molette armée, dialogues ; `test/js/trueglide_onglet_moteurs_monte.test.js` monte le
+  vrai onglet sur une carte DShot simulée : défaut TG-A1-5 reproduit sur l'ancien code, absent sur le nouveau).
+- 3e relecture (agent séparé) : C1 critique introduit par mon recalcul des bornes à l'enregistrement (protocole changé
+  en mémoire -> 1000 au pilote DShot ≈ 48 %). Corrigé 8529a5e : bornes et famille du protocole = pilote qui tourne
+  (motor.c), enregistrement = remise à l'arrêt seulement, valeur de test effacée à l'armement ; test unitaire
+  `motor_endpoints` (échoue sans la correction). 76 suites OK. Relecture ciblée du correctif : oui, pas de risque nouveau.
+- Restent (d'origine Betaflight, notés) : 3D changé sans redémarrage, molette qui monte en faisant défiler pendant le
+  test (bornée à 1300), dialogue sens DShot sans arrêt quand l'onglet est caché, aucun moyen d'arrêter si l'arrêt de la
+  carte est inconnu (consigne : débrancher la batterie).
+- Hex F405 Mini 8529a5e sha256 f572354d…, logiciel ebee781 sur /test/ (gh-pages b8acf8b), /app/ inchangé.
+- Fiche `controle/TG-A1-5B_mode_operatoire.md` / `_fiche.docx` (parties 6, F1 flash, 5 bis), photos simulateur dans
+  `controle/photos/TG-A1-5B/` (17/17). Le SITL n'a pas de DShot : 3D affiché 1460 au simulateur, 1500 sur la carte.
