@@ -456,3 +456,19 @@ En attente de Johann :
   répond tout de suite, il ne montre pas ces cas ; à faire : simulateur avec reconnexion et CLI lent, et dire à Johann
   AVANT chaque fiche ce qui n'a pas pu être essayé. À faire aussi : carte simulée F405 Mini à refabriquer (8 Mo, révision
   au lieu de « norevis ») ; ligne « Fichier : Aucun firmware chargé » après une mise à jour en ligne.
+
+## 07/11/2026 — Essai TG-A1 au banc (arrêté après la partie 5)
+
+- Parties 1 à 4 : oui (envoi hors ligne, carte changée, CLI hors ligne sans commande moteur, relance moteur sans
+  RESTART à tort sur 28 s).
+- **Partie 5 : défaut grave.** Onglet Moteurs, batterie branchée : changer le mode 3D puis « Sauvegarder » faisait
+  démarrer les moteurs. Cause : l'ordre d'arrêt était calculé avec le mode 3D affiché à l'écran, pas celui de la carte
+  (3D coché → 1500 envoyé à une carte sans 3D ; décoché → 1000 envoyé à une carte en 3D). Corrigé dans le logiciel
+  7a0600b (l'arrêt suit l'état lu sur la carte, mis à jour après l'enregistrement), vérifié au simulateur dans les deux
+  sens ; /app/ a aussi le défaut (non corrigé tant que Johann ne dit pas « publie sur /app/ »).
+- Johann n'a plus confiance : avant l'essai 5 bis, la correction et la procédure doivent être relues par la session
+  d'audit indépendante. Parties 6 à 9 à faire.
+- Défauts notés pour plus tard : Tableau de bord « 1S » au lieu de 4S ; carte hors ligne sans reconnexion
+  automatique ; fausse alerte « mettre à jour » ; OK sélectionné par défaut dans « carte changée » ; carte simulée
+  16 Mo / norevis ; nom de l'appareil passé en majuscules.
+- Leçon : ne jamais changer l'ordre d'une fiche pendant l'essai ; une action à la fois avec une image.
