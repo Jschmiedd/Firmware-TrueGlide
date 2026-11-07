@@ -78,21 +78,24 @@ On vérifie qu'elle ne se déclenche pas à tort quand les moteurs tournent norm
 - Pendant les 30 secondes, l'OSD n'a jamais affiché « M1 RESTART », « M2 RESTART », « M3 RESTART » ni « M4 RESTART » ?
 - Après l'étape 3, Tableau de bord : Relance moteur sur « Désactivé » ?
 
-## TG-A1-5. Arrêt des moteurs en mode 3D (aucun moteur ne doit bouger)
+## TG-A1-5. Arrêt des moteurs en mode 3D (refait après la correction du 07/11/2026)
 
-Rien à régler dans les ESC : on active seulement le mode 3D dans la carte. En DShot + 3D, le logiciel envoie 1500,
-la commande d'arrêt. Avant la correction, il envoyait 1460 : les moteurs auraient tourné doucement.
+Premier essai : les moteurs sont partis en changeant le mode 3D puis « Sauvegarder », batterie branchée (le logiciel
+envoyait l'arrêt du mode affiché à l'écran, pas celui de la carte). Corrigé dans la version 7a0600b, vérifié au
+simulateur dans les deux sens. Si un moteur bouge : **débrancher la batterie tout de suite**.
 
-1. USB branché, batterie débranchée. Onglet Moteurs : interrupteur « Mode 3D (nécessite des ESC compatibles) » sur oui, « Sauvegarder et Redémarrer ».
-   « Connexion », onglet Moteurs.
-2. Brancher la batterie, drone tenu, hélices retirées. Interrupteur « Je comprends les risques… » sur oui. **Ne pas
-   toucher aux curseurs.** Attendre 10 secondes.
-3. Cliquer sur l'onglet « Tableau de bord », attendre 5 secondes, revenir sur l'onglet Moteurs.
-4. Débrancher la batterie. Onglet Moteurs : « Mode 3D » sur non, « Sauvegarder et Redémarrer ». « Connexion ».
+1. Page d'essai, **Ctrl + F5**. USB, « Connexion ». En bas à droite : version 7a0600b.
+2. Brancher la batterie, drone tenu, hélices retirées. Onglet Moteurs : « Je comprends les risques… » sur oui. **Ne pas
+   toucher aux curseurs.**
+3. « Mode 3D (nécessite des ESC compatibles) » sur oui, puis « Sauvegarder et Redémarrer ». « Connexion », onglet Moteurs.
+4. « Je comprends les risques… » sur oui. Ne pas toucher aux curseurs. Attendre 10 secondes.
+5. « Mode 3D » sur non, puis « Sauvegarder et Redémarrer ». « Connexion ». Débrancher la batterie.
 
-- Aux étapes 2 et 3, aucun moteur n'a bougé ni bipé de façon inhabituelle ?
-- À l'étape 2, les curseurs sont au milieu et vont de 1350 à 1650 ?
-- Après l'étape 4, onglet Moteurs : « Mode 3D » sur non ?
+- À l'étape 1, la version affichée est 7a0600b ?
+- À l'étape 3 (3D mis sur oui puis Sauvegarder), aucun moteur n'a bougé ?
+- À l'étape 4, les curseurs sont au milieu (1500), vont de 1350 à 1650, et aucun moteur ne bouge ?
+- À l'étape 5 (3D mis sur non puis Sauvegarder), aucun moteur n'a bougé ?
+- À la fin, onglet Moteurs : « Mode 3D » sur non ?
 
 ## TG-A1-6. Onglet ESC (version v16)
 
