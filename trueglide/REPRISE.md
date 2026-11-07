@@ -19,6 +19,14 @@ Une conversation par phase de test. Lire ce fichier, puis seulement les fichiers
 - Commits : `git -c user.name=TrueGlide -c user.email=jschmiedd@users.noreply.github.com commit -m "... [skip ci]"`,
   sans identifiant de modèle d'IA ni ligne Co-Authored-By. PR seulement sur demande de Johann.
 - « Betaflight » reste volontairement dans les en-têtes blackbox et les descripteurs USB (compatibilité des outils).
+- **Essais avec Johann (règle du 07/11/2026, après TG-A1) :**
+  - Aucune fiche n'est donnée avant que Claude l'ait déroulée lui-même en entier au simulateur, avec une capture de
+    chaque fenêtre, et que chaque étape parte de l'état réel de la carte.
+  - Pendant l'essai, Johann suit **seulement la fiche**. Jamais d'étapes envoyées au compte-gouttes dans la
+    discussion.
+  - Si une étape ne correspond pas à l'état de la carte, Claude corrige la fiche entière et la renvoie, puis on
+    reprend.
+  - Les corrections du logiciel se font à la fin, sauf si un défaut bloque la partie suivante.
 
 ## Firmware
 
