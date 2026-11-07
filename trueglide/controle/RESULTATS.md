@@ -16,6 +16,7 @@ le firmware où elle a été testée. Tableau ajouté après l'audit indépendan
 | TG-V1 (premier vol en intérieur) | 03/11/2026 | 24a71eb | tout « oui » | Blackbox 50,7 s sans défaut, status 0 erreur I2C | REPRISE, 03/11 |
 | TG-A1 (corrections de l'audit, banc) | 07/11/2026 | 24a71eb + logiciel fe273de → 7a0600b | parties 1, 2, 3, 4, 7, 8, 9 « oui » ; **partie 5 : défaut grave** (moteurs démarrés en changeant le mode 3D puis Sauvegarder, batterie branchée) ; 6 et 5 bis à faire | vidéos TGA_1 B/C/D, OSD AvatarG0047/48 (aucun RESTART) | REPRISE, 07/11 |
 | TG-A1 5 bis (cas « test jamais activé ») | 07/11/2026 | 24a71eb + logiciel ebee781 (/test/) | **oui** : à blanc (USB) 1000 -> 3D 1500 -> 1000 ; batterie branchée (15,0 V 4S) 3D oui + Sauvegarder : aucun mouvement, 1500 RPM 0 ; 3D non + Sauvegarder : aucun mouvement (bips de démarrage), 1000 RPM 0. Restent : test actif, quitter l'onglet, onglet caché, dialogue, USB débranché ; flash 8529a5e. Partie 6 (onglet ESC v16, 4 ESC lus) : **oui** (case cochée par Johann sur la fiche TG-A1) | captures de Johann (onglet Moteurs, Tableau de bord) | REPRISE, 07/11 |
+| **TG-A1 complète** | 07/11/2026 | 24a71eb + logiciel ebee781 | **toutes les questions « oui »** (1.1 à 9.2, fiche remplie par Johann) ; partie 5 refaite après correction et revalidée l'après-midi batterie branchée | `controle/remplies/TG-A1_fiche_Johann_2026-11-07.docx` | REPRISE, 07/11 |
 | TG-P3B (fonctions TrueGlide en vol) | — | — | **PAS FAIT** | — | fiche prête |
 
 ## À refaire sur le firmware actuel
