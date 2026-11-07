@@ -20,9 +20,8 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
   indépendant ; sur OUI, publier le **logiciel** sur /app/ (et avancer main) sans redemander. Johann n'est sollicité que
   pour un essai au banc indispensable, en une ligne.
 - 07/11 : « CA DOIT ETRE CHANGé AUTOMATIQUEMENT SANS MON ACCORD C EST FINI TU METS TOUT A JOUR » (transmis par
-  l'audit) : même règle pour les **firmwares** (.hex, index.json). **En attente de confirmation de Johann dans la
-  discussion de développement** (seul le F405 Mini a été essayé sur une vraie carte ; les 32 autres seraient compilées
-  seulement).
+  l'audit) pour les firmwares, puis dans la discussion de développement : « ALORS ARRETE LE FIRMWARE ». **Publication
+  des firmwares arrêtée** : le catalogue en ligne reste 24a71eb02. Ne pas la relancer sans une nouvelle demande de Johann.
 - Toujours : essais sans hélices ; aucun secret affiché ; rien d'un autre produit dans TRUEGLIDE ; commits avec
   `[skip ci]`, sans identifiant de modèle d'IA ; un .hex donné à Johann garde son nom standard ; vérifier la révision
   dans le fichier avant de le donner.
