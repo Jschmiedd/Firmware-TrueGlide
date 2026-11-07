@@ -39,6 +39,7 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 | À traiter | power_guard_current sans minimum | firmware / logiciel |
 | D'origine Betaflight | 3D changé sans redémarrage | firmware |
 | Mineur (prudent) | Interrupteur failsafe (BOXFAILSAFE) actif : « Liaison radio — » alors que la radio est liée | logiciel, Tableau de bord |
+| À essayer | Test moteurs en mode 3D (curseurs depuis le milieu) : jamais essayé sur une vraie carte ; TG-A1-5C fait en mode normal (arrêt 1000). Seuls « 3D oui/non + Sauvegarder » sont essayés (aucun mouvement). Ne pas l'annoncer dans la bêta tant qu'il n'est pas essayé | onglet Moteurs, vraie carte |
 | À essayer | Onglet ESC : AM32 pas encore essayé sur un vrai ESC AM32 (lecture BLHeli_S / Bluejay essayée, TG-A1-6) | onglet ESC v16 |
 
 ## 4. Journal des audits
@@ -65,5 +66,5 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 | 03/11 | TG-V1 (vol intérieur) | 24a71eb | tout oui |
 | 07/11 | TG-A1 | 24a71eb + logiciel /test/ | toutes les questions oui (partie 5 refaite ; 6 = onglet ESC v16, 4 ESC BLHeli_S 35 A lus) |
 | 07/11 | TG-A1-5 bis (3D + Sauvegarder, batterie branchée) | 24a71eb + ebee781 | aucun mouvement |
-| 07/11 | TG-A1-5C (arrêt pendant le test) | ee050eb + ebee781 | 3 oui |
+| 07/11 | TG-A1-5C (arrêt pendant le test, mode normal, pas 3D) | ee050eb + ebee781 | 3 oui |
 | — | TG-P3B (fonctions TrueGlide en vol) | — | PAS FAIT |
