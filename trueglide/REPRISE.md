@@ -537,3 +537,4 @@ mis en majuscules par l'onglet Configuration hors ligne ; cadres « À envoyer �
   de départ reçu. Pas fait : partie 6, flash 8529a5e, partie 5 bis. Carte inchangée (24a71eb). Leçons : préparer AVANT
   de lancer Johann ; une action courte, l'instruction écrite SUR l'image à côté de chaque repère (pas de bandeau, pas
   de texte à côté) ; ne pas faire attendre pendant la préparation des images.
+- RÈGLE (07/11) : un .hex donné à Johann garde TOUJOURS son nom standard (trueglide_<version>_<MCU>_<CARTE>.hex) ; la révision va dans un dossier, jamais dans le nom (le logiciel lit la carte dans le nom et refuse le fichier).
