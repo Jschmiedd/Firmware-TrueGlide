@@ -8,7 +8,7 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 | Quoi | Version | Commit | Date |
 |---|---|---|---|
 | Logiciel /app/ | 94634f0 | gh-pages 2a9703f (servi en ligne, vérifié) ; main du configurateur = 94634f0 ; branche `version/app-2026-11-07` | 07/11/2026 |
-| Logiciel /test/ | 98da639 (en attente de l'audit) | gh-pages 5919aff | 07/11/2026 |
+| Logiciel /test/ | 1cf71f8 (en attente de l'audit) | gh-pages 0d481e7 | 07/11/2026 |
 | Firmwares en ligne (catalogue de /app/ et /test/) | **4b3d47cba** (= ee050eb), 33 cartes, modèle TRUEGLIDE, version d'essai (seule SPEEDYBEEF405MINI essayée sur une vraie carte) ; précédente 24a71eb02 | gh-pages f0cebe4 (site et notes : f34f6fa) | 07/11/2026 |
 | Onglet ESC (/app/ et /test/) | onglet/v16 | TrueGlide-ESC-Configurator master 29100f6 | 06/11/2026 |
 | Firmware sur le Mini Pouce de Johann | ee050eb (flashé, pas publié) | Firmware-TrueGlide main | 07/11/2026 |
@@ -34,7 +34,9 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 | Gravité | Défaut | Où |
 |---|---|---|
 | À surveiller | Relance moteur : vérifiée seulement sans fausse alerte (TG-A1-4), pas sur un vrai moteur calé : garder désactivée par défaut | firmware |
-| Corrigé sur /test/ 98da639, audit en cours | CSP (sauf 'unsafe-eval' : Vue compile <app> au démarrage) ; fonds Google après accord ; polices du site hébergées sur le site ; failsafe « Tombe » confirmé ; power_guard_current 1 à 9 A confirmé (0 = arrêt ; minimum non imposé au firmware : 2 A sert au banc) | logiciel, site |
+| **Grave, corrigé sur /test/ 1cf71f8, PAS encore sur /app/** | /app/ 94634f0 : en 3D (DShot), toucher un seul curseur envoyait 1000 (pleine marche arrière) aux autres moteurs (audit F1). Ne pas utiliser le test 3D sur /app/ | logiciel, onglet Moteurs |
+| Corrigé sur /test/ 1cf71f8, audit en cours | F2 à F8 de l'audit du 07/11 (plage contrôlée avant l'envoi, interrupteur annulable, codes hors ligne refusés par numéro, réglages à risque complétés, onglet ESC une demande à la fois, mineurs) |  logiciel |
+| Corrigé sur /test/ 98da639 puis 1cf71f8, audit en cours | CSP (sauf 'unsafe-eval' : Vue compile <app> au démarrage) ; fonds Google après accord ; polices du site hébergées sur le site ; failsafe « Tombe » confirmé ; power_guard_current 1 à 9 A confirmé (0 = arrêt ; minimum non imposé au firmware : 2 A sert au banc) | logiciel, site |
 | D'origine Betaflight | 3D changé sans redémarrage | firmware |
 | Mineur (prudent) | Interrupteur failsafe (BOXFAILSAFE) actif : « Liaison radio — » alors que la radio est liée | logiciel, Tableau de bord |
 | À essayer | Test moteurs en mode 3D (curseurs depuis le milieu) : jamais essayé sur une vraie carte ; TG-A1-5C fait en mode normal (arrêt 1000). Seuls « 3D oui/non + Sauvegarder » sont essayés (aucun mouvement). Ne pas l'annoncer dans la bêta tant qu'il n'est pas essayé | onglet Moteurs, vraie carte |
@@ -51,6 +53,7 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 | 07/11/2026 | firmwares 4b3d47cba, 33 cartes (sommes, nom de carte, révision contrôlés) | OUI pour firmware/ | gh-pages f0cebe4 |
 | 07/11/2026 | 94634f0 (liaison radio « — » quand la carte signale la perte du signal) | OUI pour /app/ (mineur : interrupteur failsafe BOXFAILSAFE affiche aussi « — », sens prudent) | — |
 | 07/11/2026 | 7b2dbcb (PID absents du diff all comparés aux valeurs par défaut du firmware) | OUI pour /app/ | gh-pages 0a4c259 |
+| 07/11/2026, 23 h | 94634f0 (recontrôle complet) | NON : F1 bloquant (3D marche arrière), F2 à F8, mineurs ; fiche TG-A1-7 à corriger (batterie pour lire les ESC, essai F1) | audit, message du 07/11 23 h 10 |
 | 07/11/2026 | 391767f (molette, dialogues cachés, rxfail/PID, flasheur ; tests.yml exécuté avec succès) | OUI pour /app/ | REPRISE, 07/11 |
 
 ## 5. Essais au banc faits (vraie carte : Mini Pouce, SpeedyBee F405 Mini)
@@ -65,5 +68,5 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 | 07/11 | TG-A1 | 24a71eb + logiciel /test/ | toutes les questions oui (partie 5 refaite ; 6 = onglet ESC v16, 4 ESC BLHeli_S 35 A lus) |
 | 07/11 | TG-A1-5 bis (3D + Sauvegarder, batterie branchée) | 24a71eb + ebee781 | aucun mouvement |
 | 07/11 | TG-A1-5C (arrêt pendant le test, mode normal, pas 3D) | ee050eb + ebee781 | 3 oui |
-| — | TG-A1-7 (page cachée, fenêtre Réordonner, mode 3D) | ee050eb + 94634f0 | À FAIRE (fiche prête) |
+| — | TG-A1-7 (page cachée, fenêtre Réordonner, mode 3D, moteurs 2 à 4 immobiles) | ee050eb + 1cf71f8 (/test/) | À FAIRE après le OUI de l'audit |
 | — | TG-P3B (fonctions TrueGlide en vol) | — | PAS FAIT |
