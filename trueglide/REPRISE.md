@@ -548,4 +548,4 @@ mis en majuscules par l'onglet Configuration hors ligne ; cadres « À envoyer �
 - 07/11 16 h : TG-A1-5C (ee050eb) 3 oui : test coupé, onglet quitté, USB débranché (arrêt seul 1-2 s). Essais au banc
   de la sécurité moteurs TERMINÉS. Remarque de Johann : batterie branchée, l'USB rebranché ne se reconnecte pas (à
   regarder, probablement la détection USB / batterie d'origine Betaflight). Reste : /app/ sur « publie sur /app/ ».
-- 07/11 16 h 15 : (correction) reconnexion USB batterie branchée PAS encore faite (Johann) ; vérification en cours.
+- 07/11 16 h 20 : reconnexion USB batterie branchée vérifiée en vidéo par Johann (TGA_1__E_AUDIT.mp4, 14 s) : USB débranché -> page d'accueil, rebranché -> reconnexion automatique au Tableau de bord (14,9 V). Défaut vu une seule fois juste après le test 5C-3, pas reproduit.
