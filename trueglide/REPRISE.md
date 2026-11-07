@@ -538,3 +538,10 @@ mis en majuscules par l'onglet Configuration hors ligne ; cadres « À envoyer �
   de lancer Johann ; une action courte, l'instruction écrite SUR l'image à côté de chaque repère (pas de bandeau, pas
   de texte à côté) ; ne pas faire attendre pendant la préparation des images.
 - RÈGLE (07/11) : un .hex donné à Johann garde TOUJOURS son nom standard (trueglide_<version>_<MCU>_<CARTE>.hex) ; la révision va dans un dossier, jamais dans le nom (le logiciel lit la carte dans le nom et refuse le fichier).
+- 07/11 15 h 50 : TG-A1 complète (fiche de Johann, tout oui) ; cas 3D + Sauvegarder revalidé batterie branchée.
+  Mini Pouce flashé avec le firmware **ee050eb** (contient C1 + remise à l'arrêt à l'armement + garde MSP par port),
+  sans effacement, réglages gardés. Erreur : le .hex était nommé « 8529a5e » (commit suivant, tests seulement, le
+  firmware n'avait pas été recompilé) : toujours vérifier la révision dans le .elf avant de nommer/donner un fichier.
+  Restent (optionnels) : test moteurs actif / quitter l'onglet / USB débranché sur ee050eb ; /app/ (défaut du matin
+  encore présent) sur « publie sur /app/ » ; défaut vu : « Dernière carte connectée : ? » dans la fenêtre Carte
+  différente du flasheur ; TG-P3B.
