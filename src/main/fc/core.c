@@ -80,6 +80,7 @@
 
 #include "flight/imu.h"
 #include "flight/mixer.h"
+#include "flight/msp_motor_guard.h"
 #include "flight/pid.h"
 #include "flight/position.h"
 #include "flight/rpm_filter.h"
@@ -634,6 +635,10 @@ if (isMotorProtocolDshot()) {
 #ifdef USE_RPM_LIMIT
         mixerResetRpmLimiter();
 #endif
+        // TrueGlide (3e relecture du 07/11/2026) : une valeur de test moteur reçue par MSP avant l'armement serait
+        // reprise au désarmement (moteur qui repart). Elle est remise à l'arrêt en armant.
+        mixerResetDisarmedMotors();
+        mspMotorGuardClear();
         ENABLE_ARMING_FLAG(ARMED);  // ***ARM NOW ***
 
 #ifdef USE_RC_STATS

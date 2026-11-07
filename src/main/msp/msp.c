@@ -453,9 +453,11 @@ RAM_CODE static void writeReadEeprom(dispatchEntry_t* self)
     readEEPROM();
     // TrueGlide (TG-A1-5, 07/11/2026) : l'enregistrement applique tout de suite le nouveau mode 3D, alors qu'une valeur
     // de test moteur reçue avant (convertie avec l'ancien mode) resterait appliquée jusqu'au redémarrage et pourrait
-    // faire tourner les moteurs (≈ 50 % ou marche arrière à fond). Carte désarmée : arrêt recalculé avec le mode
-    // enregistré (PWM : mincommand ou neutral3d) et moteurs remis à l'arrêt.
-    mixerApplySavedMotorConfig();
+    // faire tourner les moteurs (≈ 50 % ou marche arrière à fond). Carte désarmée : moteurs remis à l'arrêt du pilote
+    // qui tourne (DShot : commande d'arrêt quel que soit le 3D ; PWM : la valeur du démarrage, celle de l'ESC jusqu'au
+    // redémarrage). Les bornes ne sont PAS recalculées ici (3e relecture du 07/11, C1 : avec un protocole changé elles
+    // auraient donné 1000 au pilote DShot = ~48 % des gaz).
+    mixerResetDisarmedMotors();
     mspMotorGuardClear();
 
 #ifdef USE_VTX_TABLE

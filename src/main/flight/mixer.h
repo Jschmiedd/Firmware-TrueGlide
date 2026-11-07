@@ -134,7 +134,6 @@ void mixerInit(mixerMode_e mixerMode);
 void mixerInitProfile(void);
 void mixerResetRpmLimiter(void);
 void mixerResetDisarmedMotors(void);
-void mixerApplySavedMotorConfig(void);
 void mixTable(timeUs_t currentTimeUs);
 void stopMotors(void);
 void writeMotors(void);

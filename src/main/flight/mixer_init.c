@@ -510,18 +510,6 @@ void mixerResetDisarmedMotors(void)
     }
 }
 
-// TrueGlide (TG-A1-5, 2e relecture point 3) : après un enregistrement EEPROM, carte désarmée. readEEPROM() applique
-// tout de suite le mode 3D aux conversions des valeurs MSP (featureIsEnabled), mais les bornes de sortie et la valeur
-// d'arrêt (disarmMotorOutput : mincommand ou neutral3d en PWM) n'étaient recalculées qu'au redémarrage. On les recalcule
-// ici pour que l'arrêt corresponde au mode réellement appliqué, puis on remet les moteurs à l'arrêt.
-void mixerApplySavedMotorConfig(void)
-{
-    mixerRuntime.feature3dEnabled = featureIsEnabled(FEATURE_3D);
-    initEscEndpoints();
-    mixerInitProfile();
-    mixerResetDisarmedMotors();
-}
-
 mixerMode_e getMixerMode(void)
 {
     return currentMixerMode;

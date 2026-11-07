@@ -192,9 +192,13 @@ bool checkMotorProtocolEnabled(const motorDevConfig_t *motorDevConfig, bool *isP
     return enabled;
 }
 
+// TrueGlide (3e relecture du 07/11/2026, C1) : protocole du pilote démarré par motorDevInit (voir motorInitEndpoints)
+static bool runningProtocolKnown;
+static uint8_t runningProtocol;
+
 motorProtocolFamily_e motorGetProtocolFamily(void)
 {
-    switch (motorConfig()->dev.motorProtocol) {
+    switch (runningProtocolKnown ? runningProtocol : motorConfig()->dev.motorProtocol) {
 #ifdef USE_PWM_OUTPUT
     case MOTOR_PROTOCOL_PWM :
     case MOTOR_PROTOCOL_ONESHOT125:
@@ -233,9 +237,21 @@ static void checkMotorProtocol(const motorDevConfig_t *motorDevConfig)
     motorProtocolEnabled = checkMotorProtocolEnabled(motorDevConfig, &motorProtocolDshot);
 }
 
+// TrueGlide (3e relecture indépendante du 07/11/2026, C1) : le pilote des sorties moteur (DShot ou PWM) est choisi une
+// seule fois au démarrage (motorDevInit). Si le protocole est changé en mémoire (onglet Moteurs, MSP_SET_MOTOR_CONFIG)
+// puis que les bornes sont recalculées avant le redémarrage (MSP_SET_PID_ADVANCED, changement de profil, ...), le code
+// d'origine les calculait avec le NOUVEAU protocole : valeur d'arrêt PWM 1000 envoyée par le pilote DShot = ~48 % des
+// gaz. Une fois le pilote démarré, les bornes et la valeur d'arrêt suivent donc toujours le protocole du pilote qui tourne.
+
 // End point initialization is called from mixerInit before motorDevInit; can't use vtable...
 void motorInitEndpoints(const motorConfig_t *motorConfig, float outputLimit, float *outputLow, float *outputHigh, float *disarm, float *deadbandMotor3dHigh, float *deadbandMotor3dLow)
 {
+    motorConfig_t runningConfig;
+    if (runningProtocolKnown && motorConfig->dev.motorProtocol != runningProtocol) {
+        runningConfig = *motorConfig;
+        runningConfig.dev.motorProtocol = runningProtocol;
+        motorConfig = &runningConfig;
+    }
     checkMotorProtocol(&motorConfig->dev);
 
     if (isMotorProtocolEnabled()) {
@@ -311,6 +327,10 @@ void motorDevInit(unsigned motorCount)
         idlePulse = 0; // brushed motors
     }
 #endif
+
+    // TrueGlide (C1) : protocole du pilote qui va tourner jusqu'au prochain redémarrage
+    runningProtocol = motorConfig()->dev.motorProtocol;
+    runningProtocolKnown = true;
 
     bool success = false;
     motorDevice.count = motorCount;

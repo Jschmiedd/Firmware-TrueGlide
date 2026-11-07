@@ -232,6 +232,20 @@ flight_mixer_unittest :=  \
 		$(USER_DIR)/common/maths.c
 
 
+motor_endpoints_unittest_SRC := \
+		$(USER_DIR)/drivers/motor.c \
+		$(USER_DIR)/drivers/dshot.c \
+		$(USER_DIR)/build/atomic.c \
+		$(USER_DIR)/pg/pg.c \
+		$(USER_DIR)/common/crc.c \
+		$(USER_DIR)/common/streambuf.c
+
+motor_endpoints_unittest_DEFINES := \
+		USE_MOTOR= \
+		USE_DSHOT= \
+		USE_PWM_OUTPUT=
+
+
 msp_motor_guard_unittest_SRC := \
 		$(USER_DIR)/flight/msp_motor_guard.c
 

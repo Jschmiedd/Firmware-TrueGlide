@@ -7,8 +7,10 @@ Cas vérifiés :
   B. ce port se tait, un AUTRE port MSP (comme une vidéo HD Walksnail en DisplayPort) continue à parler toutes les
      20 ms : les moteurs reviennent quand même à l'arrêt après ~1 s ;
   C. enregistrement EEPROM (MSP_EEPROM_WRITE) : moteurs remis à l'arrêt tout de suite ;
-  D. 3D activé puis enregistré : l'arrêt devient le neutre 3D, une valeur de test d'avant ne reste pas ;
-  E. 3D coupé puis enregistré : l'arrêt redevient le minimum.
+  D. 3D activé puis enregistré (sans redémarrage) : moteurs remis à l'arrêt DU PILOTE QUI TOURNE (en PWM la valeur du
+     démarrage, celle de l'ESC jusqu'au redémarrage ; 3e relecture du 07/11 : jamais le neutre 3D envoyé à un ESC
+     calibré sans 3D) ; une valeur de test d'avant ne reste pas ;
+  E. 3D coupé puis enregistré : idem.
 
 Lancer : python3 trueglide/sitl_bench/test_msp_motor_safety.py   (code de sortie 0 = tout bon)
 """
@@ -206,22 +208,20 @@ def main():
               'avant %s, après %s' % (before, after))
 
         # D. 3D activé et enregistré alors qu'une valeur de test était appliquée
-        set_motors(usb, 1000)
+        set_motors(usb, 1100)
         set_features(usb, features(usb) | FEATURE_3D)
         usb.msp(MSP_EEPROM_WRITE)
         time.sleep(0.2)
         m3d = motors(usb)
-        check('D 3D enregistré : arrêt = neutre 3D', all(v == m3d[0] for v in m3d) and m3d[0] != stop,
-              'moteurs %s (avant, arrêt sans 3D = %s)' % (m3d, stop))
-        neutral = m3d[0]
+        check('D 3D enregistré : arrêt du pilote qui tourne', m3d == [stop] * 4, 'moteurs %s (arrêt au démarrage %s)' % (m3d, stop))
 
-        # E. 3D coupé et enregistré alors qu'une valeur neutre 3D était envoyée
-        set_motors(usb, neutral)
+        # E. 3D coupé et enregistré alors qu'une valeur de test était appliquée
+        set_motors(usb, 1100)
         set_features(usb, features(usb) & ~FEATURE_3D)
         usb.msp(MSP_EEPROM_WRITE)
         time.sleep(0.2)
         m = motors(usb)
-        check('E 3D coupé enregistré : arrêt = minimum', m == [stop] * 4, 'moteurs %s (neutre envoyé %s)' % (m, neutral))
+        check('E 3D coupé enregistré : arrêt du pilote qui tourne', m == [stop] * 4, 'moteurs %s' % m)
         usb.close()
         other.close()
     finally:
