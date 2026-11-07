@@ -10,6 +10,7 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 | Logiciel /app/ | 391767f | gh-pages 79d224b (`main--ZG4MhpC.js`) ; main du configurateur = 391767f ; branche `version/app-2026-11-07` | 07/11/2026 |
 | Logiciel /test/ | 391767f | gh-pages a9965fc | 07/11/2026 |
 | Firmwares en ligne (catalogue de /app/ et /test/) | 24a71eb02, 33 cartes, modèle TRUEGLIDE | gh-pages 02bf237 | 03/11/2026 |
+| Onglet ESC (/app/ et /test/) | onglet/v16 | TrueGlide-ESC-Configurator master 29100f6 | 06/11/2026 |
 | Firmware sur le Mini Pouce de Johann | ee050eb (flashé, pas publié) | Firmware-TrueGlide main | 07/11/2026 |
 
 ## 2. Règles permanentes de Johann
@@ -37,6 +38,7 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 | À traiter | Failsafe DROP sans confirmation dans l'onglet Failsafe | logiciel |
 | À traiter | power_guard_current sans minimum | firmware / logiciel |
 | D'origine Betaflight | 3D changé sans redémarrage | firmware |
+| À essayer | Onglet ESC : AM32 pas encore essayé sur un vrai ESC AM32 (lecture BLHeli_S / Bluejay essayée, TG-A1-6) | onglet ESC v16 |
 
 ## 4. Journal des audits
 
@@ -44,6 +46,7 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 |---|---|---|---|
 | 06/11/2026 | logiciel avant ebde305 | 1er audit : PAS PRÊT, 15 constats | `controle/REPONSE_AUDIT_2026-11-06.md` |
 | 06/11/2026 | ebde305 puis 17ca114 | contre-audit (N1 à N4…) | `controle/REPONSE_AUDIT_2026-11-06.md` |
+| 06/11/2026 | onglet ESC v16 (29100f6) | vérification en ligne : v16 corrigée (discussion « Audit avant publication – TrueGlide ESC Configurator (PUBLIC) ») | TrueGlide-ESC-Configurator, branche audit/publication-public, docs/audit/VERIFICATION-DEPLOIEMENT-2026-11-06.md |
 | 07/11/2026 | ebee781 (sécurité du test moteurs) + firmware ee050eb | OUI pour /app/ (M1 à M4 à faire) | `controle/AUDIT_2026-11-07_moteurs.md` |
 | 07/11/2026 | 391767f (molette, dialogues cachés, rxfail/PID, flasheur ; tests.yml exécuté avec succès) | OUI pour /app/ | REPRISE, 07/11 |
 
@@ -56,7 +59,7 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 | 30/10 | TG-P3A | avant 24a71eb | A1 à A5 oui |
 | 31/10 | TG-P2B, TG-P2C | 24a71eb | baromètre OK |
 | 03/11 | TG-V1 (vol intérieur) | 24a71eb | tout oui |
-| 07/11 | TG-A1 | 24a71eb + logiciel /test/ | toutes les questions oui (partie 5 refaite) |
+| 07/11 | TG-A1 | 24a71eb + logiciel /test/ | toutes les questions oui (partie 5 refaite ; 6 = onglet ESC v16, 4 ESC BLHeli_S 35 A lus) |
 | 07/11 | TG-A1-5 bis (3D + Sauvegarder, batterie branchée) | 24a71eb + ebee781 | aucun mouvement |
 | 07/11 | TG-A1-5C (arrêt pendant le test) | ee050eb + ebee781 | 3 oui |
 | — | TG-P3B (fonctions TrueGlide en vol) | — | PAS FAIT |
