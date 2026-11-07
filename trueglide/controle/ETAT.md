@@ -8,7 +8,7 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 | Quoi | Version | Commit | Date |
 |---|---|---|---|
 | Logiciel /app/ | 391767f | gh-pages 79d224b (`main--ZG4MhpC.js`) ; main du configurateur = 391767f ; branche `version/app-2026-11-07` | 07/11/2026 |
-| Logiciel /test/ | 391767f | gh-pages a9965fc | 07/11/2026 |
+| Logiciel /test/ | 7b2dbcb | gh-pages a7db605 | 07/11/2026 |
 | Firmwares en ligne (catalogue de /app/ et /test/) | **4b3d47cba** (= ee050eb), 33 cartes, modèle TRUEGLIDE, version d'essai (seule SPEEDYBEEF405MINI essayée sur une vraie carte) ; précédente 24a71eb02 | gh-pages f0cebe4 (site et notes : f34f6fa) | 07/11/2026 |
 | Catalogue d'essai `firmware-test/` (pour l'audit, lu par aucune page) | 4b3d47cba (= ee050eb), 33 cartes | gh-pages 04e699a | 07/11/2026 |
 | Onglet ESC (/app/ et /test/) | onglet/v16 | TrueGlide-ESC-Configurator master 29100f6 | 06/11/2026 |
@@ -34,7 +34,7 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 
 | Gravité | Défaut | Où |
 |---|---|---|
-| Mineur | Un PID absent du diff all (resté à sa valeur par défaut) ne déclenche la question « réglages à risque » qu'au-dessus de 150 | logiciel, write_guard.js |
+| Mineur, corrigé sur /test/ (7b2dbcb), audit en cours | Un PID absent du diff all est maintenant comparé à la valeur par défaut du firmware | logiciel, write_guard.js |
 | À surveiller | Relance moteur : vérifiée seulement sans fausse alerte (TG-A1-4), pas sur un vrai moteur calé : garder désactivée par défaut | firmware |
 | À traiter | CSP, fonds de carte Google et polices Google chargés sans consentement | logiciel |
 | À traiter | Failsafe DROP sans confirmation dans l'onglet Failsafe | logiciel |
