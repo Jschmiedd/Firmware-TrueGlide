@@ -186,6 +186,7 @@ COMMON_SRC = \
             flight/battery_guard.c \
             flight/speeder.c \
             flight/motor_health.c \
+            flight/msp_motor_guard.c \
             flight/mixer_init.c \
             flight/mixer_tricopter.c \
             flight/nav_trail.c \

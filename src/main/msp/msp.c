@@ -86,6 +86,7 @@
 #include "flight/failsafe.h"
 #include "flight/imu.h"
 #include "flight/mixer.h"
+#include "flight/msp_motor_guard.h"
 #include "flight/pid.h"
 #include "flight/pid_init.h"
 #include "flight/position.h"
@@ -452,8 +453,10 @@ RAM_CODE static void writeReadEeprom(dispatchEntry_t* self)
     readEEPROM();
     // TrueGlide (TG-A1-5, 07/11/2026) : l'enregistrement applique tout de suite le nouveau mode 3D, alors qu'une valeur
     // de test moteur reçue avant (convertie avec l'ancien mode) resterait appliquée jusqu'au redémarrage et pourrait
-    // faire tourner les moteurs (≈ 50 % ou marche arrière à fond). Carte désarmée : moteurs remis à l'arrêt.
-    mixerResetDisarmedMotors();
+    // faire tourner les moteurs (≈ 50 % ou marche arrière à fond). Carte désarmée : arrêt recalculé avec le mode
+    // enregistré (PWM : mincommand ou neutral3d) et moteurs remis à l'arrêt.
+    mixerApplySavedMotorConfig();
+    mspMotorGuardClear();
 
 #ifdef USE_VTX_TABLE
     if (vtxTableNeedsInit) {
@@ -3177,7 +3180,7 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
         for (int i = 0; i < getMotorCount(); i++) {
             motor_disarmed[i] = motorConvertFromExternal(sbufReadU16(src));
         }
-        mixerNoteMspMotorSet();
+        mspMotorGuardNoteSet(srcDesc, millis());
         break;
 
     case MSP_SET_SERVO_CONFIGURATION:
@@ -4819,7 +4822,7 @@ RAM_CODE mspResult_e mspFcProcessCommand(mspDescriptor_t srcDesc, mspPacket_t *c
     reply->cmd = cmd->cmd;
 
 #ifdef USE_MOTOR
-    mixerNoteMspActivity(); // TrueGlide : sécurité du test moteurs (voir mixer.c)
+    mspMotorGuardNoteActivity(srcDesc, millis()); // TrueGlide : seul le port du test compte (flight/msp_motor_guard.c)
 #endif
 
     if (mspCommonProcessOutCommand(srcDesc, cmdMSP, dst, mspPostProcessFn)) {

@@ -232,6 +232,10 @@ flight_mixer_unittest :=  \
 		$(USER_DIR)/common/maths.c
 
 
+msp_motor_guard_unittest_SRC := \
+		$(USER_DIR)/flight/msp_motor_guard.c
+
+
 motor_health_unittest_SRC := \
 		$(USER_DIR)/flight/motor_health.c
 

@@ -69,35 +69,12 @@
 #include "sensors/sensors.h"
 
 #include "mixer.h"
+#include "flight/msp_motor_guard.h"
 
 // TrueGlide (TG-A1-5, 07/11/2026) : une valeur de test moteur reçue par MSP (onglet Moteurs) reste appliquée tant que
-// la carte est désarmée. Si le logiciel ne parle plus à la carte (USB coupé, logiciel fermé ou bloqué), les moteurs
-// sont remis à l'arrêt après MSP_MOTOR_TEST_TIMEOUT_MS sans aucune trame MSP. Le logiciel interroge la carte toutes
-// les 50 ms pendant le test : un test en cours n'est pas interrompu. Les valeurs posées par la commande CLI « motor »
-// ne sont pas concernées.
-#define MSP_MOTOR_TEST_TIMEOUT_MS 1000
-static timeMs_t mspLastActivityMs;
-static bool mspMotorsSet;
-
-void mixerNoteMspActivity(void)
-{
-    mspLastActivityMs = millis();
-}
-
-void mixerNoteMspMotorSet(void)
-{
-    mspLastActivityMs = millis();
-    mspMotorsSet = true;
-}
-
-static void mixerCheckMspMotorTimeout(void)
-{
-    if (mspMotorsSet && cmpTimeMs(millis(), mspLastActivityMs) > MSP_MOTOR_TEST_TIMEOUT_MS) {
-        mspMotorsSet = false;
-        mixerResetDisarmedMotors();
-    }
-}
-
+// la carte est désarmée. Si le port qui l'a envoyée ne parle plus à la carte (USB coupé, logiciel fermé ou bloqué),
+// les moteurs sont remis à l'arrêt après MSP_MOTOR_GUARD_TIMEOUT_MS (voir flight/msp_motor_guard.c). Les valeurs
+// posées par la commande CLI « motor » ne sont pas concernées.
 
 #define DYN_LPF_THROTTLE_STEPS             100
 #define DYN_LPF_THROTTLE_UPDATE_DELAY_US  5000 // minimum of 5ms between updates
@@ -515,7 +492,9 @@ static void applyMixToMotors(const float motorMix[MAX_SUPPORTED_MOTORS], motorMi
 
     // Disarmed mode
     if (!ARMING_FLAG(ARMED)) {
-        mixerCheckMspMotorTimeout();
+        if (mspMotorGuardExpired(millis())) {
+            mixerResetDisarmedMotors();
+        }
         for (int i = 0; i < mixerRuntime.motorCount; i++) {
             motor[i] = motor_disarmed[i];
         }
