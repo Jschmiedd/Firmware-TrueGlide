@@ -435,3 +435,7 @@ En attente de Johann :
 - 06/11 : onglet ESC **v16** sur /test/ (demande de Johann ; configurateur 17ca114, gh-pages a8b2cd4, vérifié en ligne).
   /app/ toujours en v15 : passera en v16 avec la prochaine publication /app/, après la fiche TG-A1 (partie 5 = ESC).
   La discussion ESC garde v14 et v15 en ligne jusque-là (v15 encore chargée par /app/).
+- 07/11 : Johann repasse son Mini Pouce de XPRO à TRUEGLIDE 24a71eb (flash en DFU sur /test/, mise à jour en ligne,
+  effacement complet), recharge le diff all du 31/10, renomme « Mini Pouce » : diff all vérifié identique au 31/10
+  (profil 3, rates 3, batterie 0), seul le nom change. Prêt pour TG-A1. Petit défaut vu : après un firmware chargé
+  par la mise à jour en ligne, la ligne « Fichier : Aucun firmware chargé » reste affichée (à corriger).
