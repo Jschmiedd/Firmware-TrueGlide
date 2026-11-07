@@ -18,6 +18,7 @@ le firmware où elle a été testée. Tableau ajouté après l'audit indépendan
 | TG-A1 5 bis (cas « test jamais activé ») | 07/11/2026 | 24a71eb + logiciel ebee781 (/test/) | **oui** : à blanc (USB) 1000 -> 3D 1500 -> 1000 ; batterie branchée (15,0 V 4S) 3D oui + Sauvegarder : aucun mouvement, 1500 RPM 0 ; 3D non + Sauvegarder : aucun mouvement (bips de démarrage), 1000 RPM 0. Restent : test actif, quitter l'onglet, onglet caché, dialogue, USB débranché ; flash 8529a5e. Partie 6 (onglet ESC v16, 4 ESC lus) : **oui** (case cochée par Johann sur la fiche TG-A1) | captures de Johann (onglet Moteurs, Tableau de bord) | REPRISE, 07/11 |
 | **TG-A1 complète** | 07/11/2026 | 24a71eb + logiciel ebee781 | **toutes les questions « oui »** (1.1 à 9.2, fiche remplie par Johann) ; partie 5 refaite après correction et revalidée l'après-midi batterie branchée | `controle/remplies/TG-A1_fiche_Johann_2026-11-07.docx` | REPRISE, 07/11 |
 | Flash firmware corrigé (Mini Pouce) | 07/11/2026 | **ee050eb** (`version` : 2026.6.2 Nov 7 13:51:02 (ee050eb10)) | **oui** : flash réussi sans effacement, réglages gardés (Speeder 60°, PINIO1 ARM) | capture `version` de Johann | Le .hex avait été appelé « 8529a5e » par erreur : 8529a5e ne change que des tests, firmware identique |
+| TG-A1-5C (arrêt des moteurs pendant le test) | 07/11/2026 | ee050eb + logiciel ebee781 | **3 « oui »** : test coupé, onglet quitté, USB débranché (arrêt seul en 1 à 2 s, Walksnail branché). Remarque : batterie branchée, l'USB rebranché ne se reconnecte pas (à regarder) | `controle/remplies/TG-A1-5C_fiche_Johann_2026-11-07.docx` | REPRISE, 07/11 |
 | TG-P3B (fonctions TrueGlide en vol) | — | — | **PAS FAIT** | — | fiche prête |
 
 ## À refaire sur le firmware actuel
@@ -25,7 +26,8 @@ le firmware où elle a été testée. Tableau ajouté après l'audit indépendan
 - **Relance moteur (TG-P3A-3)** : testée le 30/10 sur un firmware d'avant 24a71eb ; le code de la relance a changé le
   31/10. Elle n'est donc **pas testée sur 24a71eb** : à refaire au banc avant de la dire testée.
 - **ALT HOLD avec le baromètre** : à voir en vol dans TG-P3B.
-- **Arrêt des moteurs en changeant le mode 3D (TG-A1-5)** : défaut trouvé sur la vraie carte le 07/11 (vient de la
+- **Arrêt des moteurs (TG-A1-5)** : FAIT le 07/11 sur la vraie carte (3D + Sauvegarder batterie branchée, TG-A1-5C 3 oui).
+  Ancien texte : **Arrêt des moteurs en changeant le mode 3D (TG-A1-5)** : défaut trouvé sur la vraie carte le 07/11 (vient de la
   correction N2 et du code d'origine, aussi présent sur /app/). Corrigé sur /test/ (7a0600b), vérifié au simulateur
   seulement. **Pas encore vérifié sur la vraie carte** (essai 5 bis) ; relecture par l'audit indépendant demandée avant.
   Jusque-là : ne pas changer le mode 3D dans l'onglet Moteurs batterie branchée.

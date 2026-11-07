@@ -545,3 +545,6 @@ mis en majuscules par l'onglet Configuration hors ligne ; cadres « À envoyer �
   Restent (optionnels) : test moteurs actif / quitter l'onglet / USB débranché sur ee050eb ; /app/ (défaut du matin
   encore présent) sur « publie sur /app/ » ; défaut vu : « Dernière carte connectée : ? » dans la fenêtre Carte
   différente du flasheur ; TG-P3B.
+- 07/11 16 h : TG-A1-5C (ee050eb) 3 oui : test coupé, onglet quitté, USB débranché (arrêt seul 1-2 s). Essais au banc
+  de la sécurité moteurs TERMINÉS. Remarque de Johann : batterie branchée, l'USB rebranché ne se reconnecte pas (à
+  regarder, probablement la détection USB / batterie d'origine Betaflight). Reste : /app/ sur « publie sur /app/ ».
