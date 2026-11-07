@@ -551,3 +551,10 @@ mis en majuscules par l'onglet Configuration hors ligne ; cadres « À envoyer �
 - 07/11 16 h 20 : reconnexion USB batterie branchée vérifiée en vidéo par Johann (TGA_1__E_AUDIT.mp4, 14 s) : USB débranché -> page d'accueil, rebranché -> reconnexion automatique au Tableau de bord (14,9 V). Défaut vu une seule fois juste après le test 5C-3, pas reproduit.
 - 07/11 16 h 30 : sur demande écrite de Johann (« tu lui transmets »), dossier AUDIT_2026-11-07_moteurs.md envoyé par send_message à la discussion « Audit indépendant TRUEGLIDE » (session_01VvqUCsD9iRLVMzii8FW6NM). Exception ponctuelle à la règle du 01/11. Réponse attendue ici.
 - 07/11 16 h 40 : **/app/ publié** sur « publie sur /app/ » de Johann : gh-pages ab2b1f7, copie exacte de /test/ (ebee781, main-BBMTgDXd.js vérifié en ligne sur /app/ et /test/), onglet ESC v16. main du configurateur avancé à ebee781, branche version/app-2026-11-07. Le défaut TG-A1-5 n'est plus sur /app/. Réponse de l'audit encore attendue.
+- 07/11 16 h 45 : **réponse de l'audit indépendant** (session « Audit indépendant TRUEGLIDE ») : OUI pour ebee781 sur
+  /app/ (aucun bloquant ; défaut reproduit sur fe273de, 10/14 échecs de comportement, corrigé sur ebee781 32/32 ;
+  firmware ee050eb 2/2 + 7/7). À faire : M1 molette seulement sur curseur avec focus (ou supprimée) ; M2 dialogue sens
+  DShot coupé sur visibilitychange ; M3 firmwares en ligne encore 24a71eb02 (ne rien annoncer des protections firmware
+  tant qu'ee050eb n'est pas publié) ; M4 tests.yml sur main + une exécution réussie. Mineurs : message « test refusé »
+  clair, 3D sans redémarrage, « Dernière carte connectée : ? », rxfail/PID absents des réglages à risque ; garder la
+  relance moteur désactivée par défaut (TG-A1-4 ne teste pas un vrai moteur calé).
