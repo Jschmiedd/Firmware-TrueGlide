@@ -30,34 +30,38 @@ départ. Fiche qui contrôle sur la vraie carte ce que le simulateur ne peut pas
 
 ## TG-A1-2. La carte a changé depuis la récolte : question avant d'écraser
 
-1. Tableau de bord : « Récolter cette carte » (nouvelle récolte, avec le nom AUDIT).
-2. Onglet CLI : taper `set small_angle = 30`, Entrée, puis `save`, Entrée (la vraie carte change après la récolte).
-   « Connexion » si le logiciel s'est déconnecté.
-3. « Déconnecter ». Carte hors ligne du Mini Pouce, « Connexion ». Onglet Configuration : « Nom de l'appareil » →
-   `Mini Pouce`. « Enregistrer et redémarrer ».
-4. « Déconnecter ». Port USB, « Connexion ». Tableau de bord : « Envoyer les changements préparés », « OK ».
-5. Une deuxième question s'ouvre : lire, puis **« Annuler »**.
+Au départ : vraie carte connectée par USB, nom AUDIT (partie 1).
 
-- À l'étape 5, la question dit « La vraie carte a changé depuis la récolte » et montre la ligne `set small_angle = 30` ?
-- Après « Annuler », le message dit « Envoi annulé : rien n'a été écrit » ?
+1. Tableau de bord : « Récolter cette carte ». Attendre « Carte récoltée ».
+2. Onglet CLI : taper `set small_angle = 25`, Entrée, puis `save`, Entrée (la vraie carte change après la récolte).
+   Si le logiciel revient sur Bienvenue : « Connexion ».
+3. « Déconnecter ». Choisir « Carte hors ligne : Mini Pouce », « Connexion ». Onglet Configuration : « Nom de
+   l'appareil » → `Mini Pouce`. « Enregistrer et redémarrer ».
+4. « Déconnecter ». Choisir le port USB, « Connexion ». Tableau de bord : « Envoyer les changements préparés ».
+5. Première fenêtre (la liste) : « OK ».
+6. Deuxième fenêtre « La vraie carte a changé… » : cliquer **« Annuler »** (bouton gris à droite), **pas OK**.
+
+- À l'étape 6, la fenêtre dit « La vraie carte a changé depuis la récolte » et montre `small_angle = 25` ?
+- Après « Annuler », le message en haut du Tableau de bord dit « Envoi annulé : rien n'a été écrit » ?
 - Le Tableau de bord affiche toujours le nom AUDIT (rien n'a été envoyé) ?
 
 ## TG-A1-3. Onglet CLI en carte hors ligne : seulement des réglages envoyés
 
 Pour la F405 Mini, la carte hors ligne est la carte simulée (le vrai firmware tourne dans le navigateur) : son CLI
 répond comme la vraie carte. Ce qu'on contrôle : une commande moteur tapée hors ligne ne part jamais vers la vraie carte.
+Le nom `Mini Pouce` est déjà préparé (partie 2).
 
-1. « Déconnecter ». Carte hors ligne du Mini Pouce, « Connexion ».
-2. Onglet CLI : taper `motor 0 1100`, Entrée. Puis `set small_angle = 180`, Entrée (sa valeur de départ).
-3. « Déconnecter ». Port USB, « Connexion ». Tableau de bord : « Envoyer les changements préparés ». Lire la liste
-   « Ce qui partira », puis « OK ». À la question « carte changée », « OK » cette fois. Une autre question s'ouvre :
-   « ATTENTION : ces changements touchent … » avec la ligne `set small_angle = 180` et « avant : set small_angle = 30 ».
-   La lire, puis « OK ».
+1. « Déconnecter ». Choisir « Carte hors ligne : Mini Pouce », « Connexion ».
+2. Onglet CLI : taper `motor 0 1100`, Entrée. Puis `set small_angle = 180`, Entrée (sa valeur de départ). Puis
+   `save`, Entrée. Si le logiciel revient sur Bienvenue : « Connexion ».
+3. « Déconnecter ». Choisir le port USB, « Connexion ». Tableau de bord : « Envoyer les changements préparés ».
+4. Cliquer « OK » aux 3 fenêtres, en les lisant avant : la liste « Ce qui partira », puis « La vraie carte a
+   changé », puis « ATTENTION : ces changements touchent … ». Attendre la fin (jusqu'à 45 secondes).
 
 - À l'étape 2, l'écran du CLI affiche les réponses (il n'est pas vide) ?
-- À l'étape 3, la liste « Ce qui partira » contient `small_angle` (et le nom de l'appareil), mais **aucune** ligne
+- À l'étape 4, la liste « Ce qui partira » contient `small_angle` (et le nom de l'appareil), mais **aucune** ligne
   `motor` ?
-- À l'étape 3, la question « ATTENTION » montre bien `set small_angle = 180` avec « avant : set small_angle = 30 » ?
+- À l'étape 4, la fenêtre « ATTENTION » montre `set small_angle = 180` avec « avant : set small_angle = 25 » ?
 - Après la fin, le Tableau de bord affiche de nouveau le nom « Mini Pouce » ?
 - Onglet CLI : `get small_angle` répond `small_angle = 180` (comme au départ) ?
 
