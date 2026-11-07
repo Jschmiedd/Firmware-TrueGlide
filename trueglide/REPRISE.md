@@ -549,3 +549,4 @@ mis en majuscules par l'onglet Configuration hors ligne ; cadres « À envoyer �
   de la sécurité moteurs TERMINÉS. Remarque de Johann : batterie branchée, l'USB rebranché ne se reconnecte pas (à
   regarder, probablement la détection USB / batterie d'origine Betaflight). Reste : /app/ sur « publie sur /app/ ».
 - 07/11 16 h 20 : reconnexion USB batterie branchée vérifiée en vidéo par Johann (TGA_1__E_AUDIT.mp4, 14 s) : USB débranché -> page d'accueil, rebranché -> reconnexion automatique au Tableau de bord (14,9 V). Défaut vu une seule fois juste après le test 5C-3, pas reproduit.
+- 07/11 16 h 30 : sur demande écrite de Johann (« tu lui transmets »), dossier AUDIT_2026-11-07_moteurs.md envoyé par send_message à la discussion « Audit indépendant TRUEGLIDE » (session_01VvqUCsD9iRLVMzii8FW6NM). Exception ponctuelle à la règle du 01/11. Réponse attendue ici.
