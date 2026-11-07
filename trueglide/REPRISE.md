@@ -439,3 +439,12 @@ En attente de Johann :
   effacement complet), recharge le diff all du 31/10, renomme « Mini Pouce » : diff all vérifié identique au 31/10
   (profil 3, rates 3, batterie 0), seul le nom change. Prêt pour TG-A1. Petit défaut vu : après un firmware chargé
   par la mise à jour en ligne, la ligne « Fichier : Aucun firmware chargé » reste affichée (à corriger).
+- 07/11 : **TG-A1 commencée** sur /test/ (Mini Pouce, TRUEGLIDE 24a71eb). Partie 1 : sauvegarde avant envoi OK, nom
+  AUDIT écrit OK, **relecture non** (défaut : relecture attendait la reconnexion, que Betaflight ne fait qu'avec
+  « Connexion automatique » allumée ; corrigé bb834a2 : relecture à la connexion suivante). Partie 2 : envoi parti
+  (Johann a probablement cliqué OK à la question « carte changée », à confirmer), relecture « pas relus un par un »
+  (défaut : CLI pas prêt juste après le redémarrage ; corrigé fe273de : 3 essais, jamais « en place » sans relecture).
+  Carte remise comme le matin (small_angle 180, Mini Pouce, vérifié). Leçon : le SITL ne se reconnecte pas tout seul et
+  répond tout de suite, il ne montre pas ces cas ; à faire : simulateur avec reconnexion et CLI lent, et dire à Johann
+  AVANT chaque fiche ce qui n'a pas pu être essayé. À faire aussi : carte simulée F405 Mini à refabriquer (8 Mo, révision
+  au lieu de « norevis ») ; ligne « Fichier : Aucun firmware chargé » après une mise à jour en ligne.
