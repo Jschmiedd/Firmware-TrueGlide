@@ -24,8 +24,8 @@ départ. Fiche qui contrôle sur la vraie carte ce que le simulateur ne peut pas
 6. Attendre la fin (la carte redémarre et se reconnecte seule, jusqu'à 45 secondes).
 
 - À l'étape 5, un fichier « …_sauvegarde_avant_envoi_….txt » est arrivé dans les Téléchargements de l'ordinateur ?
-- Après l'étape 6, le message dit « Carte relue après l'enregistrement : … réglage(s) contrôlé(s) un par un, tous en
-  place » ?
+- Après l'étape 6, le message dit « Carte relue après l'enregistrement : elle n'est pas revenue aux réglages
+  d'usine » (le nom est envoyé par l'onglet Configuration : il n'est pas relu ligne par ligne, on le voit à l'écran) ?
 - Le Tableau de bord affiche maintenant le nom AUDIT ?
 
 ## TG-A1-2. La carte a changé depuis la récolte : question avant d'écraser
