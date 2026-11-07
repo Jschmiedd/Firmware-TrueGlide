@@ -1,14 +1,14 @@
 # État de TRUEGLIDE — à lire en premier dans chaque discussion (développement et audit)
 
-Mis à jour le 07/11/2026, 17 h 50. À mettre à jour à chaque changement (version en ligne, règle, défaut, audit, essai).
+Mis à jour le 07/11/2026, 20 h 30. Modes d'emploi (hors ligne, mise en route depuis Betaflight, Studio, plan de vol) corrigés le 07/11 et donnés à Johann (hors dépôt). À mettre à jour à chaque changement (version en ligne, règle, défaut, audit, essai).
 Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.md`.
 
 ## 1. En ligne aujourd'hui
 
 | Quoi | Version | Commit | Date |
 |---|---|---|---|
-| Logiciel /app/ | 7b2dbcb | gh-pages 0a4c259 ; main du configurateur = 7b2dbcb ; branche `version/app-2026-11-07` | 07/11/2026 |
-| Logiciel /test/ | 7b2dbcb | gh-pages a7db605 | 07/11/2026 |
+| Logiciel /app/ | 7b2dbcb en ligne ; **94634f0 poussé (gh-pages 7947f17) mais pas encore servi** : déploiement GitHub Pages en échec (délai dépassé côté GitHub, 2 essais), relancé le 07/11 au soir — vérifier que /app/ sert `main-DP6uyFlS.js` | main du configurateur = 94634f0 ; branche `version/app-2026-11-07` | 07/11/2026 |
+| Logiciel /test/ | 94634f0 | gh-pages a6cb6a2 | 07/11/2026 |
 | Firmwares en ligne (catalogue de /app/ et /test/) | **4b3d47cba** (= ee050eb), 33 cartes, modèle TRUEGLIDE, version d'essai (seule SPEEDYBEEF405MINI essayée sur une vraie carte) ; précédente 24a71eb02 | gh-pages f0cebe4 (site et notes : f34f6fa) | 07/11/2026 |
 | Catalogue d'essai `firmware-test/` (pour l'audit, lu par aucune page) | 4b3d47cba (= ee050eb), 33 cartes | gh-pages 04e699a | 07/11/2026 |
 | Onglet ESC (/app/ et /test/) | onglet/v16 | TrueGlide-ESC-Configurator master 29100f6 | 06/11/2026 |
@@ -39,6 +39,7 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 | À traiter | Failsafe DROP sans confirmation dans l'onglet Failsafe | logiciel |
 | À traiter | power_guard_current sans minimum | firmware / logiciel |
 | D'origine Betaflight | 3D changé sans redémarrage | firmware |
+| Mineur (prudent) | Interrupteur failsafe (BOXFAILSAFE) actif : « Liaison radio — » alors que la radio est liée | logiciel, Tableau de bord |
 | À essayer | Onglet ESC : AM32 pas encore essayé sur un vrai ESC AM32 (lecture BLHeli_S / Bluejay essayée, TG-A1-6) | onglet ESC v16 |
 
 ## 4. Journal des audits
@@ -50,6 +51,7 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 | 06/11/2026 | onglet ESC v16 (29100f6) | vérification en ligne : v16 corrigée (discussion « Audit avant publication – TrueGlide ESC Configurator (PUBLIC) ») | TrueGlide-ESC-Configurator, branche audit/publication-public, docs/audit/VERIFICATION-DEPLOIEMENT-2026-11-06.md |
 | 07/11/2026 | ebee781 (sécurité du test moteurs) + firmware ee050eb | OUI pour /app/ (M1 à M4 à faire) | `controle/AUDIT_2026-11-07_moteurs.md` |
 | 07/11/2026 | firmwares 4b3d47cba, 33 cartes (sommes, nom de carte, révision contrôlés) | OUI pour firmware/ | gh-pages f0cebe4 |
+| 07/11/2026 | 94634f0 (liaison radio « — » quand la carte signale la perte du signal) | OUI pour /app/ (mineur : interrupteur failsafe BOXFAILSAFE affiche aussi « — », sens prudent) | — |
 | 07/11/2026 | 7b2dbcb (PID absents du diff all comparés aux valeurs par défaut du firmware) | OUI pour /app/ | gh-pages 0a4c259 |
 | 07/11/2026 | 391767f (molette, dialogues cachés, rxfail/PID, flasheur ; tests.yml exécuté avec succès) | OUI pour /app/ | REPRISE, 07/11 |
 
