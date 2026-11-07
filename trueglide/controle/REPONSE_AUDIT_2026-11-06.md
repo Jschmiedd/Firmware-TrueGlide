@@ -72,3 +72,14 @@ couverts par les tests et les essais dans le navigateur.
 « OUI OK » à la proposition : **les firmwares ne sont pas signés tant qu'ils sont hébergés au même endroit que le
 logiciel (GitHub Pages, même dépôt). À reprendre s'ils sont hébergés ailleurs.** Protections en place : HTTPS, somme
 SHA-256 de chaque fichier vérifiée avant le flash, nom de la carte contrôlé dans le contenu du .hex.
+
+## Suivi du contre-audit (07/11/2026)
+
+- W1 (arrêt en 3D sur le vrai matériel) : ajouté à TG-A1, partie 5 (mode 3D de la carte seulement, test moteurs sans
+  toucher aux curseurs, changement d'onglet ; résultat attendu : aucun moteur ne bouge).
+- W6 (.hex renommé, normal et DFU, Annuler) : ajouté à TG-A1, partie 7 ; fichier d'essai fourni à Johann hors dépôt
+  (MATEKF405SE renommé, à supprimer après).
+- Partie ESC : TG-A1 partie 6 contrôle maintenant la v16 (chargée par /test/ depuis 17ca114 à la demande de Johann).
+- Mineur rxfail : compte comme réglage à risque (logiciel 2c4775d, /test/ main-gSU91tj9.js). PID : pas compté (pas
+  un réglage qui fait démarrer un moteur ou change l'armement ; l'onglet Réglage montre déjà toute la liste avant).
+- Constat 13 : toujours ouvert, le workflow arrive sur main avec la prochaine publication /app/ (ordre de Johann).

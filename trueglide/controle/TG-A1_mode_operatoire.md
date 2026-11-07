@@ -74,14 +74,46 @@ On vérifie qu'elle ne se déclenche pas à tort quand les moteurs tournent norm
 - Pendant les 30 secondes, l'OSD n'a jamais affiché « M1 RESTART », « M2 RESTART », « M3 RESTART » ni « M4 RESTART » ?
 - Après l'étape 3, Tableau de bord : Relance moteur sur « Désactivé » ?
 
-## TG-A1-5. Onglet ESC (version v14)
+## TG-A1-5. Arrêt des moteurs en mode 3D (aucun moteur ne doit bouger)
 
-1. Batterie branchée, drone tenu, hélices retirées. Onglet ESC : se connecter et lire les ESC comme d'habitude.
-   Débrancher la batterie à la fin.
+Rien à régler dans les ESC : on active seulement le mode 3D dans la carte. En DShot + 3D, le logiciel envoie 1500,
+la commande d'arrêt. Avant la correction, il envoyait 1460 : les moteurs auraient tourné doucement.
 
-- La page ESC s'ouvre et lit les 4 ESC (BLHeli_S / Bluejay), comme avant ?
+1. USB branché, batterie débranchée. Onglet Moteurs : interrupteur « Mode 3D (nécessite des ESC compatibles) » sur oui, « Sauvegarder et Redémarrer ».
+   « Connexion », onglet Moteurs.
+2. Brancher la batterie, drone tenu, hélices retirées. Interrupteur « Je comprends les risques… » sur oui. **Ne pas
+   toucher aux curseurs.** Attendre 10 secondes.
+3. Cliquer sur l'onglet « Tableau de bord », attendre 5 secondes, revenir sur l'onglet Moteurs.
+4. Débrancher la batterie. Onglet Moteurs : « Mode 3D » sur non, « Sauvegarder et Redémarrer ». « Connexion ».
 
-## TG-A1-6. Restauration depuis la sauvegarde (USB branché, batterie débranchée)
+- Aux étapes 2 et 3, aucun moteur n'a bougé ni bipé de façon inhabituelle ?
+- À l'étape 2, les curseurs sont au milieu et vont de 1350 à 1650 ?
+- Après l'étape 4, onglet Moteurs : « Mode 3D » sur non ?
+
+## TG-A1-6. Onglet ESC (version v16)
+
+La v16 n'a encore été essayée sur aucun vrai ESC : c'est cet essai.
+
+1. Batterie branchée, drone tenu, hélices retirées. Onglet ESC : se connecter et lire les ESC comme d'habitude, sans
+   rien changer ni flasher. Débrancher la batterie à la fin.
+
+- La page ESC s'ouvre, affiche « 29100f6 » en bas, et lit les 4 ESC (BLHeli_S / Bluejay), comme avant ?
+
+## TG-A1-7. Fichier firmware renommé refusé (rien n'est flashé)
+
+Fichier fourni par Claude : `ESSAI_NE_PAS_FLASHER/trueglide_2026.6.2_STM32F405_SPEEDYBEEF405MINI.hex`. C'est le firmware
+d'une **autre carte** (MATEKF405SE) renommé avec le nom de la F405 Mini. Le supprimer à la fin.
+
+1. Carte connectée (« Connexion »). Onglet « Flasher le Firmware » : « Charger un firmware TrueGlide (.hex) », choisir
+   ce fichier. « Flasher le Firmware ». Lire le message, puis **« Annuler »**. Débrancher l'USB.
+2. Mode DFU : tenir le bouton BOOT de la carte en branchant l'USB. Onglet « Flasher le Firmware » : charger le même
+   fichier, « Flasher le Firmware ». Lire le message, puis **« Annuler »**. Débrancher l'USB, rebrancher normalement.
+
+- À l'étape 1, la fenêtre « Fichier refusé » dit que le contenu n'est pas un firmware pour SPEEDYBEEF405MINI ?
+- À l'étape 2 (DFU), la même fenêtre « Fichier refusé » s'affiche ?
+- Après l'étape 2, la carte démarre normalement (« Connexion », nom « Mini Pouce » au Tableau de bord) ?
+
+## TG-A1-8. Restauration depuis la sauvegarde (USB branché, batterie débranchée)
 
 1. Onglet CLI : « Charger à partir du fichier », choisir le `diff all` enregistré au début (avant de commencer,
    étape 3). Une fenêtre montre les commandes chargées : les envoyer. Attendre la fin : la carte enregistre et
@@ -89,7 +121,7 @@ On vérifie qu'elle ne se déclenche pas à tort quand les moteurs tournent norm
 
 - Après la restauration, le Tableau de bord affiche le nom « Mini Pouce » ?
 
-## TG-A1-7. Fin (USB branché, batterie débranchée)
+## TG-A1-9. Fin (USB branché, batterie débranchée)
 
 - Onglet CLI : taper `diff all`, Entrée : à part l'ordre, c'est le même que la sauvegarde de départ ?
 - Les fichiers « …_sauvegarde_avant_envoi_….txt » sont gardés (à envoyer) ?
@@ -98,6 +130,6 @@ On vérifie qu'elle ne se déclenche pas à tort quand les moteurs tournent norm
 
 ### Fichiers envoyés (sauvegardes avant envoi, diff all de départ et de fin)
 
-### Réponse de « diff all » (partie 7) [grand]
+### Réponse de « diff all » (partie 9) [grand]
 
 ### Autres remarques (messages affichés, ce qui a surpris)
