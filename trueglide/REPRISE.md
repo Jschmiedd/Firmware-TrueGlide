@@ -472,3 +472,44 @@ En attente de Johann :
   automatique ; fausse alerte « mettre à jour » ; OK sélectionné par défaut dans « carte changée » ; carte simulée
   16 Mo / norevis ; nom de l'appareil passé en majuscules.
 - Leçon : ne jamais changer l'ordre d'une fiche pendant l'essai ; une action à la fois avec une image.
+
+## 07/11/2026 après-midi — état à reprendre (nouvelle discussion)
+
+**TG-A1 :** parties 1, 2, 3, 4, 7, 8, 9 = oui (8.1 et 9.1 : diff all final identique au départ, nom « Mini Pouce »).
+Restent : **partie 6** (onglet ESC v16, batterie branchée, lecture seule) et **partie 5 bis** (arrêt moteurs en 3D),
+à faire seulement après la 3e relecture ci-dessous. Carte de Johann : firmware 24a71eb, config d'origine, relance
+moteur OFF, 3D non ; vidéo Walksnail (MSP DisplayPort).
+
+**Défaut de sécurité TG-A1-5 et corrections :**
+- Logiciel 7a0600b puis 63ea57f (sur /test/) : arrêt relu sur la carte (MSP_MOTOR, `boardStopFromReadback`), test
+  refusé si relecture douteuse, arrêt envoyé à l'armement/désarmement radio, Début/Fin coupent le test, dialogues
+  8 valeurs, arrêt à l'enregistrement seulement si le test a servi. Tests : `test/js/trueglide_arret_moteurs.test.js`.
+- Firmware 81fa7d6 (main, PAS encore flashé, hex dans /home/user/guides/firmware/) : `mixerResetDisarmedMotors()`
+  après chaque enregistrement EEPROM ; remise à l'arrêt après 1 s sans trame MSP (valeurs de test MSP seulement).
+- /app/ a encore le défaut (code d'origine) : correction seulement sur « publie sur /app/ ».
+
+**2e relecture indépendante (après 63ea57f / 81fa7d6) — à corriger AVANT la partie 5 bis :**
+1. Élevée (Walksnail) : la temporisation firmware est entretenue par n'importe quel trafic MSP (vidéo HD, radio) →
+   ne compter que le port qui a envoyé MSP_SET_MOTOR (ou `mspSerialIsConfiguratorActive`).
+2. Moyenne : `zeroThrottleValue` retombe sur l'écran quand la relecture vaut null (MotorsTab) → null = aucun
+   MSP_SET_MOTOR, dialogues bloqués ; le refus du test (config changée) envoie un arrêt via disableMotorTesting →
+   n'envoyer que si le test a vraiment démarré.
+3. Faible : relecture ambiguë (1500 sans 3D / 1000 en 3D pendant une rotation, dédoublonnage MSP) → attendre et
+   relire deux fois après tout arrêt ; refuser si armé. Onglet caché (minuteries ralenties) → couper le test sur
+   `visibilitychange`. Dialogues avant la fin de la relecture au montage. Molette active quand armé. PWM :
+   `initEscEndpoints` avant redémarrage, `liveMotorState()` après sauvegarde ratée.
+4. Tests : aucun test ne monte MotorsTab.vue ; aucun test firmware → en ajouter (composable extrait + test SITL
+   `scratchpad/msp_motor_safety.cjs` à reprendre dans le dépôt).
+Puis 3e relecture indépendante, puis nouvelle partie 5 bis (drone fixé au banc, RPM télémétrie notés à chaque clic,
+cas séparés : test actif / jamais activé / quitter l'onglet / dialogues), avec images.
+
+**Façon de travailler demandée par Johann (impérative) :**
+- Une action à la fois, avec une image annotée ; pas de pavés de texte ; ordre exact, jamais changé en route.
+- Valeurs attendues vérifiées dans le code / au simulateur avant de les écrire ; ne jamais dire « sûr » sans preuve.
+- Plus de fiche Word à remplir : Claude note les oui/non dans `controle/RESULTATS.md` d'après les captures.
+- Chaque question dit : ce qu'on vérifie, ce qu'on regarde, ce qui est dangereux.
+- Tout ce qui touche aux moteurs : test de comportement réel + simulateur + relecture indépendante + banc, /app/ en dernier.
+
+**Autres défauts notés :** Tableau de bord « 1S » au lieu de 4S ; carte hors ligne sans reconnexion auto ; fausse
+alerte « mettre à jour » ; OK sélectionné par défaut dans « carte changée » ; carte simulée 16 Mo / norevis ; nom
+mis en majuscules par l'onglet Configuration hors ligne ; cadres « À envoyer » inutiles dans les fiches.
