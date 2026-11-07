@@ -533,3 +533,7 @@ mis en majuscules par l'onglet Configuration hors ligne ; cadres « À envoyer �
 - Hex F405 Mini 8529a5e sha256 f572354d…, logiciel ebee781 sur /test/ (gh-pages b8acf8b), /app/ inchangé.
 - Fiche `controle/TG-A1-5B_mode_operatoire.md` / `_fiche.docx` (parties 6, F1 flash, 5 bis), photos simulateur dans
   `controle/photos/TG-A1-5B/` (17/17). Le SITL n'a pas de DShot : 3D affiché 1460 au simulateur, 1500 sur la carte.
+- 07/11 vers 15 h : Johann arrête l'essai (trop long, plus confiance). Fait : version ebee781 vue sur /test/, diff all
+  de départ reçu. Pas fait : partie 6, flash 8529a5e, partie 5 bis. Carte inchangée (24a71eb). Leçons : préparer AVANT
+  de lancer Johann ; une action courte, l'instruction écrite SUR l'image à côté de chaque repère (pas de bandeau, pas
+  de texte à côté) ; ne pas faire attendre pendant la préparation des images.
