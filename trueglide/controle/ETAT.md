@@ -1,0 +1,62 @@
+# État de TRUEGLIDE — à lire en premier dans chaque discussion (développement et audit)
+
+Mis à jour le 07/11/2026, 17 h 50. À mettre à jour à chaque changement (version en ligne, règle, défaut, audit, essai).
+Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.md`.
+
+## 1. En ligne aujourd'hui
+
+| Quoi | Version | Commit | Date |
+|---|---|---|---|
+| Logiciel /app/ | 391767f | gh-pages 79d224b (`main--ZG4MhpC.js`) ; main du configurateur = 391767f ; branche `version/app-2026-11-07` | 07/11/2026 |
+| Logiciel /test/ | 391767f | gh-pages a9965fc | 07/11/2026 |
+| Firmwares en ligne (catalogue de /app/ et /test/) | 24a71eb02, 33 cartes, modèle TRUEGLIDE | gh-pages 02bf237 | 03/11/2026 |
+| Firmware sur le Mini Pouce de Johann | ee050eb (flashé, pas publié) | Firmware-TrueGlide main | 07/11/2026 |
+
+## 2. Règles permanentes de Johann
+
+- 07/11 : « PUBLIE CORRIGE MET A JOUR JE VEUX PLUS D EWRREUR DANS MON LOGICIEL » et, dans la discussion de
+  développement, « OUI CORRECTION MISE A JOUR AUDIT ». Sens : corriger, mettre sur /test/, faire passer l'audit
+  indépendant ; sur OUI, publier le **logiciel** sur /app/ (et avancer main) sans redemander. Johann n'est sollicité que
+  pour un essai au banc indispensable, en une ligne.
+- 07/11 : « CA DOIT ETRE CHANGé AUTOMATIQUEMENT SANS MON ACCORD C EST FINI TU METS TOUT A JOUR » (transmis par
+  l'audit) : même règle pour les **firmwares** (.hex, index.json). **En attente de confirmation de Johann dans la
+  discussion de développement** (seul le F405 Mini a été essayé sur une vraie carte ; les 32 autres seraient compilées
+  seulement).
+- Toujours : essais sans hélices ; aucun secret affiché ; rien d'un autre produit dans TRUEGLIDE ; commits avec
+  `[skip ci]`, sans identifiant de modèle d'IA ; un .hex donné à Johann garde son nom standard ; vérifier la révision
+  dans le fichier avant de le donner.
+
+## 3. Défauts encore ouverts
+
+| Gravité | Défaut | Où |
+|---|---|---|
+| Mineur | Un PID absent du diff all (resté à sa valeur par défaut) ne déclenche la question « réglages à risque » qu'au-dessus de 150 | logiciel, write_guard.js |
+| — | Firmware ee050eb (protections du test moteurs) pas encore publié : ne rien annoncer de ces protections | firmwares en ligne |
+| À surveiller | Relance moteur : vérifiée seulement sans fausse alerte (TG-A1-4), pas sur un vrai moteur calé : garder désactivée par défaut | firmware |
+| À traiter | CSP, fonds de carte Google et polices Google chargés sans consentement | logiciel |
+| À traiter | Failsafe DROP sans confirmation dans l'onglet Failsafe | logiciel |
+| À traiter | power_guard_current sans minimum | firmware / logiciel |
+| D'origine Betaflight | 3D changé sans redémarrage | firmware |
+
+## 4. Journal des audits
+
+| Date | Version | Verdict | Lien |
+|---|---|---|---|
+| 06/11/2026 | logiciel avant ebde305 | 1er audit : PAS PRÊT, 15 constats | `controle/REPONSE_AUDIT_2026-11-06.md` |
+| 06/11/2026 | ebde305 puis 17ca114 | contre-audit (N1 à N4…) | `controle/REPONSE_AUDIT_2026-11-06.md` |
+| 07/11/2026 | ebee781 (sécurité du test moteurs) + firmware ee050eb | OUI pour /app/ (M1 à M4 à faire) | `controle/AUDIT_2026-11-07_moteurs.md` |
+| 07/11/2026 | 391767f (molette, dialogues cachés, rxfail/PID, flasheur ; tests.yml exécuté avec succès) | OUI pour /app/ | REPRISE, 07/11 |
+
+## 5. Essais au banc faits (vraie carte : Mini Pouce, SpeedyBee F405 Mini)
+
+| Date | Fiche | Versions | Résultat |
+|---|---|---|---|
+| 28/10 | TG-P2 | 1791465 | 32 oui sur 32 |
+| 29/10 | TG-P2B, TG-P3 | f9fc6d5 | oui (baromètre corrigé ; premiers vols) |
+| 30/10 | TG-P3A | avant 24a71eb | A1 à A5 oui |
+| 31/10 | TG-P2B, TG-P2C | 24a71eb | baromètre OK |
+| 03/11 | TG-V1 (vol intérieur) | 24a71eb | tout oui |
+| 07/11 | TG-A1 | 24a71eb + logiciel /test/ | toutes les questions oui (partie 5 refaite) |
+| 07/11 | TG-A1-5 bis (3D + Sauvegarder, batterie branchée) | 24a71eb + ebee781 | aucun mouvement |
+| 07/11 | TG-A1-5C (arrêt pendant le test) | ee050eb + ebee781 | 3 oui |
+| — | TG-P3B (fonctions TrueGlide en vol) | — | PAS FAIT |

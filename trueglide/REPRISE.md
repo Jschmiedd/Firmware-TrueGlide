@@ -1,5 +1,7 @@
 # Reprise du travail TrueGlide (à lire en début de conversation)
 
+**Lire d'abord `trueglide/controle/ETAT.md` (état court : versions en ligne, règles, défauts ouverts, audits, essais).**
+
 Une conversation par phase de test. Lire ce fichier, puis seulement les fichiers utiles à la phase.
 
 ## Produits et dépôts
