@@ -450,6 +450,10 @@ RAM_CODE static void writeReadEeprom(dispatchEntry_t* self)
 
     writeEEPROM();
     readEEPROM();
+    // TrueGlide (TG-A1-5, 07/11/2026) : l'enregistrement applique tout de suite le nouveau mode 3D, alors qu'une valeur
+    // de test moteur reçue avant (convertie avec l'ancien mode) resterait appliquée jusqu'au redémarrage et pourrait
+    // faire tourner les moteurs (≈ 50 % ou marche arrière à fond). Carte désarmée : moteurs remis à l'arrêt.
+    mixerResetDisarmedMotors();
 
 #ifdef USE_VTX_TABLE
     if (vtxTableNeedsInit) {
@@ -3173,6 +3177,7 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
         for (int i = 0; i < getMotorCount(); i++) {
             motor_disarmed[i] = motorConvertFromExternal(sbufReadU16(src));
         }
+        mixerNoteMspMotorSet();
         break;
 
     case MSP_SET_SERVO_CONFIGURATION:
@@ -4812,6 +4817,10 @@ RAM_CODE mspResult_e mspFcProcessCommand(mspDescriptor_t srcDesc, mspPacket_t *c
     const int16_t cmdMSP = cmd->cmd;
     // initialize reply by default
     reply->cmd = cmd->cmd;
+
+#ifdef USE_MOTOR
+    mixerNoteMspActivity(); // TrueGlide : sécurité du test moteurs (voir mixer.c)
+#endif
 
     if (mspCommonProcessOutCommand(srcDesc, cmdMSP, dst, mspPostProcessFn)) {
         ret = MSP_RESULT_ACK;

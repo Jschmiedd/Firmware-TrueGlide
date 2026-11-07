@@ -134,6 +134,9 @@ void mixerInit(mixerMode_e mixerMode);
 void mixerInitProfile(void);
 void mixerResetRpmLimiter(void);
 void mixerResetDisarmedMotors(void);
+// TrueGlide (TG-A1-5, 07/11/2026) : sécurité du test moteurs par MSP
+void mixerNoteMspActivity(void);
+void mixerNoteMspMotorSet(void);
 void mixTable(timeUs_t currentTimeUs);
 void stopMotors(void);
 void writeMotors(void);
