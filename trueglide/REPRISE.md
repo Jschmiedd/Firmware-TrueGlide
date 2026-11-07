@@ -506,7 +506,10 @@ cas séparés : test actif / jamais activé / quitter l'onglet / dialogues), ave
 **Façon de travailler demandée par Johann (impérative) :**
 - Une action à la fois, avec une image annotée ; pas de pavés de texte ; ordre exact, jamais changé en route.
 - Valeurs attendues vérifiées dans le code / au simulateur avant de les écrire ; ne jamais dire « sûr » sans preuve.
-- Plus de fiche Word à remplir : Claude note les oui/non dans `controle/RESULTATS.md` d'après les captures.
+- Les fiches de suivi RESTENT obligatoires pour valider (décision de Johann, 07/11) : une fiche propre par essai,
+  vérifiée avant (déroulée au simulateur, valeurs attendues prouvées), une image annotée par action, pour chaque
+  question « ce qu'on vérifie / ce qu'on regarde / ce qui est dangereux », sans cadres « À envoyer » inutiles.
+  Claude reporte aussi les résultats dans `controle/RESULTATS.md`.
 - Chaque question dit : ce qu'on vérifie, ce qu'on regarde, ce qui est dangereux.
 - Tout ce qui touche aux moteurs : test de comportement réel + simulateur + relecture indépendante + banc, /app/ en dernier.
 
