@@ -10,6 +10,7 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 | Logiciel /app/ | 391767f | gh-pages 79d224b (`main--ZG4MhpC.js`) ; main du configurateur = 391767f ; branche `version/app-2026-11-07` | 07/11/2026 |
 | Logiciel /test/ | 391767f | gh-pages a9965fc | 07/11/2026 |
 | Firmwares en ligne (catalogue de /app/ et /test/) | 24a71eb02, 33 cartes, modèle TRUEGLIDE | gh-pages 02bf237 | 03/11/2026 |
+| Catalogue d'essai `firmware-test/` (pour l'audit, lu par aucune page) | 4b3d47cba (= ee050eb), 33 cartes | gh-pages 04e699a | 07/11/2026 |
 | Onglet ESC (/app/ et /test/) | onglet/v16 | TrueGlide-ESC-Configurator master 29100f6 | 06/11/2026 |
 | Firmware sur le Mini Pouce de Johann | ee050eb (flashé, pas publié) | Firmware-TrueGlide main | 07/11/2026 |
 
@@ -19,9 +20,12 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
   développement, « OUI CORRECTION MISE A JOUR AUDIT ». Sens : corriger, mettre sur /test/, faire passer l'audit
   indépendant ; sur OUI, publier le **logiciel** sur /app/ (et avancer main) sans redemander. Johann n'est sollicité que
   pour un essai au banc indispensable, en une ligne.
-- 07/11 : « CA DOIT ETRE CHANGé AUTOMATIQUEMENT SANS MON ACCORD C EST FINI TU METS TOUT A JOUR » (transmis par
-  l'audit) pour les firmwares, puis dans la discussion de développement : « ALORS ARRETE LE FIRMWARE ». **Publication
-  des firmwares arrêtée** : le catalogue en ligne reste 24a71eb02. Ne pas la relancer sans une nouvelle demande de Johann.
+- 07/11 : « CA DOIT ETRE CHANGé AUTOMATIQUEMENT SANS MON ACCORD C EST FINI TU METS TOUT A JOUR » (firmwares), puis
+  « ALORS ARRETE LE FIRMWARE », puis (07/11, annule l'arrêt) « NON ON REPRENDS LA COMPILATION CAR LE CONTROL AUDIT ESC
+  SE FAIT VIA LE LOGICIEL ET PAS LE FIRMWARE » et ici « TU PEUX COMPILER ET FINIR LES MISE A JOUR POUR EN FINIR ? ».
+  Sens : firmwares (.hex, index.json) comme le logiciel : compilés, publiés d'abord sur `firmware-test/`, audit ; sur
+  OUI, catalogue `firmware/` mis à jour sans redemander, notes de version « version d'essai », seul le F405 Mini essayé
+  sur une vraie carte.
 - Toujours : essais sans hélices ; aucun secret affiché ; rien d'un autre produit dans TRUEGLIDE ; commits avec
   `[skip ci]`, sans identifiant de modèle d'IA ; un .hex donné à Johann garde son nom standard ; vérifier la révision
   dans le fichier avant de le donner.
