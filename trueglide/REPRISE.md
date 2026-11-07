@@ -548,3 +548,4 @@ mis en majuscules par l'onglet Configuration hors ligne ; cadres « À envoyer �
 - 07/11 16 h : TG-A1-5C (ee050eb) 3 oui : test coupé, onglet quitté, USB débranché (arrêt seul 1-2 s). Essais au banc
   de la sécurité moteurs TERMINÉS. Remarque de Johann : batterie branchée, l'USB rebranché ne se reconnecte pas (à
   regarder, probablement la détection USB / batterie d'origine Betaflight). Reste : /app/ sur « publie sur /app/ ».
+- 07/11 16 h 10 : reconnexion USB batterie branchée refaite par Johann : la carte se reconnecte (14,97 V, onglet Moteurs). Défaut vu une seule fois (juste après le test 5C-3), pas reproduit.
