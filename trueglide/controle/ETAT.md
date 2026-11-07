@@ -67,4 +67,5 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 | 07/11 | TG-A1 | 24a71eb + logiciel /test/ | toutes les questions oui (partie 5 refaite ; 6 = onglet ESC v16, 4 ESC BLHeli_S 35 A lus) |
 | 07/11 | TG-A1-5 bis (3D + Sauvegarder, batterie branchée) | 24a71eb + ebee781 | aucun mouvement |
 | 07/11 | TG-A1-5C (arrêt pendant le test, mode normal, pas 3D) | ee050eb + ebee781 | 3 oui |
+| — | TG-A1-7 (page cachée, fenêtre Réordonner, mode 3D) | ee050eb + 94634f0 | À FAIRE (fiche prête) |
 | — | TG-P3B (fonctions TrueGlide en vol) | — | PAS FAIT |
