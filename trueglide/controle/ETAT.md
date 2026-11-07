@@ -7,10 +7,9 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 
 | Quoi | Version | Commit | Date |
 |---|---|---|---|
-| Logiciel /app/ | 7b2dbcb en ligne ; **94634f0 poussé (gh-pages 7947f17) mais pas encore servi** : déploiement GitHub Pages en échec (délai dépassé côté GitHub, 2 essais), relancé le 07/11 au soir — vérifier que /app/ sert `main-DP6uyFlS.js` | main du configurateur = 94634f0 ; branche `version/app-2026-11-07` | 07/11/2026 |
+| Logiciel /app/ | 94634f0 | gh-pages 2a9703f (servi en ligne, vérifié) ; main du configurateur = 94634f0 ; branche `version/app-2026-11-07` | 07/11/2026 |
 | Logiciel /test/ | 94634f0 | gh-pages a6cb6a2 | 07/11/2026 |
 | Firmwares en ligne (catalogue de /app/ et /test/) | **4b3d47cba** (= ee050eb), 33 cartes, modèle TRUEGLIDE, version d'essai (seule SPEEDYBEEF405MINI essayée sur une vraie carte) ; précédente 24a71eb02 | gh-pages f0cebe4 (site et notes : f34f6fa) | 07/11/2026 |
-| Catalogue d'essai `firmware-test/` (pour l'audit, lu par aucune page) | 4b3d47cba (= ee050eb), 33 cartes | gh-pages 04e699a | 07/11/2026 |
 | Onglet ESC (/app/ et /test/) | onglet/v16 | TrueGlide-ESC-Configurator master 29100f6 | 06/11/2026 |
 | Firmware sur le Mini Pouce de Johann | ee050eb (flashé, pas publié) | Firmware-TrueGlide main | 07/11/2026 |
 
