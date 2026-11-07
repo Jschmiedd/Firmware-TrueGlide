@@ -132,11 +132,3 @@ d'une **autre carte** (MATEKF405SE) renommé avec le nom de la F405 Mini. Le sup
 
 - Onglet CLI : taper `diff all`, Entrée : à part l'ordre, c'est le même que la sauvegarde de départ ?
 - Les fichiers « …_sauvegarde_avant_envoi_….txt » sont gardés (à envoyer) ?
-
-## À envoyer
-
-### Fichiers envoyés (sauvegardes avant envoi, diff all de départ et de fin)
-
-### Réponse de « diff all » (partie 9) [grand]
-
-### Autres remarques (messages affichés, ce qui a surpris)

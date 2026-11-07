@@ -1,0 +1,130 @@
+{
+ "res": [
+  {
+   "id": "5B-01_ouverture",
+   "ok": true,
+   "reel": "1000 1000 1000 1000",
+   "attendu": "1000 1000 1000 1000",
+   "extra": ""
+  },
+  {
+   "id": "5B-02_3D_oui_ecran",
+   "ok": true,
+   "reel": "1000 1000 1000 1000",
+   "attendu": "1000 1000 1000 1000",
+   "extra": ""
+  },
+  {
+   "id": "5B-03_3D_oui_sauve",
+   "ok": true,
+   "reel": "1460 1460 1460 1460",
+   "attendu": "1460 1460 1460 1460",
+   "extra": "(PWM : neutre 1460 ; DShot : 1500)"
+  },
+  {
+   "id": "5B-04_3D_non_sauve",
+   "ok": true,
+   "reel": "1000 1000 1000 1000",
+   "attendu": "1000 1000 1000 1000",
+   "extra": ""
+  },
+  {
+   "id": "5B-05_test_actif",
+   "ok": true,
+   "reel": "1000 1000 1000 1000",
+   "attendu": "1000 1000 1000 1000",
+   "extra": ""
+  },
+  {
+   "id": "5B-06_curseur_1100",
+   "ok": true,
+   "reel": "1075 1075 1075 1075",
+   "attendu": "1075 1075 1075 1075",
+   "extra": ""
+  },
+  {
+   "id": "5B-07_test_coupe",
+   "ok": true,
+   "reel": "1000 1000 1000 1000",
+   "attendu": "1000 1000 1000 1000",
+   "extra": "messages : []"
+  },
+  {
+   "id": "5B-08_3D_oui_apres_test",
+   "ok": true,
+   "reel": "1460 1460 1460 1460",
+   "attendu": "1460 1460 1460 1460",
+   "extra": ""
+  },
+  {
+   "id": "5B-09_test_actif_3D",
+   "ok": true,
+   "reel": "1460 1460 1460 1460",
+   "attendu": "1460 1460 1460 1460",
+   "extra": "(sans toucher aux curseurs)"
+  },
+  {
+   "id": "5B-10_3D_non_apres_test",
+   "ok": true,
+   "reel": "1000 1000 1000 1000",
+   "attendu": "1000 1000 1000 1000",
+   "extra": ""
+  },
+  {
+   "id": "5B-11_avant_quitter",
+   "ok": true,
+   "reel": "1075 1075 1075 1075",
+   "attendu": "1075 1075 1075 1075",
+   "extra": ""
+  },
+  {
+   "id": "5B-12_onglet_quitte",
+   "ok": true,
+   "reel": "1000 1000 1000 1000",
+   "attendu": "1000 1000 1000 1000",
+   "extra": ""
+  },
+  {
+   "id": "5B-13_onglet_cache",
+   "ok": true,
+   "reel": "1000 1000 1000 1000",
+   "attendu": "1000 1000 1000 1000",
+   "extra": ""
+  },
+  {
+   "id": "5B-14_dialogue_ouvert",
+   "ok": true,
+   "reel": "1000 1000 1000 1000",
+   "attendu": "1000 1000 1000 1000",
+   "extra": ""
+  },
+  {
+   "id": "5B-15a_dialogue_risques",
+   "ok": null,
+   "reel": "1000 1000 1000 1000"
+  },
+  {
+   "id": "5B-15_dialogue_ferme",
+   "ok": true,
+   "reel": "1000 1000 1000 1000",
+   "attendu": "1000 1000 1000 1000",
+   "extra": ""
+  },
+  {
+   "id": "5B-16_avant_usb",
+   "ok": true,
+   "reel": "1075 1075 1075 1075",
+   "attendu": "1075 1075 1075 1075",
+   "extra": ""
+  },
+  {
+   "id": "5B-17_usb_coupe",
+   "ok": true,
+   "reel": "1000 1000 1000 1000",
+   "attendu": "1000 1000 1000 1000",
+   "extra": "arrêt après 1.1 s"
+  }
+ ],
+ "vus": [],
+ "err": []
+}
