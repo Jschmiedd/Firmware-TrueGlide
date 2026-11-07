@@ -48,6 +48,7 @@ althold_unittest_DEFINES := \
 		USE_ALTITUDE_HOLD= \
 
 arming_prevention_unittest_SRC := \
+		$(USER_DIR)/flight/msp_motor_guard.c \
 		$(USER_DIR)/common/bitarray.c \
 		$(USER_DIR)/common/filter.c \
 		$(USER_DIR)/common/vector.c \
@@ -739,6 +740,7 @@ rcdevice_unittest_DEFINES := \
 		USE_RCDEVICE=
 
 vtx_unittest_SRC := \
+		$(USER_DIR)/flight/msp_motor_guard.c \
 		$(USER_DIR)/fc/core.c \
 		$(USER_DIR)/fc/dispatch.c \
 		$(USER_DIR)/fc/rc_controls.c \

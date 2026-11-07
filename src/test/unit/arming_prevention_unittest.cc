@@ -1070,6 +1070,7 @@ extern "C" {
 
     bool featureIsEnabled(uint32_t f) { return simulationFeatureFlags & f; }
     void warningLedFlash(void) {}
+    void mixerResetDisarmedMotors(void) {}
     void warningLedDisable(void) {}
     void warningLedUpdate(void) {}
     void beeper(beeperMode_e) {}
