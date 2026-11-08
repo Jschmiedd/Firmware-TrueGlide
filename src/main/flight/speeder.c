@@ -71,8 +71,12 @@ bool speederIsEngaged(void)
 
 void speederUpdate(float dT)
 {
-    if (!ARMING_FLAG(ARMED) || autopilotOwnsAttitude()) {
+    if (!ARMING_FLAG(ARMED)) {
         pitchOffset = 0.0f;
+    } else if (FLIGHT_MODE(FAILSAFE_MODE) || autopilotOwnsAttitude()) {
+        // TrueGlide (audit du 07/11/2026, F5) : failsafe : avant, retour au rythme de speeder_transition_rate (jusqu'à
+        // 16 s penché) ; GPS Rescue / HOLD : avant, 0 d'un coup (cabrage brutal). Maintenant : retour rapide progressif.
+        pitchOffset = speederStepOffset(pitchOffset, 0.0f, SPEEDER_FAST_RETURN_RATE, dT);
     } else {
         const float cruise = MIN(speederConfig()->cruise_angle, SPEEDER_MAX_ANGLE);
         const float target = speederIsEngaged() ? cruise : 0.0f;

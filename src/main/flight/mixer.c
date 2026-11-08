@@ -461,6 +461,20 @@ float getMotorOutputRms(void)
 }
 #endif // USE_WING
 
+
+#ifdef USE_POWER_GUARD
+// TrueGlide (audit du 07/11/2026, F6) : gaz de vol stationnaire (ap_hover_throttle, ou valeur capturée en ALT HOLD), en
+// fraction 0..1 : plancher de la limite power_guard. Sans altitude hold : pas de plancher supplémentaire.
+static float powerGuardHoverFraction(void)
+{
+#ifdef USE_ALTITUDE_HOLD
+    return constrainf((autopilotGetEffectiveHoverThrottlePwm() - PWM_RANGE_MIN) / (float)PWM_RANGE, 0.0f, 1.0f);
+#else
+    return 0.0f;
+#endif
+}
+#endif
+
 static void applyMixToMotors(const float motorMix[MAX_SUPPORTED_MOTORS], motorMixer_t *activeMixer)
 {
     // Now add in the desired throttle, but keep in a range that doesn't clip adjusted
@@ -747,7 +761,7 @@ FAST_CODE_NOINLINE void mixTable(timeUs_t currentTimeUs)
         powerGuardUpdate(currentTimeUs, flownThrottle, ARMING_FLAG(ARMED));
         // never in an emergency: a failsafe landing without altitude control flies failsafe_throttle here
         if (powerGuardCapAllowed(FLIGHT_MODE(GPS_RESCUE_MODE), failsafeIsActive(), flightPlanNavIsRescueDescentActive())) {
-            throttle = MIN(throttle, powerGuardGetThrottleCap());
+            throttle = MIN(throttle, powerGuardCapWithHoverFloor(powerGuardGetThrottleCap(), powerGuardHoverFraction()));
         }
     }
 #endif
@@ -836,7 +850,7 @@ FAST_CODE_NOINLINE void mixTable(timeUs_t currentTimeUs)
         // power_guard_min_throttle). Never in an emergency: GPS Rescue, failsafe landing, mission rescue descent.
         if (powerGuardIsEnabled()
             && powerGuardCapAllowed(FLIGHT_MODE(GPS_RESCUE_MODE), failsafeIsActive(), flightPlanNavIsRescueDescentActive())) {
-            throttle = MIN(throttle, powerGuardGetThrottleCap());
+            throttle = MIN(throttle, powerGuardCapWithHoverFloor(powerGuardGetThrottleCap(), powerGuardHoverFraction()));
         }
 #endif
     }

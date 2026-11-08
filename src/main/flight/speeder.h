@@ -44,6 +44,9 @@
 #include <stdbool.h>
 
 #define SPEEDER_MAX_ANGLE 80.0f
+// TrueGlide (audit du 07/11/2026, F5) : retour à plat en failsafe, GPS Rescue et ALT/POS HOLD : rapide (80° en 1/3 s)
+// mais progressif (pas de cabrage brutal), quel que soit speeder_transition_rate (5 à 180 °/s)
+#define SPEEDER_FAST_RETURN_RATE 240.0f
 
 // Pure logic (unit tested)
 float speederStepOffset(float offset, float target, float ratePerS, float dT);

@@ -283,3 +283,12 @@ TEST(PowerGuardTest, GlueCurrentGuardUsesBatteryCurrent)
     EXPECT_FLOAT_EQ(1.0f, powerGuardGetThrottleCap());
     stubAmperageConfigured = true;
 }
+
+// audit du 07/11/2026 (F6) : la limite ne descend jamais sous les gaz de vol stationnaire (pas de descente forcée)
+TEST(PowerGuardTest, CapNeverBelowHoverThrottle)
+{
+    EXPECT_FLOAT_EQ(0.275f, powerGuardCapWithHoverFloor(0.20f, 0.275f));   // plancher 20 % sous le stationnaire
+    EXPECT_FLOAT_EQ(0.60f, powerGuardCapWithHoverFloor(0.60f, 0.275f));    // limite plus haute : inchangée
+    EXPECT_FLOAT_EQ(0.20f, powerGuardCapWithHoverFloor(0.20f, 0.0f));      // pas d'altitude hold : inchangée
+    EXPECT_FLOAT_EQ(1.0f, powerGuardCapWithHoverFloor(0.20f, 1.7f));       // borné
+}

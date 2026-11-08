@@ -459,6 +459,7 @@ uint32_t baroUpdate(timeUs_t currentTimeUs)
     // sample buffer then holds a mix of old and missing bytes; such a cycle is not used (the driver used to accept it)
     static bool cycleBusError = false;
     static uint16_t busErrorCount = 0;
+    static uint16_t rejectedRun = 0;   // TrueGlide (audit du 07/11/2026, F8)
     bool busError = false;
     if (busBusy(&baro.dev.dev, &busError)) {
         // If the bus is busy, simply return to have another go later
@@ -531,8 +532,11 @@ uint32_t baroUpdate(timeUs_t currentTimeUs)
             if (cycleBusError && busErrorCount < UINT16_MAX) {
                 busErrorCount++;
             }
-            if (!cycleBusError && baro.pressure >= BARO_PRESSURE_MIN_PA && baro.pressure <= BARO_PRESSURE_MAX_PA
-                && baroStepFilterAccept(&baroStepFilter, pressureToAltitude(baro.pressure))) {
+            const bool accepted = !cycleBusError && baro.pressure >= BARO_PRESSURE_MIN_PA
+                && baro.pressure <= BARO_PRESSURE_MAX_PA
+                && baroStepFilterAccept(&baroStepFilter, pressureToAltitude(baro.pressure));
+            if (accepted) {
+                rejectedRun = 0;
                 const float altitude = pressureToAltitude(baro.pressure);
                 if (baroIsCalibrated()) {
                     // zero baro altitude
@@ -547,6 +551,11 @@ uint32_t baroUpdate(timeUs_t currentTimeUs)
                 if (!baroIsCalibrated()) {
                     baro.altitude = 0.0f;
                 }
+                // TrueGlide (audit du 07/11/2026, F8) : mesures rejetées d'affilée (altitude figée) : visible dans
+                // debug BARO[5]
+                if (rejectedRun < UINT16_MAX) {
+                    rejectedRun++;
+                }
             }
 
             if (debugMode == DEBUG_BARO) {
@@ -554,6 +563,7 @@ uint32_t baroUpdate(timeUs_t currentTimeUs)
                 DEBUG_SET(DEBUG_BARO, 2, baro.temperature);                 // c°C
                 DEBUG_SET(DEBUG_BARO, 3, lrintf(baro.altitude));            // cm
                 DEBUG_SET(DEBUG_BARO, 4, busErrorCount);                    // TrueGlide: cycles dropped on an I2C error
+                DEBUG_SET(DEBUG_BARO, 5, rejectedRun);                      // TrueGlide: rejected samples in a row
             }
 
             if (baro.dev.combined_read) {

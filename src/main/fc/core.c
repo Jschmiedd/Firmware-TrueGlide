@@ -527,6 +527,9 @@ void disarm(flightLogDisarmReason_e reason)
         }
         DISABLE_ARMING_FLAG(ARMED); // disarm now
         lastDisarmTimeUs = micros();
+        // TrueGlide (audit du 07/11/2026, F3) : au désarmement, plus aucune valeur de test MSP gardée (arrêt)
+        mixerResetDisarmedMotors();
+        mspMotorGuardClear();
 
 #ifdef USE_OSD
         if (IS_RC_MODE_ACTIVE(BOXCRASHFLIP) || isLaunchControlActive()) {

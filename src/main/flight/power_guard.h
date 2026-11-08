@@ -73,6 +73,9 @@ bool powerGuardCapAllowed(bool gpsRescue, bool failsafe, bool missionRescueDesce
 bool powerGuardIsEnabled(void);
 void powerGuardUpdate(timeUs_t currentTimeUs, float throttle, bool armed);
 float powerGuardGetThrottleCap(void);
+// TrueGlide (audit du 07/11/2026, F6) : la limite ne descend jamais sous les gaz de vol stationnaire (fraction 0..1) :
+// pas de descente forcée impossible à arrêter, en vol manuel comme en ALT HOLD
+float powerGuardCapWithHoverFloor(float cap, float hoverFraction);
 
 typedef enum {
     POWER_GUARD_LIMIT_NONE = 0,

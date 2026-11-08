@@ -109,6 +109,11 @@ void powerGuardStep(powerGuardState_t *state, const powerGuardLimits_t *limits,
     state->currentCap = constrainf(state->currentCap, floor, 1.0f);
 }
 
+float powerGuardCapWithHoverFloor(float cap, float hoverFraction)
+{
+    return MAX(cap, constrainf(hoverFraction, 0.0f, 1.0f));
+}
+
 bool powerGuardCapAllowed(bool gpsRescue, bool failsafe, bool missionRescueDescent)
 {
     return !gpsRescue && !failsafe && !missionRescueDescent;

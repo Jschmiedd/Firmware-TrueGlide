@@ -3179,6 +3179,11 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
         if (dataSize < getMotorCount() * sizeof(uint16_t)) {
             return MSP_RESULT_ERROR;
         }
+        // TrueGlide (audit du 07/11/2026, F3) : carte armée : valeurs moteurs MSP refusées (elles resteraient après
+        // le désarmement)
+        if (ARMING_FLAG(ARMED)) {
+            return MSP_RESULT_ERROR;
+        }
         for (int i = 0; i < getMotorCount(); i++) {
             motor_disarmed[i] = motorConvertFromExternal(sbufReadU16(src));
         }
@@ -4824,7 +4829,9 @@ RAM_CODE mspResult_e mspFcProcessCommand(mspDescriptor_t srcDesc, mspPacket_t *c
     reply->cmd = cmd->cmd;
 
 #ifdef USE_MOTOR
-    mspMotorGuardNoteActivity(srcDesc, millis()); // TrueGlide : seul le port du test compte (flight/msp_motor_guard.c)
+    // TrueGlide (audit du 07/11/2026, F4) : la garde n'est plus entretenue par n'importe quelle trame (une simple
+    // interrogation la tenait active sans fin) : seulement par MSP_SET_MOTOR (mspMotorGuardNoteSet). Le logiciel
+    // renvoie les valeurs du test toutes les 300 ms.
 #endif
 
     if (mspCommonProcessOutCommand(srcDesc, cmdMSP, dst, mspPostProcessFn)) {

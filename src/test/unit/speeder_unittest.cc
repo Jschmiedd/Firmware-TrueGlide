@@ -134,24 +134,39 @@ TEST(SpeederTest, OnlyInAngleMode)
     EXPECT_FLOAT_EQ(0.0f, speederGetPitchOffset());
 }
 
-TEST(SpeederTest, FailsafeReturnsToHoverProgressively)
+TEST(SpeederTest, FailsafeReturnsToHoverFastButProgressively)
 {
+    // audit du 07/11/2026 (F5) : pire cas réglable (80° et 5 °/s) : avant, 16 s penché en failsafe
     flyAngleArmed();
+    speederConfigMutable()->cruise_angle = 80;
+    speederConfigMutable()->transition_rate = 180;
     speederSwitch = true;
-    runFor(3.0f);
-    flightModeFlags = ANGLE_MODE | FAILSAFE_MODE;
     runFor(1.0f);
-    EXPECT_NEAR(30.0f, speederGetPitchOffset(), 0.1f);
+    EXPECT_FLOAT_EQ(80.0f, speederGetPitchOffset());
+    speederConfigMutable()->transition_rate = 5;
+    flightModeFlags = ANGLE_MODE | FAILSAFE_MODE;
+    runFor(0.1f);
+    EXPECT_NEAR(80.0f - 24.0f, speederGetPitchOffset(), 0.1f);   // progressif : 240 °/s
+    runFor(0.25f);
+    EXPECT_FLOAT_EQ(0.0f, speederGetPitchOffset());              // à plat en 1/3 s
 }
 
-TEST(SpeederTest, AutopilotModesCancelImmediately)
+TEST(SpeederTest, AutopilotModesReturnFastButProgressively)
 {
     flyAngleArmed();
     speederSwitch = true;
     runFor(3.0f);
+    EXPECT_FLOAT_EQ(60.0f, speederGetPitchOffset());
     flightModeFlags = ANGLE_MODE | GPS_RESCUE_MODE;
     speederUpdate(DT);
+    EXPECT_GT(speederGetPitchOffset(), 59.0f);                  // pas de saut d'un coup (cabrage)
+    runFor(0.26f);
     EXPECT_FLOAT_EQ(0.0f, speederGetPitchOffset());
+    EXPECT_FALSE(speederIsEngaged());
+    flightModeFlags = ANGLE_MODE | ALT_HOLD_MODE;
+    speederSwitch = true;
+    runFor(1.0f);
+    EXPECT_FLOAT_EQ(0.0f, speederGetPitchOffset());              // HOLD : jamais d'inclinaison
 }
 
 TEST(SpeederTest, DisarmResets)

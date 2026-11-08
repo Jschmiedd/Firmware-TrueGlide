@@ -171,15 +171,34 @@ def main():
         check('arrêt au départ (3D coupé)', all(v == rest[0] for v in rest), 'moteurs %s' % rest)
         stop = rest[0]
 
-        # A. test actif, le logiciel interroge toutes les 50 ms pendant 3 s
+        # A. test actif : le logiciel renvoie les valeurs toutes les 300 ms (et interroge toutes les 50 ms) pendant 3 s
         set_motors(usb, 1100)
         seen = []
         t0 = time.time()
+        last_set = t0
         while time.time() - t0 < 3.0:
+            if time.time() - last_set >= 0.3:
+                set_motors(usb, 1100)
+                last_set = time.time()
             seen.append(motors(usb))
             time.sleep(0.05)
-        check('A test actif, port du test qui parle', all(m == [1100] * 4 for m in seen),
+        check('A test actif, valeurs renvoyées toutes les 300 ms', all(m == [1100] * 4 for m in seen),
               '%d relevés, tous 1100 : %s' % (len(seen), all(m == [1100] * 4 for m in seen)))
+
+        # A bis (audit du 07/11/2026, F4) : le port du test ne fait plus qu'interroger (onglet caché, logiciel bloqué) :
+        # la garde n'est plus entretenue, arrêt seul en ~1 s
+        t0 = time.time()
+        back = None
+        last = None
+        while time.time() - t0 < 4.0:
+            last = motors(usb)
+            if last == [stop] * 4:
+                back = time.time() - t0
+                break
+            time.sleep(0.05)
+        check('A bis interrogation seule du port du test : arrêt en ~1 s', back is not None and 0.7 <= back <= 1.6,
+              'arrêt après %s s, dernier relevé %s' % (None if back is None else round(back, 2), last))
+        set_motors(usb, 1100)
 
         # B. le port du test se tait, l'autre port parle toutes les 20 ms
         t0 = time.time()
