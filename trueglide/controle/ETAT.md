@@ -71,4 +71,5 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 | 07/11 | TG-A1-5 bis (3D + Sauvegarder, batterie branchée) | 24a71eb + ebee781 | aucun mouvement |
 | 07/11 | TG-A1-5C (arrêt pendant le test, mode normal, pas 3D) | ee050eb + ebee781 | 3 oui |
 | 08/11 | Fiches d'essais du 08/11 (audit) : 0.1, 0.2, TG-A1-7 (7-0, 7A, 7B, 7C-1 à 7C-5), onglet ESC v18 Q0, Q1-1 à 5, Q2-1 à 10, Q3-1 à 4 | cb4e3f0 + /test/ 83011e7 + ESC v18 da0ad00 | tout OUI (12 h 33 à 15 h 17) |
+| 08/11 | Mode hors ligne avec la carte remise en Betaflight 2025.12.2 (sauvegarde XPRO du 14/10), vidéos HORS_LIGNE_BETA_TRUEGLIDE | /app/ 83011e7 | OUI : récolte, réglage hors ligne (craft_name = HELLO MINI POUCE), envoi confirmé, relecture « 1 réglage contrôlé, tous en place », nom relu dans Betaflight Configurator |
 | — | TG-P3B (fonctions TrueGlide en vol) | — | PAS FAIT |
