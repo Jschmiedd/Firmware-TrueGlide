@@ -8,7 +8,7 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 | Quoi | Version | Commit | Date |
 |---|---|---|---|
 | Logiciel /app/ | fce3fc3 (= a991709 + onglet ESC v18 ; correction 3D marche arrière, audit 07/11, renvoi moteurs 300 ms) | gh-pages acf583d ; configurateur main = essai-onglets = version/app-2026-11-08 | 08/11/2026 |
-| Logiciel /test/ | fce3fc3 (même bundle que /app/) | gh-pages acf583d | 08/11/2026 |
+| Logiciel /test/ | 83011e7 (= fce3fc3 + flasheur : effacement complet jamais repris, confirmé, restauration proposée ; OUI de l'audit) — sur /app/ seulement APRÈS les essais de Johann (TG-A1-7, Q0 à Q3) | gh-pages 11d7568 | 08/11/2026 |
 | Firmwares en ligne (catalogue de /app/ et /test/) | **cb4e3f0f2** (code = 5e246cc), 33 cartes, modèle TRUEGLIDE, version d'essai (seule SPEEDYBEEF405MINI essayée sur une vraie carte, révisions précédentes ; cb4e3f0 en essai TG-A1-7) ; précédente 4b3d47cba | gh-pages 674ceca (notes, flasheur, accueil) | 08/11/2026 |
 | Onglet ESC | onglet/v18 (0.33.0-dev · da0ad00, OUI de l'audit) sur /app/ et /test/ ; v17 retirée (relance possible pendant « Déconnecter ») | TrueGlide-ESC-Configurator | 08/11/2026 |
 | Firmware sur le Mini Pouce de Johann | ee050eb (flashé) ; à flasher pour TG-A1-7 : cb4e3f0 | Firmware-TrueGlide main | 08/11/2026 |
