@@ -1,17 +1,17 @@
 # État de TRUEGLIDE — à lire en premier dans chaque discussion (développement et audit)
 
-Mis à jour le 08/11/2026, 12 h. Modes d'emploi (hors ligne, mise en route depuis Betaflight, Studio, plan de vol) corrigés le 07/11 et donnés à Johann (hors dépôt). À mettre à jour à chaque changement (version en ligne, règle, défaut, audit, essai).
+Mis à jour le 08/11/2026, 15 h 30. Modes d'emploi (hors ligne, mise en route depuis Betaflight, Studio, plan de vol) corrigés le 07/11 et donnés à Johann (hors dépôt). À mettre à jour à chaque changement (version en ligne, règle, défaut, audit, essai).
 Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.md`.
 
 ## 1. En ligne aujourd'hui
 
 | Quoi | Version | Commit | Date |
 |---|---|---|---|
-| Logiciel /app/ | fce3fc3 (= a991709 + onglet ESC v18 ; correction 3D marche arrière, audit 07/11, renvoi moteurs 300 ms) | gh-pages acf583d ; configurateur main = essai-onglets = version/app-2026-11-08 | 08/11/2026 |
-| Logiciel /test/ | 83011e7 (= fce3fc3 + flasheur : effacement complet jamais repris, confirmé, restauration proposée ; OUI de l'audit) — sur /app/ seulement APRÈS les essais de Johann (TG-A1-7, Q0 à Q3) | gh-pages 11d7568 | 08/11/2026 |
+| Logiciel /app/ | 83011e7 (copie exacte de /test/, main-C1-XdPzc.js ; essais au banc du 08/11 tous OUI, décision de Johann « OUI VALIDÉ … PUBLIER SUR APP ») | gh-pages 113fa92 ; configurateur main = version/app-2026-11-08 = 83011e7 | 08/11/2026 |
+| Logiciel /test/ | 83011e7 (même bundle que /app/) | gh-pages 11d7568 | 08/11/2026 |
 | Firmwares en ligne (catalogue de /app/ et /test/) | **cb4e3f0f2** (code = 5e246cc), 33 cartes, modèle TRUEGLIDE, version d'essai (seule SPEEDYBEEF405MINI essayée sur une vraie carte, révisions précédentes ; cb4e3f0 en essai TG-A1-7) ; précédente 4b3d47cba | gh-pages 674ceca (notes, flasheur, accueil) | 08/11/2026 |
 | Onglet ESC | onglet/v18 (0.33.0-dev · da0ad00, OUI de l'audit) sur /app/ et /test/ ; v17 retirée (relance possible pendant « Déconnecter ») | TrueGlide-ESC-Configurator | 08/11/2026 |
-| Firmware sur le Mini Pouce de Johann | ee050eb (flashé) ; à flasher pour TG-A1-7 : cb4e3f0 | Firmware-TrueGlide main | 08/11/2026 |
+| Firmware sur le Mini Pouce de Johann | cb4e3f0 (flashé le 08/11, = firmware/ en ligne) | Firmware-TrueGlide main | 08/11/2026 |
 
 ## 2. Règles permanentes de Johann
 
@@ -41,7 +41,6 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 | Corrigé sur /test/ 98da639 puis 1cf71f8, audit en cours | CSP (sauf 'unsafe-eval' : Vue compile <app> au démarrage) ; fonds Google après accord ; polices du site hébergées sur le site ; failsafe « Tombe » confirmé ; power_guard_current 1 à 9 A confirmé (0 = arrêt ; minimum non imposé au firmware : 2 A sert au banc) | logiciel, site |
 | D'origine Betaflight | 3D changé sans redémarrage | firmware |
 | Mineur (prudent) | Interrupteur failsafe (BOXFAILSAFE) actif : « Liaison radio — » alors que la radio est liée | logiciel, Tableau de bord |
-| À essayer | Test moteurs en mode 3D (curseurs depuis le milieu) : jamais essayé sur une vraie carte ; TG-A1-5C fait en mode normal (arrêt 1000). Seuls « 3D oui/non + Sauvegarder » sont essayés (aucun mouvement). Ne pas l'annoncer dans la bêta tant qu'il n'est pas essayé | onglet Moteurs, vraie carte |
 | À essayer | Onglet ESC : AM32 pas encore essayé sur un vrai ESC AM32 (lecture BLHeli_S / Bluejay essayée, TG-A1-6) | onglet ESC v16 |
 
 ## 4. Journal des audits
@@ -71,5 +70,5 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 | 07/11 | TG-A1 | 24a71eb + logiciel /test/ | toutes les questions oui (partie 5 refaite ; 6 = onglet ESC v16, 4 ESC BLHeli_S 35 A lus) |
 | 07/11 | TG-A1-5 bis (3D + Sauvegarder, batterie branchée) | 24a71eb + ebee781 | aucun mouvement |
 | 07/11 | TG-A1-5C (arrêt pendant le test, mode normal, pas 3D) | ee050eb + ebee781 | 3 oui |
-| — | TG-A1-7 (firmware cb4e3f0, page cachée, fenêtre Réordonner, mode 3D, moteurs 2 à 4 immobiles) et onglet ESC Q0 à Q3 (v18) | cb4e3f0 + fce3fc3 | À FAIRE (logiciel : OUI de l'audit) |
+| 08/11 | Fiches d'essais du 08/11 (audit) : 0.1, 0.2, TG-A1-7 (7-0, 7A, 7B, 7C-1 à 7C-5), onglet ESC v18 Q0, Q1-1 à 5, Q2-1 à 10, Q3-1 à 4 | cb4e3f0 + /test/ 83011e7 + ESC v18 da0ad00 | tout OUI (12 h 33 à 15 h 17) |
 | — | TG-P3B (fonctions TrueGlide en vol) | — | PAS FAIT |
