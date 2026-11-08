@@ -1,16 +1,16 @@
 # État de TRUEGLIDE — à lire en premier dans chaque discussion (développement et audit)
 
-Mis à jour le 08/11/2026, 15 h 30. Modes d'emploi (hors ligne, mise en route depuis Betaflight, Studio, plan de vol) corrigés le 07/11 et donnés à Johann (hors dépôt). À mettre à jour à chaque changement (version en ligne, règle, défaut, audit, essai).
+Mis à jour le 08/11/2026, 20 h 30. Modes d'emploi (hors ligne, mise en route depuis Betaflight, Studio, plan de vol) corrigés le 07/11 et donnés à Johann (hors dépôt). À mettre à jour à chaque changement (version en ligne, règle, défaut, audit, essai).
 Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.md`.
 
 ## 1. En ligne aujourd'hui
 
 | Quoi | Version | Commit | Date |
 |---|---|---|---|
-| Logiciel /app/ | 83011e7 (copie exacte de /test/, main-C1-XdPzc.js ; essais au banc du 08/11 tous OUI, décision de Johann « OUI VALIDÉ … PUBLIER SUR APP ») | gh-pages 113fa92 ; configurateur main = version/app-2026-11-08 = 83011e7 | 08/11/2026 |
-| Logiciel /test/ | 83011e7 (même bundle que /app/) | gh-pages 11d7568 | 08/11/2026 |
+| Logiciel /app/ | 3d44157 (copie exacte de /test/, main-BO6mVMMY.js : 83011e7 + onglet ESC v22 ; essais Q4 et Q5 OK, décision de Johann « ARRÊTS OK — OUI V22 SUR APP ») | gh-pages d50930b ; configurateur main = version/app-2026-11-08 = essai-onglets = 3d44157 | 08/11/2026 |
+| Logiciel /test/ | 3d44157 (même bundle que /app/) | gh-pages 36d9db6 | 08/11/2026 |
 | Firmwares en ligne (catalogue de /app/ et /test/) | **cb4e3f0f2** (code = 5e246cc), 33 cartes, modèle TRUEGLIDE, version d'essai (seule SPEEDYBEEF405MINI essayée sur une vraie carte, révisions précédentes ; cb4e3f0 en essai TG-A1-7) ; précédente 4b3d47cba | gh-pages 674ceca (notes, flasheur, accueil) | 08/11/2026 |
-| Onglet ESC | onglet/v18 (0.33.0-dev · da0ad00, OUI de l'audit) sur /app/ et /test/ ; v17 retirée (relance possible pendant « Déconnecter ») | TrueGlide-ESC-Configurator | 08/11/2026 |
+| Onglet ESC | onglet/v22 (0.33.0-dev · ebaaf7f, OUI de l'audit) sur /app/ et /test/ ; v17 retirée ; v18 à v21 laissées en ligne | TrueGlide-ESC-Configurator | 08/11/2026 |
 | Firmware sur le Mini Pouce de Johann | cb4e3f0 (flashé le 08/11, = firmware/ en ligne) | Firmware-TrueGlide main | 08/11/2026 |
 
 ## 2. Règles permanentes de Johann
@@ -72,4 +72,5 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 | 07/11 | TG-A1-5C (arrêt pendant le test, mode normal, pas 3D) | ee050eb + ebee781 | 3 oui |
 | 08/11 | Fiches d'essais du 08/11 (audit) : 0.1, 0.2, TG-A1-7 (7-0, 7A, 7B, 7C-1 à 7C-5), onglet ESC v18 Q0, Q1-1 à 5, Q2-1 à 10, Q3-1 à 4 | cb4e3f0 + /test/ 83011e7 + ESC v18 da0ad00 | tout OUI (12 h 33 à 15 h 17) |
 | 08/11 | Mode hors ligne avec la carte remise en Betaflight 2025.12.2 (sauvegarde XPRO du 14/10), vidéos HORS_LIGNE_BETA_TRUEGLIDE | /app/ 83011e7 | OUI : récolte, réglage hors ligne (craft_name = HELLO MINI POUCE), envoi confirmé, relecture « 1 réglage contrôlé, tous en place », nom relu dans Betaflight Configurator |
+| 08/11 | Onglet ESC : Q4 (arrêt à « Lire les paramètres », v21) 6/6 ; Q5 (connexion / déconnexion, v22) 5/5 ; journal propre | /test/ 3d44157 + ESC v22 ebaaf7f | OUI |
 | — | TG-P3B (fonctions TrueGlide en vol) | — | PAS FAIT |
