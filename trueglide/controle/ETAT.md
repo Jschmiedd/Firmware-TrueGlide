@@ -1,6 +1,6 @@
 # État de TRUEGLIDE — à lire en premier dans chaque discussion (développement et audit)
 
-Mis à jour le 07/11/2026, 23 h 30. Modes d'emploi (hors ligne, mise en route depuis Betaflight, Studio, plan de vol) corrigés le 07/11 et donnés à Johann (hors dépôt). À mettre à jour à chaque changement (version en ligne, règle, défaut, audit, essai).
+Mis à jour le 08/11/2026, 10 h 30. Modes d'emploi (hors ligne, mise en route depuis Betaflight, Studio, plan de vol) corrigés le 07/11 et donnés à Johann (hors dépôt). À mettre à jour à chaque changement (version en ligne, règle, défaut, audit, essai).
 Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.md`.
 
 ## 1. En ligne aujourd'hui
@@ -8,10 +8,10 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 | Quoi | Version | Commit | Date |
 |---|---|---|---|
 | Logiciel /app/ | 94634f0 | gh-pages 2a9703f (servi en ligne, vérifié) ; main du configurateur = 94634f0 ; branche `version/app-2026-11-07` | 07/11/2026 |
-| Logiciel /test/ | 1cf71f8 (en attente de l'audit) | gh-pages 0d481e7 | 07/11/2026 |
+| Logiciel /test/ | a991709 (en attente de l'audit) : F1 à F8, onglet ESC v17, renvoi moteurs 300 ms | gh-pages a5bdceb | 08/11/2026 |
 | Firmwares en ligne (catalogue de /app/ et /test/) | **4b3d47cba** (= ee050eb), 33 cartes, modèle TRUEGLIDE, version d'essai (seule SPEEDYBEEF405MINI essayée sur une vraie carte) ; précédente 24a71eb02 | gh-pages f0cebe4 (site et notes : f34f6fa) | 07/11/2026 |
-| Onglet ESC (/app/ et /test/) | onglet/v16 | TrueGlide-ESC-Configurator master 29100f6 | 06/11/2026 |
-| Firmware sur le Mini Pouce de Johann | ee050eb (flashé, pas publié) | Firmware-TrueGlide main | 07/11/2026 |
+| Onglet ESC | /test/ : onglet/v17 (0.33.0-dev · d938d8b, OUI de l'audit) ; /app/ : onglet/v16 (reconstruite en 26a57e3) | TrueGlide-ESC-Configurator | 08/11/2026 |
+| Firmware sur le Mini Pouce de Johann | ee050eb (flashé) ; à flasher pour TG-A1-7 : 5e246cc (audit firmware F3 à F6, F8) | Firmware-TrueGlide main | 08/11/2026 |
 
 ## 2. Règles permanentes de Johann
 
@@ -33,6 +33,8 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 
 | Gravité | Défaut | Où |
 |---|---|---|
+| Choix gardé (audit F9) | Retour batterie : si le GPS Rescue revient après un état « retour impossible », le retour part tout de suite (batterie déjà basse, pilote déjà prévenu ; le manche l'annule) | firmware |
+| À dire dans les notes | power_guard_current 1 à 9 A sans minimum au firmware (banc, 2 A) : le logiciel demande confirmation ; relance moteur sans limite de coupures (choix A) ; aucune fonction TrueGlide essayée en vol (TG-P3B) | firmware |
 | À surveiller | Relance moteur : vérifiée seulement sans fausse alerte (TG-A1-4), pas sur un vrai moteur calé : garder désactivée par défaut | firmware |
 | **Grave, corrigé sur /test/ 1cf71f8, PAS encore sur /app/** | /app/ 94634f0 : en 3D (DShot), toucher un seul curseur envoyait 1000 (pleine marche arrière) aux autres moteurs (audit F1). Ne pas utiliser le test 3D sur /app/ | logiciel, onglet Moteurs |
 | Corrigé sur /test/ 1cf71f8, audit en cours | F2 à F8 de l'audit du 07/11 (plage contrôlée avant l'envoi, interrupteur annulable, codes hors ligne refusés par numéro, réglages à risque complétés, onglet ESC une demande à la fois, mineurs) |  logiciel |
@@ -68,5 +70,5 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 | 07/11 | TG-A1 | 24a71eb + logiciel /test/ | toutes les questions oui (partie 5 refaite ; 6 = onglet ESC v16, 4 ESC BLHeli_S 35 A lus) |
 | 07/11 | TG-A1-5 bis (3D + Sauvegarder, batterie branchée) | 24a71eb + ebee781 | aucun mouvement |
 | 07/11 | TG-A1-5C (arrêt pendant le test, mode normal, pas 3D) | ee050eb + ebee781 | 3 oui |
-| — | TG-A1-7 (page cachée, fenêtre Réordonner, mode 3D, moteurs 2 à 4 immobiles) | ee050eb + 1cf71f8 (/test/) | À FAIRE après le OUI de l'audit |
+| — | TG-A1-7 (firmware 5e246cc, page cachée, fenêtre Réordonner, mode 3D, moteurs 2 à 4 immobiles) | 5e246cc + a991709 (/test/) | À FAIRE après le OUI de l'audit |
 | — | TG-P3B (fonctions TrueGlide en vol) | — | PAS FAIT |

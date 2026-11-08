@@ -1,9 +1,17 @@
-# Essai TG-A1-7 : tests moteurs restants et mode 3D (firmware ee050eb, logiciel 1cf71f8 sur /test/)
+# Essai TG-A1-7 : tests moteurs restants et mode 3D (firmware 5e246cc, logiciel a991709 sur /test/)
 
 Date : …… Drone : Mini Pouce …… Fait par : ……
 
-**HÉLICES RETIRÉES, drone fixé.** Page /test/ (version 1cf71f8 en bas à droite). Curseur tiré à la souris. Si un moteur ne s'arrête pas : **débrancher la
+**HÉLICES RETIRÉES, drone fixé.** Page /test/ (version a991709 en bas à droite). Curseur tiré à la souris. Si un moteur ne s'arrête pas : **débrancher la
 batterie tout de suite**. À faire AVANT de remettre la carte en Betaflight.
+
+## TG-A1-7-0. Firmware
+
+1. Batterie débranchée. Onglet « Flasher le firmware » : charger le fichier
+   `trueglide_2026.6.2_STM32F405_SPEEDYBEEF405MINI.hex` reçu (révision 5e246cc), SANS effacement complet, flasher.
+2. Connexion, onglet CLI : taper `version`, Entrée.
+
+- La ligne affichée contient 5e246cc ?
 
 ## TG-A1-7A. Page cachée (mode normal)
 
