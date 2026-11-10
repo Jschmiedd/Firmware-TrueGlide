@@ -7,10 +7,10 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 
 | Quoi | Version | Commit | Date |
 |---|---|---|---|
-| Logiciel /app/ | 3d44157 (copie exacte de /test/, main-BO6mVMMY.js : 83011e7 + onglet ESC v22 ; essais Q4 et Q5 OK, décision de Johann « ARRÊTS OK — OUI V22 SUR APP ») | gh-pages d50930b ; configurateur main = version/app-2026-11-08 = essai-onglets = 3d44157 | 08/11/2026 |
-| Logiciel /test/ | 3d44157 (même bundle que /app/) | gh-pages 36d9db6 | 08/11/2026 |
+| Logiciel /app/ | 93f2e26 (copie exacte de /test/, main-B_XHNIKu.js : onglet ESC v23 ; décision de Johann « OUI FAIS V23 APP ET TEST », OUI de l'audit) | gh-pages 006b8a0 ; configurateur main = version/app-2026-11-08 = essai-onglets = 93f2e26 | 10/11/2026 |
+| Logiciel /test/ | 93f2e26 (même bundle que /app/) | gh-pages 13c8b81 | 10/11/2026 |
 | Firmwares en ligne (catalogue de /app/ et /test/) | **cb4e3f0f2** (code = 5e246cc), 33 cartes, modèle TRUEGLIDE, version d'essai (seule SPEEDYBEEF405MINI essayée sur une vraie carte, révisions précédentes ; cb4e3f0 en essai TG-A1-7) ; précédente 4b3d47cba | gh-pages 674ceca (notes, flasheur, accueil) | 08/11/2026 |
-| Onglet ESC | onglet/v22 (0.33.0-dev · ebaaf7f, OUI de l'audit) sur /app/ et /test/ ; v17 retirée ; v18 à v21 laissées en ligne | TrueGlide-ESC-Configurator | 08/11/2026 |
+| Onglet ESC | onglet/v23 (0.33.0-dev · 5c60255, OUI de l'audit) sur /app/ et /test/ ; v17 retirée ; v18 à v22 laissées en ligne | TrueGlide-ESC-Configurator | 10/11/2026 |
 | Firmware sur le Mini Pouce de Johann | cb4e3f0 (flashé le 08/11, = firmware/ en ligne) | Firmware-TrueGlide main | 08/11/2026 |
 
 ## 2. Règles permanentes de Johann
