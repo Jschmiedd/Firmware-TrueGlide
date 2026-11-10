@@ -7,6 +7,7 @@ Une conversation par phase de test. Lire ce fichier, puis seulement les fichiers
 ## Produits et dépôts
 
 - Firmware : `Jschmiedd/Firmware-TrueGlide` (public), base Betaflight 2026.6.2.
+- Mise à jour depuis Betaflight (2 par an, juin/décembre + 1 à 2 mois) : procédure `trueglide/MISE_A_JOUR_BETAFLIGHT.md`.
   Trois modèles : **TRUEGLIDE** (base), **TRUENAV** (combiné), **TRUENAV_LIGHT** (navigation).
 - Logiciel : `Jschmiedd/TrueGlide-Configurator` (public), base Betaflight App 2026.6.2.
 - En ligne : https://jschmiedd.github.io/TrueGlide-Configurator/ (site explicatif : accueil + `docs/`, une page par
