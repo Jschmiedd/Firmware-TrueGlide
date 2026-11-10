@@ -43,7 +43,7 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 | Corrigé sur /test/ 98da639 puis 1cf71f8, audit en cours | CSP (sauf 'unsafe-eval' : Vue compile <app> au démarrage) ; fonds Google après accord ; polices du site hébergées sur le site ; failsafe « Tombe » confirmé ; power_guard_current 1 à 9 A confirmé (0 = arrêt ; minimum non imposé au firmware : 2 A sert au banc) | logiciel, site |
 | D'origine Betaflight | 3D changé sans redémarrage | firmware |
 | Mineur (prudent) | Interrupteur failsafe (BOXFAILSAFE) actif : « Liaison radio — » alors que la radio est liée | logiciel, Tableau de bord |
-| À essayer | Onglet ESC : AM32 pas encore essayé sur un vrai ESC AM32 (lecture BLHeli_S / Bluejay essayée, TG-A1-6) | onglet ESC v16 |
+| À essayer | Onglet ESC : AM32 pas encore essayé sur un vrai ESC AM32 (BLHeli_S / Bluejay essayés ; récupération après flash coupé faite le 10/11) | onglet ESC |
 
 ## 4. Journal des audits
 
@@ -75,4 +75,5 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 | 08/11 | Fiches d'essais du 08/11 (audit) : 0.1, 0.2, TG-A1-7 (7-0, 7A, 7B, 7C-1 à 7C-5), onglet ESC v18 Q0, Q1-1 à 5, Q2-1 à 10, Q3-1 à 4 | cb4e3f0 + /test/ 83011e7 + ESC v18 da0ad00 | tout OUI (12 h 33 à 15 h 17) |
 | 08/11 | Mode hors ligne avec la carte remise en Betaflight 2025.12.2 (sauvegarde XPRO du 14/10), vidéos HORS_LIGNE_BETA_TRUEGLIDE | /app/ 83011e7 | OUI : récolte, réglage hors ligne (craft_name = HELLO MINI POUCE), envoi confirmé, relecture « 1 réglage contrôlé, tous en place », nom relu dans Betaflight Configurator |
 | 08/11 | Onglet ESC : Q4 (arrêt à « Lire les paramètres », v21) 6/6 ; Q5 (connexion / déconnexion, v22) 5/5 ; journal propre | /test/ 3d44157 + ESC v22 ebaaf7f | OUI |
+| 10/11 | Onglet ESC v24 : flash de l'ESC 4 coupé (port USB perdu à l'étape 3), ESC lu « FLASH*FAILED », reflash Bluejay 0.19.2 J-H-40 48 kHz réussi (10,9 s), réglages des 4 ESC rechargés depuis la sauvegarde, relecture des 4 ESC OK (journal esc-configurator-log_2) | cb4e3f0 + onglet ESC v24 34244fe | OUI : récupération après un flash coupé faite sur un vrai ESC |
 | — | TG-P3B (fonctions TrueGlide en vol) | — | PAS FAIT |
