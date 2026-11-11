@@ -28,6 +28,7 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 - 10/11 : deux mises à jour TRUEGLIDE par an, 1 à 2 mois après chaque Betaflight (juin, décembre) : procédure
   `trueglide/MISE_A_JOUR_BETAFLIGHT.md`. Prochaine : TRUEGLIDE 2026.12 (février 2027).
 - 11/11 : tout contrôler avant de proposer quoi que ce soit à Johann (contexte, liens, cohérence, pièces jointes) et donner une version finale du premier coup : pas de corrections en plusieurs fois.
+- 11/11 : nouvel auditeur indépendant : discussion session_01VvqUCt5QANL2A4NKbRdzyx (l'ancienne, session_01VvqUCsD9iRLVMzii8FW6NM, ne donne plus d'OK).
 - Toujours : essais sans hélices ; aucun secret affiché ; rien d'un autre produit dans TRUEGLIDE ; commits avec
   `[skip ci]`, sans identifiant de modèle d'IA ; un .hex donné à Johann garde son nom standard ; vérifier la révision
   dans le fichier avant de le donner.
