@@ -153,7 +153,8 @@ Related reports:
   bidirectional DShot and ESC_SENSOR. Its reporter could not reproduce on master and closed it as a duplicate of
   #15533.
 
-Pressure and temperature wrong together is the pattern this driver issue gives. Master may have removed what triggers
+Pressure and temperature wrong together is what this driver issue can produce (one 6-byte read taken from the
+wrong registers). Master may have removed what triggers
 the I2C errors, but the driver code that runs after an error is unchanged on master (same lines as above). Whatever
 causes the I2C error, this report is about what the driver does after one.
 
