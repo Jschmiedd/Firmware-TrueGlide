@@ -15,6 +15,8 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 
 ## 2. Règles permanentes de Johann
 
+- **Rappel du 13/11 (non respecté ce jour-là)** : une action à la fois, avec une image annotée quand c'est utile ; pas de pavés de texte ; réponses courtes ; ne pas répondre aux contrôles automatiques par de longs messages.
+
 - 07/11 : « PUBLIE CORRIGE MET A JOUR JE VEUX PLUS D EWRREUR DANS MON LOGICIEL » et, dans la discussion de
   développement, « OUI CORRECTION MISE A JOUR AUDIT ». Sens : corriger, mettre sur /test/, faire passer l'audit
   indépendant ; sur OUI, publier le **logiciel** sur /app/ (et avancer main) sans redemander. Johann n'est sollicité que
