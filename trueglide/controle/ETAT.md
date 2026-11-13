@@ -45,6 +45,7 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 | Corrigé sur /test/ 98da639 puis 1cf71f8, audit en cours | CSP (sauf 'unsafe-eval' : Vue compile <app> au démarrage) ; fonds Google après accord ; polices du site hébergées sur le site ; failsafe « Tombe » confirmé ; power_guard_current 1 à 9 A confirmé (0 = arrêt ; minimum non imposé au firmware : 2 A sert au banc) | logiciel, site |
 | D'origine Betaflight | 3D changé sans redémarrage | firmware |
 | Mineur (prudent) | Interrupteur failsafe (BOXFAILSAFE) actif : « Liaison radio — » alors que la radio est liée | logiciel, Tableau de bord |
+| Corrigé sur main 5a2728c (13/11), pas publié | Contrôle quotidien GitHub rouge depuis le 07/11 : msp_motor_guard.c et baro_step_filter.c sans `#include "platform.h"` (make checks). Ligne ajoutée, aucun changement de comportement ; contrôle relancé vert (tests 76/76, .hex OK). Partira avec le prochain firmware, après audit ; cb4e3f0 reste en ligne | firmware |
 | À essayer | Onglet ESC : AM32 pas encore essayé sur un vrai ESC AM32 (BLHeli_S / Bluejay essayés ; récupération après flash coupé faite le 10/11) | onglet ESC |
 
 ## 4. Journal des audits
