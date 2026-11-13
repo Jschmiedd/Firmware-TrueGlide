@@ -15,7 +15,11 @@ Les fonctions TRUEGLIDE de vol (anti-surchauffe, relance moteur, Speeder) resten
 essayées plus tard (TG-P3C).
 
 Interrupteurs du Mini Pouce (sauvegarde du 08/11) : ARM sur AUX1 ; AUX3 bas = ANGLE, milieu = HORIZON, haut = ACRO ;
-ALT HOLD sur AUX4 en haut. Failsafe : réglage d'origine (DROP : la carte désarme 1,5 s après la perte de la radio).
+ALT HOLD sur AUX4 en haut. Failsafe : réglage d'origine (DROP).
+
+**Toujours armer en ANGLE (AUX3 bas) : armé en ACRO, LAUNCH CONTROL (sur AUX1) s'active.**
+
+**VTX : batterie branchée au sol 45 s au plus, à chaque fois.**
 
 ## Phase A. Préparation (dans le logiciel)
 
@@ -35,13 +39,14 @@ ALT HOLD sur AUX4 en haut. Failsafe : réglage d'origine (DROP : la carte désar
 Drone posé à plat, fixé. Lunettes allumées. **45 s au plus** batterie branchée (le VTX chauffe).
 
 1. Radio allumée. Brancher la batterie.
-2. Avec la radio : armer, gaz en bas. Les moteurs tournent au ralenti.
+2. Avec la radio, AUX3 en bas (ANGLE) : armer, gaz en bas. Les moteurs tournent au ralenti.
 3. Éteindre la radio.
 4. Compter : les moteurs doivent s'arrêter en 2 s environ.
 5. Remettre l'interrupteur ARM sur désarmé. Rallumer la radio.
 6. Débrancher la batterie.
 
-- À l'étape 4, les moteurs se sont arrêtés seuls, et les lunettes ont affiché « FAILSAFE » ?
+- À l'étape 4, les moteurs se sont arrêtés seuls ? (Noter si les lunettes ont affiché « FAILSAFE ».)
+- Cet essai prouve l'arrêt au sol (gaz en bas). Il ne prouve pas le DROP en vol.
 - Si NON : **ne pas voler**, m'envoyer la vidéo des lunettes.
 
 ## Phase C. Vol normal (avec la radio, hélices montées)
@@ -49,20 +54,23 @@ Drone posé à plat, fixé. Lunettes allumées. **45 s au plus** batterie branch
 Terrain dégagé, personne autour. Batterie pleine.
 
 1. Monter les hélices. Brancher la batterie, drone posé à plat.
-2. Avec la radio, en ANGLE : armer, décoller, stationnaire à 2–3 m, **1 minute**.
+2. Avec la radio, en ANGLE : armer, décoller, stationnaire à 2–3 m, **1 minute**. Noter le % de gaz affiché dans
+   les lunettes pendant le stationnaire.
 3. Quelques virages doux, puis 1 minute dans ton mode habituel.
-4. Atterrir, désarmer. **Garder la batterie branchée** si elle a encore de la charge pour la phase D (sinon, batterie
-   pleine pour la phase D, et la ligne I2C de la phase E ne compte que la phase D).
+4. Atterrir, désarmer. **Garder la batterie branchée** si elle a encore de la charge pour la phase D, et **redécoller tout
+   de suite** (sinon, batterie pleine pour la phase D, et la ligne I2C de la phase E ne compte que la phase D).
 
 - Le drone vole comme avec Betaflight (pas de vibration, pas d'oscillation, pas de bruit nouveau) ?
 - Moteurs tièdes après le vol (pas brûlants) ?
 
 ## Phase D. ALT HOLD (avec la radio)
 
-ALT HOLD tient la hauteur avec le baromètre. Le manche des gaz au milieu = garder la hauteur.
+ALT HOLD tient la hauteur avec le baromètre. ALT HOLD garde la hauteur tant que le manche des gaz reste entre 1165
+et 1565 (autour de 1275) ; au-dessus il fait monter, en dessous descendre.
 
 1. Avec la radio, en ANGLE : décoller, stationnaire stable à **3 m au moins**.
-2. Gaz à la position du stationnaire. Basculer AUX4 en haut (ALT HOLD).
+2. Gaz à la position du stationnaire. Basculer AUX4 en haut (ALT HOLD). S'attendre à ce que le drone descende ou
+   monte pendant 1 à 2 s : garder 3 m au moins et le doigt sur AUX4.
 3. Ne plus toucher les gaz. Regarder **10 secondes** : le drone reste à la même hauteur ?
 4. Si le drone monte, descend ou saute : AUX4 en bas tout de suite, reprendre aux gaz.
 5. AUX4 en bas. Reprendre la main aux gaz, stationnaire.
@@ -75,6 +83,9 @@ ALT HOLD tient la hauteur avec le baromètre. Le manche des gaz au milieu = gard
 
 ## Phase E. Après le vol (dans le logiciel)
 
+Faire les étapes 1 et 2 dans les 45 s après l'atterrissage ; sinon débrancher la batterie (la ligne I2C ne sera pas
+relevée).
+
 1. Batterie toujours branchée. Brancher l'USB, « Connexion ».
 2. Onglet CLI : taper `status`, Entrée. Noter la ligne « I2C=… (… errors) ».
 3. Débrancher la batterie.
@@ -85,6 +96,7 @@ ALT HOLD tient la hauteur avec le baromètre. Le manche des gaz au milieu = gard
 ## À envoyer
 
 1. Le journal Blackbox (phase E).
-2. Les deux lignes I2C (phases A et E).
-3. La vidéo des lunettes (DVR), surtout la phase D.
-4. Ce qui t'a surpris.
+2. Les deux lignes I2C (phase A = référence, phase E = vol).
+3. Le % de gaz du stationnaire (phase C).
+4. La vidéo des lunettes (DVR), surtout la phase D.
+5. Ce qui t'a surpris.
