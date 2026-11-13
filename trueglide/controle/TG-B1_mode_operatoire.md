@@ -1,92 +1,90 @@
-# Essai TG-B1 : Betaflight App et TRUEGLIDE sur la même carte Betaflight, puis baromètre (DSHOT_TELEMETRY_COUNTS)
+# Essai TG-B1 : Betaflight App et TRUEGLIDE sur la même carte Betaflight, puis mesure du baromètre (avant correction)
 
 Date : …… Drone : Mini Pouce …… Fait par : ……
 
-**HÉLICES RETIRÉES, drone fixé, gaz bas (1050 à 1100).** Si un moteur ne s'arrête pas : **débrancher la batterie tout
-de suite**. Chaque essai moteur se **filme au téléphone, écran ET moteurs dans l'image**, du clic jusqu'à l'arrêt. Les
-vidéos serviront aux signalements à Betaflight, puis à ta vidéo publique.
+**HÉLICES RETIRÉES, drone fixé, gaz bas (1050 à 1150).** **Arrêt le plus rapide** dans les deux logiciels : appuyer
+sur la touche **Espace** (toute touche coupe le test, sauf flèches haut/bas, Page préc./suiv., Alt et Tab). Si un
+moteur ne s'arrête pas : **débrancher la batterie tout de suite**. Chaque essai moteur se **filme au téléphone, écran ET
+moteurs dans l'image**, du geste jusqu'à l'arrêt.
 
 Pourquoi la carte passe en Betaflight : avec le firmware TRUEGLIDE, la carte coupe seule les moteurs 1 s après le
-dernier ordre du logiciel. Elle cacherait donc le défaut de Betaflight App. Sur Betaflight officiel, seul le logiciel
-compte, et la comparaison est juste : même carte, même firmware, deux logiciels.
+dernier ordre du logiciel, ce qui cacherait le défaut de Betaflight App. Sur Betaflight officiel, l'ordre envoyé aux
+moteurs reste **sans limite de temps** : si l'USB se coupe ou si le logiciel se bloque, les moteurs continuent. Garder
+la main près de la prise batterie pendant les parties 2 et 3.
 
-Valeurs attendues vérifiées dans le code le 13/11 : Betaflight App 2026.6.2 (`MotorsTab.vue` : molette sans contrôle du
-curseur choisi ; `useMotorTesting.js` et fenêtres moteurs : rien quand la page est cachée) ; firmware Betaflight
-2026.6.2 (`MSP_SET_MOTOR` : la valeur reste tant qu'aucune autre n'arrive, sans limite de temps) ; TRUEGLIDE /app/
-`7dc6865` (molette seulement sur le curseur cliqué ; page cachée = test coupé et fenêtres fermées).
+Pendant les parties 2 à 4 : **souris à molette crantée** (pas de molette libre, pas de pavé tactile), **aucune touche
+du clavier** sauf pour arrêter (une touche coupe le test et fausserait l'essai). Changer d'onglet **à la souris
+seulement**. L'assistant « sens de rotation DShot » n'est **pas** utilisé dans cet essai : il réécrit le sens enregistré
+dans les 4 ESC.
+
+Valeurs attendues vérifiées dans le code (13/11, puis audit) : Betaflight App 2026.6.2 et master : molette sans
+contrôle du curseur choisi (+25 par cran), rien quand la page est cachée ; firmware Betaflight 2026.6.2 :
+`MSP_SET_MOTOR` sans limite de temps ; TRUEGLIDE /app/ `7dc6865` : molette seulement sur le curseur cliqué, page
+cachée = test coupé.
 
 ## Avant de commencer (rien à cocher)
 
-1. Garder sous la main la sauvegarde TRUEGLIDE `MINI_POUCE_TRUEGLIDE_diff_all_2026-11-08_cb4e3f0.txt` (pour la partie 4).
-2. Téléphone sur un support, qui filme l'écran et le drone ensemble. Batterie chargée.
-3. Navigateur Chrome ou Edge, une seule fenêtre.
+1. Garder sous la main la sauvegarde TRUEGLIDE `MINI_POUCE_TRUEGLIDE_diff_all_2026-11-08_cb4e3f0.txt` (pour la partie 5).
+2. Téléphone sur un support, qui filme l'écran et le drone ensemble. Batterie chargée. Smoke Stopper si tu en as un,
+   pour le premier branchement de la batterie après le flash.
+3. Navigateur Chrome ou Edge, **une seule fenêtre**, avec **un deuxième onglet déjà ouvert** (n'importe quelle page),
+   pour pouvoir changer d'onglet à la souris.
 
 ## TG-B1-1. Carte en Betaflight 2026.6.2 officiel
 
-1. Batterie débranchée. Ouvrir **app.betaflight.com**, onglet « Flasher le firmware » : carte SPEEDYBEEF405MINI,
+1. Batterie débranchée. Ouvrir **app.betaflight.com** dans le premier onglet. Noter la version de Betaflight App
+   (en bas de l'écran) dans le tableau de la partie 6. Onglet « Flasher le firmware » : carte SPEEDYBEEF405MINI,
    version **2026.6.2**, **effacement complet** activé, flasher.
 2. « Connexion ». Onglet CLI, taper une ligne à la fois puis Entrée : `set motor_pwm_protocol = DSHOT300`,
    `set dshot_bidir = ON`, `set yaw_motors_reversed = ON`, `save`. Ne coller **aucun** ancien `diff all`.
 3. Reconnecter, onglet CLI : `version`.
+4. Brancher la batterie (Smoke Stopper si tu en as un). Aucun bruit anormal, aucun moteur qui tourne.
 
 - La ligne affichée commence par « # Betaflight / STM32F405 » et contient 2026.6.2 ?
+- À l'étape 4, aucun moteur n'a tourné ?
 
 ## TG-B1-2. Betaflight App : molette (FILMER)
 
-Ce qu'on vérifie : si faire défiler la page au-dessus des curseurs change les moteurs. Ce qu'on regarde : le moteur 1
-et le chiffre de son curseur. Danger : moteur qui accélère sans qu'on touche au curseur.
+Ce qu'on vérifie : si la molette change un moteur alors qu'aucun curseur n'est choisi. Ce qu'on regarde : le moteur 1
+et le chiffre de son curseur. Danger : moteur qui accélère sans qu'on ait choisi son curseur.
 
-1. Batterie branchée. Onglet Moteurs, « Je comprends les risques » sur oui.
-2. Tirer le curseur du MOTEUR 1 à la souris vers 1100, puis cliquer dans une zone vide de la page (pour ne plus avoir
-   de curseur choisi).
+1. Onglet Moteurs, « Je comprends les risques » sur oui (à la souris).
+2. Tirer le curseur du MOTEUR 1 à la souris vers 1100, puis cliquer dans une zone vide de la page (plus aucun curseur
+   choisi).
 3. Sans cliquer, poser la souris sur le curseur du moteur 1 et tourner la molette **vers le haut, 2 crans**.
-4. « Je comprends les risques » sur non. Le moteur s'arrête.
+4. Appuyer sur **Espace**.
 
-- À l'étape 3, la page n'a PAS défilé et le curseur du moteur 1 est monté (environ 1150) ?
-- À l'étape 3, le moteur 1 a accéléré ?
-- À l'étape 4, le moteur s'est arrêté ?
+- À l'étape 3, le curseur du moteur 1 est monté d'environ 50 (vers 1150) et le moteur 1 a accéléré ?
+- À l'étape 4, le test s'est coupé et le moteur s'est arrêté ?
 
 ## TG-B1-3. Betaflight App : page cachée (FILMER)
 
 Ce qu'on vérifie : si le test continue quand la page n'est plus visible. Ce qu'on regarde : les moteurs pendant que
-l'autre onglet est ouvert. Danger : moteurs qui tournent sans surveillance.
+l'autre onglet est affiché. Danger : moteurs qui tournent sans surveillance (main près de la prise batterie).
 
-1. « Je comprends les risques » sur oui, curseur « Maître » vers 1100 : les moteurs tournent.
-2. Ouvrir un nouvel onglet du navigateur (Ctrl + T). Compter **5 secondes**. Revenir sur Betaflight App.
-3. « Je comprends les risques » sur non.
+1. « Je comprends les risques » sur oui, curseur « Maître » à la souris vers 1100 : les moteurs tournent.
+2. **À la souris**, cliquer sur le deuxième onglet du navigateur. Compter **5 secondes**. Revenir à la souris sur
+   l'onglet Betaflight App.
+3. Appuyer sur **Espace**. Batterie débranchée.
 
-- À l'étape 2, les moteurs ont continué à tourner pendant les 5 s ?
+- Pendant les 5 s, les moteurs ont continué à tourner ?
 - Au retour, le test était toujours actif (interrupteur sur oui, moteurs qui tournent) ?
 - À l'étape 3, les moteurs se sont arrêtés ?
 
-## TG-B1-4. Betaflight App : fenêtre du sens de rotation DShot (FILMER)
-
-Ce qu'on vérifie : si la fenêtre continue quand la page est cachée. Danger : moteur qui tourne sans surveillance.
-
-1. Onglet Moteurs, bouton du sens de rotation des moteurs (assistant DShot). Accepter l'avertissement, faire tourner
-   un moteur comme l'assistant le propose.
-2. Pendant qu'il tourne : nouvel onglet (Ctrl + T), 5 secondes, retour.
-3. Fermer la fenêtre de l'assistant. Batterie débranchée.
-
-- À l'étape 2, le moteur a continué à tourner et la fenêtre était toujours ouverte au retour ?
-- À l'étape 3, le moteur s'est arrêté ?
-
-## TG-B1-5. TRUEGLIDE /app/ sur la même carte Betaflight (FILMER)
+## TG-B1-4. TRUEGLIDE /app/ sur la même carte Betaflight (FILMER)
 
 Mêmes gestes, avec TRUEGLIDE. La carte reste en Betaflight 2026.6.2 : seules les protections du logiciel agissent.
 
-1. Fermer Betaflight App. Ouvrir **TRUEGLIDE /app/** (version 7dc6865 en bas à droite), « Connexion ». Batterie
-   branchée, onglet Moteurs, « Je comprends les risques » sur oui.
-2. Molette : refaire TG-B1-2 étapes 2 et 3 (moteur 1 vers 1100, clic dans le vide, molette vers le haut sans cliquer).
-3. Page cachée : curseur « Maître » vers 1100, nouvel onglet, 5 s, retour.
-4. Sens DShot : refaire TG-B1-4 étapes 1 et 2.
-5. Tout arrêter, batterie débranchée.
+1. « Déconnecter », fermer l'onglet Betaflight App. Dans le premier onglet, ouvrir **TRUEGLIDE /app/** (version
+   7dc6865 en bas à droite), « Connexion ». Batterie branchée, onglet Moteurs, « Je comprends les risques » sur oui.
+2. Molette : moteur 1 vers 1100 à la souris, clic dans une zone vide, puis molette vers le haut, 2 crans, sans cliquer.
+3. Page cachée : curseur « Maître » vers 1100, clic à la souris sur le deuxième onglet, 5 s, retour à la souris.
+4. Tout arrêter (Espace), batterie débranchée.
 
-- À l'étape 2, la page a défilé et le moteur 1 n'a PAS changé de vitesse ?
-- À l'étape 3, les moteurs se sont arrêtés dès l'ouverture du nouvel onglet, et au retour le test était sur non ?
-- À l'étape 4, la fenêtre s'est fermée et le moteur s'est arrêté dès l'ouverture du nouvel onglet ?
+- À l'étape 2, le moteur 1 n'a PAS changé de vitesse (curseur toujours vers 1100) ?
+- À l'étape 3, les moteurs se sont arrêtés dès l'affichage de l'autre onglet, et au retour le test était sur non ?
 
-## TG-B1-6. Retour en TRUEGLIDE cb4e3f0
+## TG-B1-5. Retour en TRUEGLIDE cb4e3f0
 
 1. Batterie débranchée. TRUEGLIDE /app/, onglet « Flasher le firmware » : SPEEDYBEEF405MINI, version en ligne
    **cb4e3f0**, **effacement complet**, flasher.
@@ -96,30 +94,36 @@ Mêmes gestes, avec TRUEGLIDE. La carte reste en Betaflight 2026.6.2 : seules le
 
 - `version` contient cb4e3f0 et `craft_name` = MINI POUCE ?
 
-## TG-B1-7. Baromètre et télémesure DShot (batterie, armé au banc, hélices retirées)
+## TG-B1-6. Baromètre : mesure AVANT correction (armé au banc, hélices retirées)
 
-Ce qu'on vérifie : si les télémesures coupées en pleine trame (debug[2]) arrivent en même temps que des erreurs I2C
-(cause amont betaflight#15533). Ce qu'on regarde : le compteur d'erreurs I2C de `status`. Danger : aucun particulier,
-hélices retirées.
+Ce qu'on mesure : combien de télémesures DShot sont coupées en pleine trame, et combien d'erreurs I2C arrivent, avec
+le firmware actuel. La preuve viendra de la comparaison avec le firmware corrigé (même essai, plus tard) : erreurs
+avant, plus d'erreurs après. Danger : carte **armée** au banc. Même hélices retirées, l'airmode et le terme I peuvent
+faire monter les moteurs au-dessus de la commande : mains loin des moteurs, drone fixé, prise batterie à portée.
 
 1. Onglet Blackbox : « Effacer la mémoire flash ».
 2. CLI : `get dshot_bitbang` (noter la réponse), puis `set debug_mode = DSHOT_TELEMETRY_COUNTS`, `save`.
-3. Reconnecter, CLI : `status`, noter la ligne « I2C=… (… errors) ».
-4. Déconnecter. Batterie branchée, armer à la radio, gaz vers le stationnaire, **3 minutes** sans à-coups. Désarmer,
-   batterie débranchée.
-5. Reconnecter, CLI : `status`, noter la ligne I2C. Onglet Blackbox : enregistrer le journal.
-6. CLI : `set debug_mode = BARO`, `save`.
+3. Reconnecter, CLI : `status`, noter la ligne « I2C=… (… errors) ». **Garder le câble USB branché jusqu'à l'étape 6**
+   (la carte reste alimentée : le compteur n'est pas remis à zéro), mais cliquer sur « Déconnecter » (armement
+   impossible quand le logiciel est connecté).
+4. Radio allumée. Vérifier d'abord que l'interrupteur d'armement désarme bien (armer 2 s, désarmer).
+5. Batterie branchée, armer, gaz **juste au-dessus du ralenti**, **3 minutes**, sans à-coups. Désarmer. Débrancher la
+   batterie (l'USB reste branché).
+6. « Connexion », CLI : `status`, noter la ligne I2C. Onglet Blackbox : enregistrer le journal.
+7. CLI : `set debug_mode = BARO`, `save`.
 
-| Relevé | Valeur |
+| Relevé | Attendu |
 |---|---|
-| `get dshot_bitbang` | |
-| Ligne I2C avant (étape 3) | |
-| Ligne I2C après (étape 5) | |
+| Version de Betaflight App (partie 1) | à noter |
+| `get dshot_bitbang` | AUTO ou ON |
+| Ligne I2C avant (étape 3) | à noter |
+| Ligne I2C après (étape 6) | à noter |
 
+- La carte a désarmé du premier coup aux étapes 4 et 5 ?
 - Le journal Blackbox est enregistré (nom du fichier noté) ?
 
 ## À envoyer
 
-### Les vidéos TG-B1-2 à TG-B1-5 (noms des fichiers)
+### Les vidéos TG-B1-2 à TG-B1-4 (noms des fichiers)
 
-### Le journal Blackbox de TG-B1-7 et les deux lignes I2C [grand]
+### Le journal Blackbox de TG-B1-6 et les deux lignes I2C [grand]
