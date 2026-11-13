@@ -105,13 +105,13 @@ faire monter les moteurs au-dessus de la commande : mains loin des moteurs, dron
 1. Onglet Blackbox : « Effacer la mémoire flash ».
 2. CLI : `get dshot_bitbang` (noter la réponse), `dma show` (copier tout le texte affiché), puis
    `set debug_mode = BARO`, `save`.
-3. Reconnecter, CLI : `status`, noter la ligne « I2C=… (… errors) ». **Garder le câble USB branché jusqu'à l'étape 6**
-   (la carte reste alimentée : le compteur n'est pas remis à zéro), mais cliquer sur « Déconnecter » (armement
-   impossible quand le logiciel est connecté).
-4. Radio allumée. Vérifier d'abord que l'interrupteur d'armement désarme bien (armer 2 s, désarmer).
-5. Batterie branchée, armer, gaz **juste au-dessus du ralenti**, **3 minutes**, sans à-coups. Désarmer. Débrancher la
-   batterie (l'USB reste branché).
-6. « Connexion », CLI : `status`, noter la ligne I2C. Onglet Blackbox : enregistrer le journal.
+3. Reconnecter, CLI : `status`, noter la ligne « I2C=… (… errors) ». À partir d'ici, la carte ne doit **jamais** être
+   sans courant (sinon le compteur repart à zéro).
+4. « Déconnecter ». Brancher la batterie (USB encore branché), PUIS débrancher l'USB (la carte refuse l'armement avec
+   l'USB et le logiciel). La batterie garde la carte allumée.
+5. Avec la radio : armer, gaz juste au-dessus du ralenti, **30 à 45 s au plus** (le VTX chauffe au banc), désarmer.
+6. Rebrancher l'USB (batterie toujours branchée). « Connexion », CLI : `status`, noter la ligne I2C. Débrancher la
+   batterie. Onglet Blackbox : enregistrer le journal.
 
 | Relevé | Attendu |
 |---|---|
@@ -120,7 +120,7 @@ faire monter les moteurs au-dessus de la commande : mains loin des moteurs, dron
 | Ligne I2C avant (étape 3) | à noter |
 | Ligne I2C après (étape 6) | à noter |
 
-- La carte a désarmé du premier coup aux étapes 4 et 5 ?
+- La carte a désarmé du premier coup à l'étape 5 ?
 - Le journal Blackbox est enregistré (nom du fichier noté) ?
 
 ## À envoyer
