@@ -49,7 +49,7 @@ la précédente.
 6. Seulement après les réponses de Betaflight : vidéo publique TalkTrueFPV.
 
 Candidats (13/11) : pilote I2C sans remise à zéro après erreur ; intensité MSP_BATTERY_STATE lue sans signe ; GM3
-`&&` ; molette ; page cachée ; confirmation matérielle de betaflight#15533 si l'essai baro la prouve.
+`&&` ; molette ; page cachée. Pas de confirmation de betaflight#15533 : le Mini Pouce n'utilise pas le DShot bitbang.
 
 ## 3. Défauts encore ouverts
 
@@ -64,7 +64,7 @@ Candidats (13/11) : pilote I2C sans remise à zéro après erreur ; intensité M
 | D'origine Betaflight | 3D changé sans redémarrage | firmware |
 | Mineur (prudent) | Interrupteur failsafe (BOXFAILSAFE) actif : « Liaison radio — » alors que la radio est liée | logiciel, Tableau de bord |
 | Corrigé sur main 5a2728c (13/11), pas publié | Contrôle quotidien GitHub rouge depuis le 07/11 : msp_motor_guard.c et baro_step_filter.c sans `#include "platform.h"` (make checks). Ligne ajoutée, aucun changement de comportement ; contrôle relancé vert (tests 76/76, .hex OK). Partira avec le prochain firmware, après audit ; cb4e3f0 reste en ligne | firmware |
-| Correction de sécurité en cours (13/11), pas publiée | Baromètre I2C faux sur F405 AIO (betaflight#15533) : cause amont = DShot bitbang 7f2ce3976 présent dans la base 2026.6.2. Corrections Betaflight 2026.6-maintenance (#15836 et 4 autres) reprises sur la branche correction-bf-2026.6.3 (1362c85), tests 77/77, SPEEDYBEEF405MINI construit ; audit demandé, puis firmware-test, banc, vol | firmware |
+| Branche d'essai (13/11), pas publiée | Corrections Betaflight 2026.6-maintenance reprises sur correction-bf-2026.6.3 (1362c85) : audit OUI pour firmware d'essai et banc (reprise identique à l'amont), NON pour annoncer une correction du baromètre : le Mini Pouce est en DShot par timer (DEFAULT_DSHOT_BITBANG OFF), la piste betaflight#15533 (bitbang) ne s'y applique pas. Cause des erreurs I2C du Mini Pouce non trouvée. Mesures B1 à B6 de l'audit à faire ; pas de vol avant | firmware |
 | À essayer | Onglet ESC : AM32 pas encore essayé sur un vrai ESC AM32 (BLHeli_S / Bluejay essayés ; récupération après flash coupé faite le 10/11) | onglet ESC |
 
 ## 4. Journal des audits

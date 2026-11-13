@@ -78,17 +78,16 @@ s'en sert.
     activée, 31,7 s armé, aucune mesure fausse, 0 erreur I2C) ; TG-V1 le 03/11 (vol intérieur, Blackbox sans défaut).
   - Manque : aucun test automatique ne provoque une erreur I2C pendant une lecture pour vérifier la remise à zéro.
 
-- **Ajout du 13/11 (après recherche chez Betaflight) : ce qui déclenchait les erreurs I2C.** Betaflight connaît le
-  symptôme : signalement betaflight#15533 (août 2026), altitude −4 215 m sur FLYWOOF405S_AIO et **SpeedyBee F405 AIO**,
-  baromètre sur I2C1, en Betaflight 2026.6. La cause est une modification de juin 2026 du DShot bitbang (`7f2ce3976`) :
-  la capture de la télémesure DShot bidirectionnelle est coupée en pleine trame, la carte et l'ESC pilotent alors la
-  ligne moteur en même temps (jusqu'à environ 28 µs), et le bruit sur le 3,3 V perturbe le bus I2C. Corrigé chez
-  Betaflight par #15538 (05/09), repris dans leur branche 2026.6 le 17/10 (#15836), pour la future 2026.6.3 (pas encore
-  sortie). TRUEGLIDE, construit sur 2026.6.2, contient la cause et pas cette correction : c'est pourquoi les mesures
-  fausses apparaissaient sous TRUEGLIDE et pas sous Betaflight 2025.12.2. La correction TRUEGLIDE du pilote I2C reste
-  utile (elle empêche une erreur de donner une mesure fausse), mais elle ne supprime pas les erreurs. Les corrections de
-  Betaflight sont reprises sur la branche d'essai `correction-bf-2026.6.3` (13/11, tests 77/77, Mini Pouce construit),
-  en attente d'audit, puis firmware d'essai, banc et vol. **Rien de publié.**
+- **Ajout du 13/11, corrigé le même jour après l'audit.** Betaflight connaît un défaut voisin : betaflight#15533 (août
+  2026), altitude fausse sur des F405 AIO avec baromètre sur I2C1, causée par un changement du DShot **bitbang**
+  (`7f2ce3976`), corrigé chez eux par #15538 pour la future 2026.6.3. **Mais le Mini Pouce n'utilise pas le DShot
+  bitbang** : sa configuration de carte le désactive (`DEFAULT_DSHOT_BITBANG DSHOT_BITBANG_OFF`, et la sauvegarde du
+  08/11 ne le change pas). Cette explication ne s'applique donc **pas** à la carte de Johann ; elle avait été annoncée
+  trop vite. La cause des erreurs I2C sur le Mini Pouce reste **non trouvée**. Autre piste, non prouvée : la même
+  série de corrections Betaflight répare une macro DMA (`DMA_CLEAR_FLAG`) qui effaçait les mauvais bits, utilisée par
+  le DShot par timer (celui du Mini Pouce) et par le SPI. Les corrections Betaflight sont reprises sur la branche
+  d'essai `correction-bf-2026.6.3` (audit : reprise conforme, OUI pour firmware d'essai et banc, NON pour annoncer
+  qu'elle corrige le baromètre). Mesures au banc à faire avant toute conclusion. **Rien de publié.**
 
 ## 3. Onglet Moteurs : valeur d'arrêt calculée avec le mode 3D de l'écran
 

@@ -96,13 +96,14 @@ Mêmes gestes, avec TRUEGLIDE. La carte reste en Betaflight 2026.6.2 : seules le
 
 ## TG-B1-6. Baromètre : mesure AVANT correction (armé au banc, hélices retirées)
 
-Ce qu'on mesure : combien de télémesures DShot sont coupées en pleine trame, et combien d'erreurs I2C arrivent, avec
-le firmware actuel. La preuve viendra de la comparaison avec le firmware corrigé (même essai, plus tard) : erreurs
-avant, plus d'erreurs après. Danger : carte **armée** au banc. Même hélices retirées, l'airmode et le terme I peuvent
+Ce qu'on mesure : combien d'erreurs I2C arrivent avec le firmware actuel, en 3 minutes. C'est la mesure de départ :
+la même mesure sera refaite plus tard avec le firmware d'essai, pour comparer. Le Mini Pouce est en DShot par timer
+(pas bitbang). Danger : carte **armée** au banc. Même hélices retirées, l'airmode et le terme I peuvent
 faire monter les moteurs au-dessus de la commande : mains loin des moteurs, drone fixé, prise batterie à portée.
 
 1. Onglet Blackbox : « Effacer la mémoire flash ».
-2. CLI : `get dshot_bitbang` (noter la réponse), puis `set debug_mode = DSHOT_TELEMETRY_COUNTS`, `save`.
+2. CLI : `get dshot_bitbang` (noter la réponse), `dma show` (copier tout le texte affiché), puis
+   `set debug_mode = BARO`, `save`.
 3. Reconnecter, CLI : `status`, noter la ligne « I2C=… (… errors) ». **Garder le câble USB branché jusqu'à l'étape 6**
    (la carte reste alimentée : le compteur n'est pas remis à zéro), mais cliquer sur « Déconnecter » (armement
    impossible quand le logiciel est connecté).
@@ -110,12 +111,11 @@ faire monter les moteurs au-dessus de la commande : mains loin des moteurs, dron
 5. Batterie branchée, armer, gaz **juste au-dessus du ralenti**, **3 minutes**, sans à-coups. Désarmer. Débrancher la
    batterie (l'USB reste branché).
 6. « Connexion », CLI : `status`, noter la ligne I2C. Onglet Blackbox : enregistrer le journal.
-7. CLI : `set debug_mode = BARO`, `save`.
 
 | Relevé | Attendu |
 |---|---|
 | Version de Betaflight App (partie 1) | à noter |
-| `get dshot_bitbang` | AUTO ou ON |
+| `get dshot_bitbang` | OFF (configuration de la carte) |
 | Ligne I2C avant (étape 3) | à noter |
 | Ligne I2C après (étape 6) | à noter |
 
@@ -126,4 +126,4 @@ faire monter les moteurs au-dessus de la commande : mains loin des moteurs, dron
 
 ### Les vidéos TG-B1-2 à TG-B1-4 (noms des fichiers)
 
-### Le journal Blackbox de TG-B1-6 et les deux lignes I2C [grand]
+### Le journal Blackbox de TG-B1-6, les deux lignes I2C et le texte de `dma show` [grand]
