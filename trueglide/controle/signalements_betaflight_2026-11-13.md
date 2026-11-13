@@ -9,7 +9,16 @@ Envoi : par Johann, depuis son compte GitHub, un signalement par point. Dépôts
 - 1, 2, 3 : `betaflight/betaflight-configurator` (issue « Bug report »)
 - 4, 5 : `betaflight/betaflight` (issue « Bug report »)
 
-Pièces jointes à ajouter par Johann : vidéos d'écran du 13/11 (1, 2), vidéo téléphone avec son (2), vidéos A et B (5).
+Pièces jointes à ajouter par Johann (fichiers du 13/11, versions 480p) :
+- 1 : `betaflight_test_curseur_moteur__480p.mp4` (écran, Betaflight App : moteur 4 1100 → 1625 → 1775 à 0:12-0:19).
+- 2 : `betaflight_onglet_moteur_switch__480p_son.mp4` (écran : 1140 conservé pendant le changement de fenêtre,
+  0:25-0:37) et `VID_20261113_183227_480p_son.mp4` (téléphone avec son : moteurs entendus de 0:27 à 0:38).
+- 5 : `barometre.mp4` (A : pression sous −10 000 toutes les ~5 s), `barom_tre_test_B_480p_son.mp4` (B : 961 hPa
+  stable ; **onglet « TrueGlide XPro » visible à partir de 0:24, à flouter ou couper avant l'envoi**) et le fichier
+  `trueglide/controle/essais_erreur5/injection_test_betaflight_2026.6.2.patch`.
+- Avant l'envoi : revoir chaque vidéo en entier, rien de XPRO à l'écran (onglets du navigateur compris).
+- Ne pas joindre : VID_20261113_171126 et _172322 (écran illisible), _174238 (trou de 4 min), _174424 (floue),
+  _180721 (sans son, remplacée), ni les vidéos TRUEGLIDE.
 
 ---
 
@@ -30,7 +39,7 @@ who only wants to scroll the page can spin a motor up.
 3. Hover over motor 1's column (not the thumb) and scroll up 1–3 notches.
 
 **Expected:** nothing changes unless the slider was deliberately selected.
-**Actual:** motor 1 jumps (seen: 1100 → 1625 → 1775). On master, scrolling the page is also blocked over the whole
+**Actual:** the motor jumps (seen on motor 4: 1100 → 1625 → 1775; the same on motors 3, 2 and 1). On master, scrolling the page is also blocked over the whole
 motor test area, so the wheel can only change motors there.
 
 **Code:** `src/components/tabs/MotorsTab.vue` (2026.6.2: `@wheel.prevent` on each grid `<li>`, lines 414 and 429;
