@@ -140,8 +140,8 @@ memset(&i2c_ev_state[device], 0, sizeof(i2c_ev_state[device]));
 // i2cInit(), after memset(&pDev->state, ...)
 memset(&i2c_ev_state[device], 0, sizeof(i2c_ev_state[device]));
 ```
-Possibly related to #15533 (bogus baro altitude on F405 boards with the baro on I2C1, including a SpeedyBee F405 AIO,
-whose default is DShot bitbang OFF).
+Not the same as #15533 (invalid baro values in flight on a FLYWOOF405S_AIO, bisected to the DShot bitbang change
+7f2ce39): the board here uses timer DShot (`dshot_bitbang = OFF`), so that change is not involved.
 
 ---
 
