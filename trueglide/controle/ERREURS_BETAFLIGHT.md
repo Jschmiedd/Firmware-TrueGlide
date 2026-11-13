@@ -78,6 +78,18 @@ s'en sert.
     activée, 31,7 s armé, aucune mesure fausse, 0 erreur I2C) ; TG-V1 le 03/11 (vol intérieur, Blackbox sans défaut).
   - Manque : aucun test automatique ne provoque une erreur I2C pendant une lecture pour vérifier la remise à zéro.
 
+- **Ajout du 13/11 (après recherche chez Betaflight) : ce qui déclenchait les erreurs I2C.** Betaflight connaît le
+  symptôme : signalement betaflight#15533 (août 2026), altitude −4 215 m sur FLYWOOF405S_AIO et **SpeedyBee F405 AIO**,
+  baromètre sur I2C1, en Betaflight 2026.6. La cause est une modification de juin 2026 du DShot bitbang (`7f2ce3976`) :
+  la capture de la télémesure DShot bidirectionnelle est coupée en pleine trame, la carte et l'ESC pilotent alors la
+  ligne moteur en même temps (jusqu'à environ 28 µs), et le bruit sur le 3,3 V perturbe le bus I2C. Corrigé chez
+  Betaflight par #15538 (05/09), repris dans leur branche 2026.6 le 17/10 (#15836), pour la future 2026.6.3 (pas encore
+  sortie). TRUEGLIDE, construit sur 2026.6.2, contient la cause et pas cette correction : c'est pourquoi les mesures
+  fausses apparaissaient sous TRUEGLIDE et pas sous Betaflight 2025.12.2. La correction TRUEGLIDE du pilote I2C reste
+  utile (elle empêche une erreur de donner une mesure fausse), mais elle ne supprime pas les erreurs. Les corrections de
+  Betaflight sont reprises sur la branche d'essai `correction-bf-2026.6.3` (13/11, tests 77/77, Mini Pouce construit),
+  en attente d'audit, puis firmware d'essai, banc et vol. **Rien de publié.**
+
 ## 3. Onglet Moteurs : valeur d'arrêt calculée avec le mode 3D de l'écran
 
 - **Erreur.** Batterie branchée, onglet Moteurs : changer « Mode 3D » puis « Sauvegarder » **a fait démarrer les

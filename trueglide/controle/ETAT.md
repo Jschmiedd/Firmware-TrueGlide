@@ -46,6 +46,7 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 | D'origine Betaflight | 3D changé sans redémarrage | firmware |
 | Mineur (prudent) | Interrupteur failsafe (BOXFAILSAFE) actif : « Liaison radio — » alors que la radio est liée | logiciel, Tableau de bord |
 | Corrigé sur main 5a2728c (13/11), pas publié | Contrôle quotidien GitHub rouge depuis le 07/11 : msp_motor_guard.c et baro_step_filter.c sans `#include "platform.h"` (make checks). Ligne ajoutée, aucun changement de comportement ; contrôle relancé vert (tests 76/76, .hex OK). Partira avec le prochain firmware, après audit ; cb4e3f0 reste en ligne | firmware |
+| Correction de sécurité en cours (13/11), pas publiée | Baromètre I2C faux sur F405 AIO (betaflight#15533) : cause amont = DShot bitbang 7f2ce3976 présent dans la base 2026.6.2. Corrections Betaflight 2026.6-maintenance (#15836 et 4 autres) reprises sur la branche correction-bf-2026.6.3 (1362c85), tests 77/77, SPEEDYBEEF405MINI construit ; audit demandé, puis firmware-test, banc, vol | firmware |
 | À essayer | Onglet ESC : AM32 pas encore essayé sur un vrai ESC AM32 (BLHeli_S / Bluejay essayés ; récupération après flash coupé faite le 10/11) | onglet ESC |
 
 ## 4. Journal des audits
