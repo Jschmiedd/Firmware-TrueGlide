@@ -36,6 +36,8 @@ ALT HOLD sur AUX4 en haut. Failsafe : réglage d'origine (DROP).
 
 ## Phase B. Failsafe au sol (avec la radio, HÉLICES RETIRÉES)
 
+Cet essai prouve l'arrêt au sol (gaz en bas). Il ne prouve pas le DROP en vol.
+
 Drone posé à plat, fixé. Lunettes allumées. **45 s au plus** batterie branchée (le VTX chauffe).
 
 1. Radio allumée. Brancher la batterie.
@@ -46,7 +48,6 @@ Drone posé à plat, fixé. Lunettes allumées. **45 s au plus** batterie branch
 6. Débrancher la batterie.
 
 - À l'étape 4, les moteurs se sont arrêtés seuls ? (Noter si les lunettes ont affiché « FAILSAFE ».)
-- Cet essai prouve l'arrêt au sol (gaz en bas). Il ne prouve pas le DROP en vol.
 - Si NON : **ne pas voler**, m'envoyer la vidéo des lunettes.
 
 ## Phase C. Vol normal (avec la radio, hélices montées)

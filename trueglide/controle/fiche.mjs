@@ -203,7 +203,7 @@ function fiche(md, dossier) {
             enfants.push(titre(m[1]));
         } else if ((m = /^## (.+)$/.exec(l))) {
             vider();
-            code = (/^([A-Z0-9]+(?:-[A-Z0-9]+)*-\d+)\. /.exec(m[1]) || [])[1] || null;
+            code = (/^([A-Z0-9]+(?:-[A-Z0-9]+)*-\d+|Phase [A-Z])\. /.exec(m[1]) || [])[1] || null;
             enfants.push(section(m[1]));
         } else if ((m = /^### (.+?)( \[grand\])?$/.exec(l))) {
             vider();
