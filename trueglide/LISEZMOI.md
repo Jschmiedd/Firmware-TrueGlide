@@ -446,6 +446,7 @@ vol n'en dépend pas, mais certains noms y sont faux ou absents ; **TrueGlide Co
 | Mode **SPEEDER** (onglet Modes) | lu sur la carte : nom juste, sans texte d'aide |
 | Modes debug `POWER_GUARD`, `MOTOR_HEALTH` | sans nom, ou avec un autre nom dans Blackbox Explorer |
 | Alertes OSD `ESC HOT` / `AMP LIM`, `M RESTART` | sans nom dans la liste des alertes de l'onglet OSD |
+| Garde du test moteurs (arrêt 1 s après le dernier `MSP_SET_MOTOR`) | onglet Moteurs de Betaflight App : il n'envoie un ordre que quand un curseur bouge, donc les moteurs s'arrêtent 1 s après le dernier mouvement. Voulu (sécurité) ; TrueGlide Configurator renvoie l'ordre toutes les 300 ms |
 
 `LOW_BATTERY` est placé juste avant `ARM_SWITCH`, qui doit rester le dernier motif : un autre emplacement donnerait
 un nom faux à un motif de Betaflight à la place.
