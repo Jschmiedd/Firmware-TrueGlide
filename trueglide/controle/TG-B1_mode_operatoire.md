@@ -3,7 +3,8 @@
 Date : …… Drone : Mini Pouce …… Fait par : ……
 
 **HÉLICES RETIRÉES, drone fixé, gaz bas (1050 à 1150).** **Arrêt le plus rapide** dans les deux logiciels : appuyer
-sur la touche **Espace** (toute touche coupe le test, sauf flèches haut/bas, Page préc./suiv., Alt et Tab). Si un
+sur la touche **Espace** (elle coupe le test dans les deux logiciels ; certaines autres touches ne le coupent pas,
+notamment les flèches haut/bas, Page préc./suiv., Alt et Tab, et sous Betaflight App aussi Début et Fin). Si un
 moteur ne s'arrête pas : **débrancher la batterie tout de suite**. Chaque essai moteur se **filme au téléphone, écran ET
 moteurs dans l'image**, du geste jusqu'à l'arrêt.
 
@@ -92,7 +93,7 @@ Mêmes gestes, avec TRUEGLIDE. La carte reste en Betaflight 2026.6.2 : seules le
    La carte redémarre.
 3. Reconnecter, CLI : `version`, puis `get craft_name`.
 
-- `version` contient cb4e3f0 et `craft_name` = MINI POUCE ?
+- `version` contient cb4e3f0 et `craft_name` = la valeur de la ligne `set craft_name` du fichier collé (MINI POUCE) ?
 
 ## TG-B1-6. Baromètre : mesure AVANT correction (armé au banc, hélices retirées)
 
