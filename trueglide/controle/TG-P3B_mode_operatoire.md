@@ -1,110 +1,90 @@
-# Essai TG-P3B (TRUEGLIDE 2026.6.2, révision 24a71eb) : fonctions TrueGlide en vol
+# Essai TG-P3B : premier vol de TRUEGLIDE cb4e3f0, puis ALT HOLD (Mini Pouce)
 
-Date : …… Drone : …… Fait par : ……
+Date : …… Lieu : …… Fait par : ……
 
-Drone : KarRmen (SpeedyBee F405 Mini), configuration de TG-P3 (identique à Betaflight). Logiciel : TrueGlide
-Configurator, onglet « Ligne de commande (CLI) ». Les fonctions sont essayées **une par une**, puis remises à zéro :
-à la fin, tout est comme au départ. Vol en extérieur, lieu dégagé, personne autour, batterie pleine à chaque partie.
-**Pas d'ALTHOLD ni de POS HOLD.** Hélices bien centrées sur l'axe (voir TG-P3).
+**Plan**
+- Phase A : préparation, dans le logiciel (USB, batterie débranchée).
+- Phase B : failsafe au sol, avec la radio (**hélices retirées**).
+- Phase C : vol normal, avec la radio (hélices montées).
+- Phase D : ALT HOLD, avec la radio.
+- Phase E : après le vol, dans le logiciel.
 
-## Avant de commencer (rien à cocher)
+Ce qu'on vérifie : `cb4e3f0` vole comme avant, le failsafe coupe les moteurs, ALT HOLD tient la hauteur sans saut.
+Rien d'autre n'est changé dans la configuration (sauvegarde du 08/11), sauf l'enregistrement du baromètre.
+Les fonctions TRUEGLIDE de vol (anti-surchauffe, relance moteur, Speeder) restent **désactivées** : elles seront
+essayées plus tard (TG-P3C).
 
-1. TG-P3 faite (vols en ANGLE et en ACRO comme sous Betaflight) et TG-P3A faite le 30/10 (les mêmes fonctions au banc,
-   sans hélices : tout validé). Radio : EdgeTX 2.11.8, ExpressLRS 4.1.0 (radio et récepteur du KarRmen).
-   Firmware 24a71eb flashé le 31/10 et baromètre contrôlé au banc (TG-P2B, TG-P2C) : rien à reflasher.
-   Tableau de bord, case Firmware : « TRUEGLIDE 2026.6.2 (24a71eb) ».
-2. Batterie pleine (environ 16,8 V). Onglet Blackbox : « Effacer la mémoire interne ».
-3. Après chaque partie : batterie rechargée ou changée, et noter dans « Autres remarques » ce qui a surpris.
+Interrupteurs du Mini Pouce (sauvegarde du 08/11) : ARM sur AUX1 ; AUX3 bas = ANGLE, milieu = HORIZON, haut = ACRO ;
+ALT HOLD sur AUX4 en haut. Failsafe : réglage d'origine (DROP : la carte désarme 1,5 s après la perte de la radio).
 
-## TG-P3B-1. Limite de courant (protection anti-surchauffe / surintensité)
+## Phase A. Préparation (dans le logiciel)
 
-En vol stationnaire, le drone consomme environ 8 A ; en montée franche, plus de 50 A. On met une limite à 20 A : en
-montée franche, les gaz doivent être limités (jamais coupés) et l'OSD doit afficher « AMP LIM ».
+1. Batterie débranchée. Brancher l'USB. TRUEGLIDE /app/, « Connexion ».
+2. Tableau de bord, case Firmware : lire « TRUEGLIDE 2026.6.2 (cb4e3f0) ».
+3. Tableau de bord, case « Fonctions TrueGlide » : tout sur « Désactivé ».
+4. Onglet Blackbox : « Effacer la mémoire flash ».
+5. Onglet CLI : taper `set debug_mode = BARO`, Entrée.
+6. Taper `save`, Entrée. La carte redémarre.
+7. « Connexion », onglet CLI : taper `status`, Entrée. Noter la ligne « I2C=… (… errors) ».
+8. « Déconnecter ». Débrancher l'USB.
 
-1. CLI : taper `set power_guard_current = 20`, Entrée, puis `save`, Entrée. « Connexion ».
-2. Vol en ANGLE, à 3 m de haut au moins : 3 montées franches, gaz à fond pendant 1 seconde chacune.
-3. Atterrir, désarmer. CLI : taper `set power_guard_current = 0`, Entrée, puis `save`, Entrée. « Connexion ».
+- Firmware cb4e3f0 et fonctions TrueGlide toutes « Désactivé » ?
 
-- Pendant les montées, l'OSD affiche « AMP LIM » suivi d'un pourcentage ?
-- Pendant les montées, le drone monte moins fort que d'habitude, mais les moteurs ne se coupent jamais ?
-- Après l'étape 3, Tableau de bord, case « Fonctions TrueGlide » : Protection anti-surchauffe sur « Désactivé » ?
+## Phase B. Failsafe au sol (avec la radio, HÉLICES RETIRÉES)
 
-## TG-P3B-2. Limite de température des ESC
+Drone posé à plat, fixé. Lunettes allumées. **45 s au plus** batterie branchée (le VTX chauffe).
 
-La carte ne reçoit la température des ESC qu'avec `dshot_edt = ON` et après un armement (vérifié au banc, TG-P3A-2).
-Au banc, les ESC étaient entre 28 et 42 °C. Avant le vol, on lit la température dans l'OSD, puis on met la limite
-10 °C au-dessus de la plus haute : quand un ESC la dépasse, les gaz sont limités (au moins 50 %, jamais coupés) et l'OSD
-affiche « ESC HOT ».
+1. Radio allumée. Brancher la batterie.
+2. Avec la radio : armer, gaz en bas. Les moteurs tournent au ralenti.
+3. Éteindre la radio.
+4. Compter : les moteurs doivent s'arrêter en 2 s environ.
+5. Remettre l'interrupteur ARM sur désarmé. Rallumer la radio.
+6. Débrancher la batterie.
 
-1. CLI : taper `set dshot_edt = ON`, Entrée, puis `save`, Entrée. Débrancher l'USB.
-2. Brancher la batterie, lunettes allumées, armer au sol 3 secondes, désarmer : noter la température des ESC lue dans
-   l'OSD. Débrancher la batterie.
-3. Brancher l'USB, « Connexion ». CLI : taper `set power_guard_esc_temp = ` suivi de la température notée + 10 (exemple :
-   35 °C lus → `set power_guard_esc_temp = 45`), Entrée, puis `save`, Entrée. Débrancher l'USB.
-4. Vol habituel en ACRO, 2 minutes, en restant près de soi.
-5. Atterrir, désarmer. Brancher l'USB, « Connexion ». CLI : taper `set power_guard_esc_temp = 0`, Entrée, puis
-   `set dshot_edt = OFF`, Entrée, puis `save`, Entrée. « Connexion ».
+- À l'étape 4, les moteurs se sont arrêtés seuls, et les lunettes ont affiché « FAILSAFE » ?
+- Si NON : **ne pas voler**, m'envoyer la vidéo des lunettes.
 
-- Avant le vol (étape 2), l'OSD affiche une température des ESC (pas 0 °C) ?
-- Pendant le vol, l'OSD a affiché « ESC HOT » suivi d'un pourcentage ? (Si la température n'a jamais atteint la limite,
-  répondre « non » et noter dans « Autres remarques » la température la plus haute vue : ce n'est pas une panne.)
-- Quand « ESC HOT » était affiché, le drone volait toujours, les moteurs ne se sont jamais coupés ?
-- Après l'étape 5, Tableau de bord : Protection anti-surchauffe sur « Désactivé » ?
+## Phase C. Vol normal (avec la radio, hélices montées)
 
-## TG-P3B-3. Relance d'un moteur calé
+Terrain dégagé, personne autour. Batterie pleine.
 
-On vérifie seulement que la fonction ne se déclenche pas à tort en vol normal (un vrai moteur calé ne s'essaie pas).
+1. Monter les hélices. Brancher la batterie, drone posé à plat.
+2. Avec la radio, en ANGLE : armer, décoller, stationnaire à 2–3 m, **1 minute**.
+3. Quelques virages doux, puis 1 minute dans ton mode habituel.
+4. Atterrir, désarmer. **Garder la batterie branchée** si elle a encore de la charge pour la phase D (sinon, batterie
+   pleine pour la phase D, et la ligne I2C de la phase E ne compte que la phase D).
 
-1. CLI : taper `set motor_desync_recovery = ON`, Entrée, puis `save`, Entrée. « Connexion ».
-2. Vol habituel en ACRO, 2 minutes.
-3. Atterrir, désarmer. CLI : taper `set motor_desync_recovery = OFF`, Entrée, puis `save`, Entrée. « Connexion ».
+- Le drone vole comme avec Betaflight (pas de vibration, pas d'oscillation, pas de bruit nouveau) ?
+- Moteurs tièdes après le vol (pas brûlants) ?
 
-- Pendant le vol, l'OSD n'a jamais affiché « M1 RESTART », « M2 RESTART », « M3 RESTART » ni « M4 RESTART » ?
-- Le drone a volé comme d'habitude ?
-- Après l'étape 3, Tableau de bord : Relance moteur sur « Désactivé » ?
+## Phase D. ALT HOLD (avec la radio)
 
-## TG-P3B-4. Température des ESC sur la radio, en vol
+ALT HOLD tient la hauteur avec le baromètre. Le manche des gaz au milieu = garder la hauteur.
 
-Validé au banc le 30/10 (TG-P3A-4) : radio EdgeTX 2.11.8 et ExpressLRS 4.1.0, 4 capteurs « Temp » (un par moteur) déjà
-enregistrés dans le modèle. Ici on regarde les valeurs monter en vol.
+1. Avec la radio, en ANGLE : décoller, stationnaire stable à **3 m au moins**.
+2. Gaz à la position du stationnaire. Basculer AUX4 en haut (ALT HOLD).
+3. Ne plus toucher les gaz. Regarder **10 secondes** : le drone reste à la même hauteur ?
+4. Si le drone monte, descend ou saute : AUX4 en bas tout de suite, reprendre aux gaz.
+5. AUX4 en bas. Reprendre la main aux gaz, stationnaire.
+6. Recommencer les étapes 2 à 5 une fois.
+7. Atterrir, désarmer. **Garder la batterie branchée** (le compteur I2C repart à zéro sans courant).
 
-1. CLI : taper `set dshot_edt = ON`, Entrée, puis `set crsf_tlm_esc_temp = ON`, Entrée, puis `save`, Entrée. Débrancher
-   l'USB.
-2. Vol habituel, 2 minutes (peut être le même vol que la partie 3).
-3. Après l'atterrissage, désarmer sans débrancher la batterie. Radio : « MDL », page « TELEMETRY » : lire les 4 « Temp ».
-4. Débrancher la batterie, brancher l'USB, « Connexion ». CLI : taper `set crsf_tlm_esc_temp = OFF`, Entrée, puis
-   `set dshot_edt = OFF`, Entrée, puis `save`, Entrée.
+- ALT HOLD : le drone a gardé sa hauteur (à 1 m près) pendant les 10 s ?
+- Aucun saut brusque de hauteur, ni vers le haut ni vers le bas ?
+- AUX4 en bas : la main est revenue tout de suite aux gaz ?
 
-- À l'étape 3, les 4 « Temp » de la radio ont une valeur, plus haute qu'avant le vol ? (Noter les 4 valeurs.)
+## Phase E. Après le vol (dans le logiciel)
 
-## TG-P3B-5. Speeder (inclinaison automatique vers l'avant)
+1. Batterie toujours branchée. Brancher l'USB, « Connexion ».
+2. Onglet CLI : taper `status`, Entrée. Noter la ligne « I2C=… (… errors) ».
+3. Débrancher la batterie.
+4. Onglet Blackbox : « Enregistrer » le journal. Noter le nom du fichier.
 
-Le Speeder penche le drone vers l'avant d'un angle fixe, progressivement, quand son interrupteur est activé, en ANGLE
-seulement. Premier essai avec un petit angle : 15°.
-
-1. CLI : taper `set speeder_cruise_angle = 15`, Entrée, puis `save`, Entrée. « Connexion ».
-2. Mettre SPEEDER sur l'interrupteur d'ALTHOLD (AUX4), par le CLI (l'onglet Modes déplace les plages par crans de 25) :
-   taper `aux 3 120 3 1900 2100 0 0`, Entrée, puis `save`, Entrée.
-3. Vol en ANGLE, stationnaire à 3 m, avec de la place devant (au moins 30 m). Basculer l'interrupteur SPEEDER pendant
-   3 secondes, puis le remettre. Recommencer une fois.
-4. Atterrir, désarmer. CLI : taper `aux 3 3 3 1900 2100 0 0`, Entrée (ALTHOLD revient sur AUX4), puis
-   `set speeder_cruise_angle = 60`, Entrée, puis `save`, Entrée. Ne pas utiliser l'onglet Modes.
-
-- Interrupteur SPEEDER activé : le drone penche doucement vers l'avant (en une demi-seconde environ) et avance ?
-- Interrupteur remis : le drone revient doucement à plat ?
-- Pendant l'essai, le drone est resté stable (pas d'oscillation, pas de perte de hauteur brusque) ?
-- Après l'étape 4, `diff all` : la ligne `aux 3 3 3 1900 2100 0 0` est revenue et aucune ligne `speeder` ?
-
-## TG-P3B-6. Après les essais (USB branché, batterie débranchée)
-
-- Onglet Blackbox : « Enregistrer sous… » a créé le fichier du journal (à envoyer) ?
-- Tableau de bord, case « Fonctions TrueGlide » : tout sur « Désactivé » et Speeder à « 60° » ?
-- Onglet « Ligne de commande (CLI) » : taper `diff all`, Entrée, puis copier tout le texte dans le cadre du bas ?
+- La ligne I2C indique 0 erreur ?
 
 ## À envoyer
 
-### Fichiers envoyés (journal Blackbox, fichiers .osd des vols, diff all)
-
-### Réponse de « diff all » (partie 6) [grand]
-
-### Autres remarques (ce qui a surpris, températures vues dans l'onglet Moteurs)
+1. Le journal Blackbox (phase E).
+2. Les deux lignes I2C (phases A et E).
+3. La vidéo des lunettes (DVR), surtout la phase D.
+4. Ce qui t'a surpris.
