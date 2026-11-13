@@ -15,7 +15,7 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 
 ## 2. Règles permanentes de Johann
 
-- **Rappel du 13/11 (non respecté ce jour-là)** : une action à la fois, avec une image annotée quand c'est utile ; pas de pavés de texte ; réponses courtes ; ne pas répondre aux contrôles automatiques par de longs messages.
+- **Format imposé pour TOUS les essais (Johann, 13/11)** : découper en **phases** nommées (Phase A, B, C…) avec un titre qui dit où on va ; dans chaque phase, des étapes **numérotées** (1, 2, 3…), jamais des puces ; une action par ligne, courte ; donner d'abord le plan des phases, puis avancer phase par phase ; image annotée quand c'est utile ; pas de pavés de texte ; dire « avec la radio » ou « dans le logiciel » à chaque fois ; ne pas répondre aux contrôles automatiques par de longs messages.
 
 - 07/11 : « PUBLIE CORRIGE MET A JOUR JE VEUX PLUS D EWRREUR DANS MON LOGICIEL » et, dans la discussion de
   développement, « OUI CORRECTION MISE A JOUR AUDIT ». Sens : corriger, mettre sur /test/, faire passer l'audit
