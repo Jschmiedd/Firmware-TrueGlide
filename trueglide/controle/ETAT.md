@@ -33,6 +33,24 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
   `[skip ci]`, sans identifiant de modèle d'IA ; un .hex donné à Johann garde son nom standard ; vérifier la révision
   dans le fichier avant de le donner.
 
+## 2 bis. Signalements à Betaflight : ordre imposé (décision de Johann, 13/11)
+
+Opportunité de se faire connaître : **dans le bon ordre et sans erreur**. Aucune étape sautée, aucune envoyée avant
+la précédente.
+
+1. Audit de la fiche TG-B1 (OUI), puis essai TG-B1 par Johann, filmé (écran et moteurs).
+2. Vérification des vidéos et du journal : chaque défaut reproduit sous Betaflight App, chaque protection vue sous
+   TRUEGLIDE. Un défaut non reproduit n'est pas signalé.
+3. Re-vérification sur le code amont le plus récent (master) le jour de la rédaction : déjà corrigé = pas signalé ;
+   recherche des doublons (issues et PR).
+4. Rédaction en anglais, un signalement par défaut, neutre et technique, IA déclarée (règle Betaflight), une phrase
+   « trouvé en développant TRUEGLIDE ».
+5. Relecture et OUI de l'audit, puis OUI écrit de Johann. Envoi par Johann depuis son compte GitHub.
+6. Seulement après les réponses de Betaflight : vidéo publique TalkTrueFPV.
+
+Candidats (13/11) : pilote I2C sans remise à zéro après erreur ; intensité MSP_BATTERY_STATE lue sans signe ; GM3
+`&&` ; molette ; page cachée ; confirmation matérielle de betaflight#15533 si l'essai baro la prouve.
+
 ## 3. Défauts encore ouverts
 
 | Gravité | Défaut | Où |
