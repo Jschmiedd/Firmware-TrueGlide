@@ -140,10 +140,14 @@ memset(&i2c_ev_state[device], 0, sizeof(i2c_ev_state[device]));
 // i2cInit(), after memset(&pDev->state, ...)
 memset(&i2c_ev_state[device], 0, sizeof(i2c_ev_state[device]));
 ```
-Possibly related: #15824 (DPS368 random altitude spikes on 2026.6.2, worse with bidirectional DShot and
-ESC_SENSOR) and #15533 (bogus baro values on a FLYWOOF405S_AIO, bisected to the DShot bitbang
-change 7f2ce39; the fix #15538 also mentions the SpeedyBee F405 AIO). Whatever causes the I2C error, this report is about what the driver does after one. The
-board here uses timer DShot (`dshot_bitbang = OFF`), so 7f2ce39 is not involved.
+Related reports: #15533 was bisected to the DShot bitbang change 7f2ce39 (FLYWOOF405S_AIO, then a SpeedyBee F405 AIO).
+In the same issue, a later comment reports a SpeedyBee F405 V4 (DPS310 on I2C1, board default `dshot_bitbang = OFF`)
+on 2026.6.2: baro values go wrong as soon as DShot300 / bidirectional DShot is enabled, and with bitbang ON there are
+still occasional spikes (baro temperature to 4000, pressure down to 300). With bitbang OFF, 7f2ce39 is not involved.
+Pressure and temperature wrong together is the pattern this driver issue gives. The board here (SpeedyBee F405 Mini,
+same baro and I2C pins, timer DShot300 bidirectional, bitbang OFF) is the same case. Also possibly related: #15824
+(DPS368 random altitude spikes on 2026.6.2, worse with bidirectional DShot and ESC_SENSOR). Whatever causes the I2C
+error, this report is about what the driver does after one.
 
 ---
 
