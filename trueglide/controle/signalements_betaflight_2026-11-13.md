@@ -15,9 +15,9 @@ Pièces jointes à ajouter par Johann (fichiers du 13/11, versions 480p) :
   0:25-0:37) et `VID_20261113_183227_480p_son.mp4` (téléphone avec son : moteurs entendus de 0:27 à 0:38).
 - 5 : `barometre.mp4` (A : pression sous −10 000 toutes les ~5 s ; **24 Mo, trop gros pour GitHub (10 Mo au plus) :
   le réduire en 480p avec l'outil du site**), `barom_tre_test_B_480p_son.mp4` (B : 961 hPa
-  stable ; onglet « TrueGlide XPro » visible à partir de 0:24 : laissé tel quel, décision de Johann le 13/11) et le fichier
+  stable ; **onglet « TrueGlide XPro » visible à partir de 0:24, à flouter ou couper avant l'envoi**) et le fichier
   `trueglide/controle/essais_erreur5/injection_test_betaflight_2026.6.2.patch`.
-- Avant l'envoi : revoir chaque vidéo en entier.
+- Avant l'envoi : revoir chaque vidéo en entier, rien de XPRO à l'écran (onglets du navigateur compris).
 - Ne pas joindre : VID_20261113_171126 et _172322 (écran illisible), _174238 (trou de 4 min), _174424 (floue),
   _180721 (sans son, remplacée), ni les vidéos TRUEGLIDE.
 
