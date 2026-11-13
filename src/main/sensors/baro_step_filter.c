@@ -6,6 +6,8 @@
 
 #include <math.h>
 
+#include "platform.h"
+
 #include "sensors/baro_step_filter.h"
 
 bool baroStepFilterAccept(baroStepFilter_t *filter, float altitudeCm)

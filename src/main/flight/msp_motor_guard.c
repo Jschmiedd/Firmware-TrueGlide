@@ -10,6 +10,8 @@
 
 #include <stdbool.h>
 
+#include "platform.h"
+
 #include "flight/msp_motor_guard.h"
 
 static bool guardActive;
