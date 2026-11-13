@@ -20,7 +20,8 @@ Pièces jointes à ajouter par Johann : vidéos d'écran du 13/11 (1, 2), vidéo
 **Describe the bug**
 With motor testing enabled, turning the mouse wheel anywhere over a motor's column (not only on the slider thumb, and
 without having clicked the slider) changes that motor's value by +25 per wheel event. On a mouse that sends several
-wheel events per notch, 2–3 notches take the motor from 1100 to 2000 (full throttle) in a fraction of a second. A user
+wheel events per notch, a few notches took the motor from 1100 to 1775 in a fraction of a second (the limit is the slider
+maximum). A user
 who only wants to scroll the page can spin a motor up.
 
 **To reproduce** (props off)
@@ -37,8 +38,7 @@ motor test area, so the wheel can only change motors there.
 logic on master (`onSliderWheel`, line 1634).
 
 **Suggested fix:** act on the wheel only when the slider inside the cell has focus
-(`event.currentTarget.contains(document.activeElement)`), otherwise let the page scroll. Optionally ignore the wheel
-while armed.
+(`event.currentTarget.contains(document.activeElement)`), otherwise let the page scroll.
 
 **Evidence:** screen recording + phone video, SpeedyBee F405 Mini, Betaflight 2026.6.2 firmware, App 2026.6.2.
 
@@ -53,12 +53,11 @@ while armed.
 **Describe the bug**
 With motor testing active, switching to another browser tab (or minimising the app window) leaves the motors spinning
 at the last commanded value. Nothing stops the test when the page is hidden, and the firmware keeps the last
-`MSP_SET_MOTOR` value with no timeout, so the motors run unattended while the user is looking elsewhere. Browsers also
-throttle timers in hidden pages.
+`MSP_SET_MOTOR` value with no timeout, so the motors run unattended while the user is looking elsewhere.
 
 **To reproduce** (props off)
 1. Motors tab, enable motor testing, master slider ~1140.
-2. Click another browser tab with the mouse (no keyboard: any key already stops the test). Wait 5 s.
+2. Click another browser tab with the mouse (mouse only: most keys already stop the test). Wait 5 s.
 3. Come back.
 
 **Expected:** the test stops (stop value sent) when the page becomes hidden.
@@ -69,7 +68,7 @@ throttle timers in hidden pages.
 `MSP_SET_MOTOR` writes `motor_disarmed[]` with no timeout (`src/main/msp/msp.c`).
 
 **Suggested fix:** on `document.visibilitychange` with `document.hidden`, disable motor testing (sends the stop
-value) and close the motor dialogs (which stop the motors on close).
+value) and close the motor dialogs.
 
 **Evidence:** screen recording + phone video with sound (motors audible during the 5 s the other tab is shown).
 
@@ -124,13 +123,13 @@ without writing the register address, so the device returns data from wherever i
 only clears `pDev->state` (line 453), not `i2c_ev_state`, so even a reinit does not clear it. One wrong read follows
 each aborted read. Barometer code ignores the error flag (`busBusy(..., NULL)`), so the wrong data is used.
 
-**Observed:** on a SpeedyBee F405 Mini (DPS310 on I2C1), occasional readings of −7540 hPa / 258 °C (pressure and
+**Observed:** on a SpeedyBee F405 Mini (DPS310 on I2C1), with a Betaflight 2026.6.2-based build (same I2C driver), occasional readings of −7540 hPa / 258 °C (pressure and
 temperature wrong together, i.e. bytes read from the wrong registers), altitude jumps of hundreds/thousands of metres.
 
 **Reproduction (test build, not for flight):** Betaflight 2026.6.2 + a test-only patch that aborts a 6-byte read after
-its 2nd data byte every 5 s, exactly like the AF/BERR branch of `i2c_er_handler()` (ACK off, STOP, interrupts off,
-`error = true`, `busy = 0`).
-- Build A (no fix): debug BARO pressure drops below −10000 every ~5 s; `status` shows 0 I2C errors (bus not stalled).
+its 3rd data byte every 5 s, like the AF/BERR branch of `i2c_er_handler()` (STOP, interrupts off, `error = true`,
+`busy = 0`), with ACK turned off before STOP so that the bus is released cleanly.
+- Build A (no fix): the debug BARO pressure value drops below −10000 every ~5 s; `status` shows 0 I2C errors (bus not stalled).
 - Build B (same + fix): pressure stable at 961 hPa, temperature 18 °C.
 Patch and videos attached.
 
