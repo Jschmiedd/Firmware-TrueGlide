@@ -11,7 +11,7 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 | Logiciel /test/ | 25f82b1 (= 7dc6865 + onglet ESC v25 f646695, OUI de l'audit pour /test/ seulement) | gh-pages 797de81 | 11/11/2026 |
 | Firmwares en ligne (catalogue de /app/ et /test/) | **cb4e3f0f2** (code = 5e246cc), 33 cartes, modèle TRUEGLIDE, version d'essai (seule SPEEDYBEEF405MINI essayée sur une vraie carte, révisions précédentes ; cb4e3f0 en essai TG-A1-7) ; précédente 4b3d47cba | gh-pages 674ceca (notes, flasheur, accueil) | 08/11/2026 |
 | Onglet ESC | /app/ : onglet/v24 (34244fe) ; /test/ : onglet/v25 (f646695 : ESC en FLASH*FAILED sauté à l'écriture), /app/ après essai au banc et « OUI V25 SUR APP » de Johann | TrueGlide-ESC-Configurator | 11/11/2026 |
-| Firmware sur le Mini Pouce de Johann | Betaflight 2025.12.2 depuis le 08/11 (sauvegarde XPRO KarRmen du 14/10, vidéo hors ligne) ; à reflasher en TRUEGLIDE cb4e3f0 | — | 13/11/2026 |
+| Firmware sur le Mini Pouce de Johann | TRUEGLIDE cb4e3f0f2 depuis le 13/11 (flash /app/, `version` relu par Johann ; sauvegarde TRUEGLIDE du 08/11 cb4e3f0 à recoller, vérifiée identique à celle du 31/10 sauf nom et calibration acc) | — | 13/11/2026 |
 
 ## 2. Règles permanentes de Johann
 
