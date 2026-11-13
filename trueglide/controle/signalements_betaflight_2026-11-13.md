@@ -140,17 +140,22 @@ memset(&i2c_ev_state[device], 0, sizeof(i2c_ev_state[device]));
 // i2cInit(), after memset(&pDev->state, ...)
 memset(&i2c_ev_state[device], 0, sizeof(i2c_ev_state[device]));
 ```
-Related reports: #15533 was bisected to the DShot bitbang change 7f2ce39 (FLYWOOF405S_AIO, then a SpeedyBee F405 AIO).
-In the same issue, a later comment reports a SpeedyBee F405 V4 (DPS310 on I2C1, board default `dshot_bitbang = OFF`)
-on 2026.6.2: baro values go wrong as soon as DShot300 / bidirectional DShot is enabled, and with bitbang ON there are
-still occasional spikes (baro temperature to 4000, pressure down to 300). With bitbang OFF, 7f2ce39 is not involved.
-Pressure and temperature wrong together is the pattern this driver issue gives. The board here (SpeedyBee F405 Mini,
-same baro and I2C pins, timer DShot300 bidirectional, bitbang OFF) is the same case. Also related: #15824
-(NYX405V1, DPS368 on I2C1, board default `dshot_bitbang = OFF`: random altitude spikes on 2026.6.2, worse with
-bidirectional DShot and ESC_SENSOR; a SpeedyBee F405V4 user reports the same there). Its reporter could not reproduce
-on master and closed it as a duplicate of #15533. Master may have removed what triggers the I2C errors, but the
-driver code that runs after an error is unchanged on master (same lines as above). Whatever causes the I2C
-error, this report is about what the driver does after one.
+Related reports:
+- #15587: same board as here (SPEEDYBEEF405MINI, DPS310), baro jumping to −6000 m then 600 m, also at rest in the
+  sensors tab; fine on 2025.12.5. Closed as a duplicate of #15533 and "Fixed in #15538". But this board's default is
+  `dshot_bitbang = OFF` (`SPEEDYBEEF405MINI/config.h` line 98), and #15538 only changes the bitbang code, so with the
+  default setting it does not run on this board.
+- #15533: bisected to the DShot bitbang change 7f2ce39 (FLYWOOF405S_AIO, then a SpeedyBee F405 AIO). A later comment
+  there reports a SpeedyBee F405 V4 (DPS310 on I2C1, board default bitbang OFF) on 2026.6.2: baro values go wrong as
+  soon as DShot300 / bidirectional DShot is enabled; with bitbang ON there are still occasional spikes (baro
+  temperature to 4000, pressure down to 300).
+- #15824: NYX405V1 (DPS368 on I2C1, board default bitbang OFF), random altitude spikes on 2026.6.2, worse with
+  bidirectional DShot and ESC_SENSOR. Its reporter could not reproduce on master and closed it as a duplicate of
+  #15533.
+
+Pressure and temperature wrong together is the pattern this driver issue gives. Master may have removed what triggers
+the I2C errors, but the driver code that runs after an error is unchanged on master (same lines as above). Whatever
+causes the I2C error, this report is about what the driver does after one.
 
 ---
 
