@@ -140,8 +140,10 @@ memset(&i2c_ev_state[device], 0, sizeof(i2c_ev_state[device]));
 // i2cInit(), after memset(&pDev->state, ...)
 memset(&i2c_ev_state[device], 0, sizeof(i2c_ev_state[device]));
 ```
-Not the same as #15533 (invalid baro values in flight on a FLYWOOF405S_AIO, bisected to the DShot bitbang change
-7f2ce39): the board here uses timer DShot (`dshot_bitbang = OFF`), so that change is not involved.
+Possibly related: #15824 (DPS368 random altitude spikes on 2026.6.2, worse with bidirectional DShot and
+ESC_SENSOR) and #15533 (bogus baro values on FLYWOOF405S_AIO and SpeedyBee F405 AIO, bisected to the DShot bitbang
+change 7f2ce39). Noise on the bus can cause the I2C errors; this report is about what the driver does after one. The
+board here uses timer DShot (`dshot_bitbang = OFF`), so 7f2ce39 is not involved.
 
 ---
 
