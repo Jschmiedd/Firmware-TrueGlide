@@ -17,6 +17,8 @@ def flush():
         for k,v in blocks[cur].items():
             if k not in KEEP_TG: out.append(f'set {k} = {v}')
 for l in tg:
+    if l.startswith(('mcu_id','signature')):
+        continue  # jamais l'identifiant de la carte (règle de Johann, 14/11)
     m=re.match(r'(profile|rateprofile) (\d+)$',l)
     if m:
         flush(); cur=(m.group(1),int(m.group(2))); out.append(l); continue
