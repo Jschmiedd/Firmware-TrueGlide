@@ -59,11 +59,11 @@ l'étape 1** et relit les octets à partir du mauvais registre. Le baromètre do
 **La correction.**
 1. Dans `i2c_er_handler()` (quand une erreur arrive) : `memset(&i2c_ev_state[device], 0, …)` remet cette mémoire à
    zéro.
-2. Dans `i2cInit()` (au démarrage) : la même remise à zéro.
+2. Dans `i2cInit()` (au démarrage et à chaque réinitialisation du bus) : la même remise à zéro.
 
 **La preuve.** Tes tests A et B du 13/11 :
 1. A, sans la correction : la pression plonge toutes les 5 s ;
-2. B, avec la correction : la pression reste stable à 961 hPa.
+2. B, avec la même remise à zéro à la fin de l'abandon simulé : la pression reste stable à 961 hPa.
 
 **Pourquoi en brouillon.** Betaflight exige un journal Blackbox d'un **vrai vol** avec le firmware de la PR. Le vol
 TG-P3B se fait sur TRUEGLIDE, il ne compte donc pas. Il faudra un vol à part.
