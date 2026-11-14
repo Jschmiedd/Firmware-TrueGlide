@@ -56,6 +56,9 @@ Johann donne le OUI écrit avant chaque envoi sur GitHub. Aucune étape n'est sa
 
 ## Phase F. Envoi
 
+0 bis. **Auteur de chaque commit : Jschmiedd** (règle de Johann, 14/11), avec une ligne « Co-Authored-By: Claude » à la fin
+   du message. `verif_pr.sh` bloque un autre auteur. Les 4 commits « Claude » de la #592 et de la #593 (d7939cc, 30f3570,
+   6e58f9f, 585badd) restent tels quels : Chris les avait déjà lus.
 0. **Une seule discussion demande le OUI d'envoi à Johann : celle qui pousse.** L'autre contrôle avant et ne pose
    pas la question (malentendu du 14/11 : deux demandes croisées pendant le repas).
 1. Johann donne son **OUI écrit**.
