@@ -1,0 +1,11 @@
+# Mini Pouce, TRUEGLIDE cb4e3f0 : réglages anti-désync (départs en course et launch control), profil PID 3 seulement.
+# À coller dans l'onglet CLI de TRUEGLIDE, PAS dans le firmware Betaflight de la PR.
+# NE PAS COLLER avant le OUI de l'audit. Les ESC (démag High) se règlent à part, dans l'onglet ESC, hélices retirées.
+profile 3
+# ralenti dynamique : 2500 -> 3000 tr/min (le moteur part de plus haut au départ)
+set dyn_idle_min_rpm = 30
+# boost des gaz : 7 -> 5 (valeur par défaut)
+set throttle_boost = 5
+# boost du feedforward : 18 -> 15 (valeur par défaut)
+set feedforward_boost = 15
+save
