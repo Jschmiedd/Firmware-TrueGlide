@@ -1,4 +1,4 @@
-# Essai TG-PR16023 : vol avec le firmware de la PR Betaflight #16023 (I2C), puis ALT HOLD (Mini Pouce)
+# Essai TG-PR16023 : vol avec le firmware de la PR Betaflight #16023 (I2C), journal du baromètre (Mini Pouce)
 
 Date : …… Lieu : …… Fait par : ……
 
@@ -6,7 +6,7 @@ Date : …… Lieu : …… Fait par : ……
 - Phase A : flasher le firmware de la PR, dans Betaflight App (USB, batterie débranchée).
 - Phase B : remettre tes réglages et préparer l'enregistrement, dans Betaflight App.
 - Phase C : failsafe au sol, avec la radio (**hélices retirées**).
-- Phase D : vol normal, puis ALT HOLD, avec la radio (hélices montées).
+- Phase D : vol normal, avec la radio (hélices montées). Pas d'ALT HOLD.
 - Phase E : relevés après le vol, dans Betaflight App.
 - Phase F : retour en TRUEGLIDE cb4e3f0, dans TRUEGLIDE /app/.
 
@@ -22,13 +22,14 @@ Mêmes règles que TG-P3B :
 ## Phase A. Flasher le firmware de la PR (dans Betaflight App)
 
 1. Batterie débranchée. Brancher l'USB. Ouvrir **app.betaflight.com**.
-2. Activer le **mode expert** (interrupteur en haut de l'écran).
-3. Onglet « Flasher le firmware » : carte **SPEEDYBEEF405MINI**.
-4. Afficher les versions de développement, puis dans le champ **« Select commit »** taper **#16023**.
-5. Options de construction : cocher **GPS** (sans GPS, ALT HOLD n'est pas dans le firmware), en plus des options
-   proposées par défaut (récepteur CRSF, OSD, télémétrie).
-6. **Effacement complet** activé. Flasher.
-7. « Connexion ». Onglet CLI : taper `version`, Entrée. Noter toute la ligne.
+2. Onglet « Flasher le firmware » : activer l'interrupteur « Mode Expert », dans le cadre de choix de la carte.
+3. Activer « Afficher les versions RC ». Dans la liste qui apparaît, choisir « Développement ».
+4. Carte SPEEDYBEEF405MINI. Dans « Choisir la version du Firmware », choisir la version de développement.
+5. Dans « Générer la configuration », champ « Select Pull Request or Commit » (en anglais) : taper #16023 et valider.
+6. « Autres Options » : ajouter GPS. Faire une capture des options avant de flasher.
+7. Cocher « Effacement complet de la puce ». Flasher. Dans l'avertissement « firmware en développement », cocher la
+   case puis confirmer.
+8. « Connexion ». Onglet CLI : taper `version`, Entrée. Noter toute la ligne.
 
 - La ligne de `version` contient « Betaflight », « SPEEDYBEEF405MINI » et un numéro de commit (à noter) ?
 
@@ -37,12 +38,14 @@ Mêmes règles que TG-P3B :
 1. Onglet CLI : coller tout le fichier `mini_pouce_betaflight_pr16023.txt`, Entrée. La carte redémarre.
 2. « Connexion ». Onglet CLI : taper `diff all`, Entrée. Copier tout le texte (à envoyer).
 3. Taper `set debug_mode = BARO`, Entrée. Taper `save`, Entrée. La carte redémarre.
-4. « Connexion ». Onglet Modes : vérifier ARM sur AUX1, ANGLE sur AUX3 bas, ALTHOLD sur AUX4 haut.
+4. « Connexion ». Onglet Modes : vérifier ARM sur AUX1, ANGLE sur AUX3 bas, ALTHOLD présent sur AUX4 haut (non
+   utilisé dans ce vol).
 5. Onglet Blackbox : « Effacer la mémoire flash ».
 6. Onglet CLI : taper `status`, Entrée. Noter la ligne « I2C=… (… errors) » et la ligne du gyro.
 7. « Déconnecter ». Débrancher l'USB.
 
-- Au collage (étape 1), aucune ligne `###ERROR` ? (S'il y en a : noter les lignes, **ne pas voler**, me les envoyer.)
+- Au collage (étape 1), aucune ligne `###ERROR` ? (S'il y en a : rien n'est enregistré ; noter les lignes, **ne pas
+  voler**, me les envoyer.)
 - Les 3 modes sont sur les bons interrupteurs ?
 
 ## Phase C. Failsafe au sol (avec la radio, HÉLICES RETIRÉES)
@@ -59,25 +62,16 @@ Cet essai prouve l'arrêt au sol (gaz en bas). Il ne prouve pas le DROP en vol.
 - À l'étape 4, les moteurs se sont arrêtés seuls ?
 - Si NON : **ne pas voler**, me prévenir.
 
-## Phase D. Vol normal puis ALT HOLD (avec la radio, hélices montées)
+## Phase D. Vol normal (avec la radio, hélices montées)
 
-Terrain dégagé, personne autour. Batterie pleine.
+Terrain dégagé, personne autour. Batterie pleine. **Ne pas toucher AUX4 pendant tout le vol.**
 
 1. Monter les hélices. Brancher la batterie, drone posé à plat.
 2. Avec la radio, en ANGLE : armer, décoller, stationnaire à 2–3 m, **1 minute**. Noter le % de gaz du stationnaire.
 3. Quelques virages doux.
-4. Monter à **3 m au moins**, stationnaire stable.
-5. Basculer AUX4 en haut (ALT HOLD). S'attendre à ce que le drone descende ou monte pendant 1 à 2 s : garder 3 m au
-   moins et le doigt sur AUX4.
-6. Ne plus toucher les gaz. Regarder **10 secondes**.
-7. Si le drone monte, descend ou saute : AUX4 en bas tout de suite, reprendre aux gaz.
-8. AUX4 en bas. Reprendre la main aux gaz.
-9. Recommencer les étapes 5 à 8 une fois.
-10. Atterrir, désarmer. **Garder la batterie branchée** (le compteur I2C repart à zéro sans courant).
+4. Atterrir, désarmer. **Garder la batterie branchée** (le compteur I2C repart à zéro sans courant).
 
 - Le drone a volé comme d'habitude (pas de vibration, pas d'oscillation, pas de bruit nouveau) ?
-- ALT HOLD : le drone a gardé sa hauteur (à 1 m près) pendant les 10 s ?
-- Aucun saut brusque de hauteur ?
 
 ## Phase E. Relevés après le vol (dans Betaflight App)
 
@@ -89,7 +83,8 @@ relevée).
 3. Débrancher la batterie.
 4. Onglet Blackbox : « Enregistrer » le journal. **Renommer le fichier en `.log`** (GitHub refuse `.bbl`).
 
-- La ligne I2C indique 0 erreur ? (Noter le nombre, même s'il n'est pas 0.)
+- Le nombre d'erreurs I2C est noté ? (Ce compteur compte seulement les blocages du bus, pas les erreurs NACK ou
+  BERR que la PR traite : 0 ne prouve pas qu'il n'y a pas eu de telles erreurs.)
 
 ## Phase F. Retour en TRUEGLIDE cb4e3f0 (dans TRUEGLIDE /app/)
 
@@ -106,5 +101,5 @@ relevée).
 2. Les deux textes `status` (phases B et E).
 3. Le journal Blackbox renommé en `.log`.
 4. Le % de gaz du stationnaire.
-5. La vidéo des lunettes (DVR), surtout l'ALT HOLD.
+5. La vidéo des lunettes (DVR).
 6. Ce qui t'a surpris.
