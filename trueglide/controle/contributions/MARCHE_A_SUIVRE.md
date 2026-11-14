@@ -40,6 +40,18 @@ Johann donne le OUI écrit avant chaque envoi sur GitHub. Aucune étape n'est sa
 1. Une fiche en français : le défaut, chaque ligne changée, la preuve.
 2. Johann la lit et doit pouvoir expliquer la PR **sans outil** (règle Betaflight, AI_POLICY).
 
+## Phase E bis. Johann relit le diff dans VS Code (guidé par Claude)
+
+1. VS Code, extension « GitHub Pull Requests » : ouvrir la branche ou la PR, onglet des fichiers changés.
+2. Pour chaque fichier, lire chaque ligne verte (ajoutée) et rouge (retirée), avec la fiche d'explication à côté.
+3. Pour chaque commentaire ajouté, se poser la question de Chris : « le code le dit-il déjà ? ».
+4. Regarder les soulignements de l'extension ESLint : aucun nouveau.
+5. Si besoin, Copilot Chat sur le diff, seulement pour CHERCHER des problèmes, jamais pour écrire :
+   « Liste les commentaires qui répètent ce que le code dit déjà », « Ce message ressemble-t-il aux messages voisins ? ».
+   Ses réponses sont vérifiées comme celles de toute IA.
+6. Ne pas lancer « Copilot code review » sur une PR déjà ouverte chez Chris ou Betaflight sans leur accord.
+7. Noter les questions ; Claude y répond avant le OUI.
+
 ## Phase F. Envoi
 
 1. Johann donne son **OUI écrit**.
