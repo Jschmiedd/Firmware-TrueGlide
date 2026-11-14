@@ -5,7 +5,8 @@ Lis-la une fois par PR, puis réexplique-la avec tes mots. Si une ligne n'est pa
 
 ## PR 1. Nacelle GM3 : un octet faux (firmware)
 
-**Fichier :** `src/main/io/gimbal_control.c`, 1 ligne.
+**Fichiers :** `src/main/io/gimbal_control.c`, 1 ligne, plus 1 fichier de test (`src/test/unit/gimbal_control_unittest.cc`,
+2 tests) et son entrée dans `src/test/Makefile`.
 
 **Ce que fait ce code.** La carte reçoit des octets sur le port de la nacelle. Un ordre pour la nacelle commence par
 2 octets fixes : `A5` puis `5A`. La carte garde le `A5` en attente pour voir si `5A` suit. Si autre chose suit, ce
@@ -18,9 +19,12 @@ n'était pas un ordre : la carte renvoie les octets tels quels.
 
 **La correction.** `&&` devient `&`. La ligne au-dessus (`GIMBAL_OP1`) utilise déjà `&`.
 
-**La preuve.** Au simulateur (SITL), on envoie `A5 12` :
-1. avant la correction, la nacelle reçoit `01 12` ;
-2. après la correction, elle reçoit `A5 12`.
+**La preuve.**
+1. Au simulateur (SITL), on envoie `A5 12` : avant la correction, la nacelle reçoit `01 12` ; après, `A5 12`.
+2. Test automatique 1 : `A5 12` doit ressortir tel quel. Sans la correction, il ressort `01 12` (le compilateur
+   clang refuse même de compiler l'ancienne ligne : il signale le `&&` avec une constante).
+3. Test automatique 2 : `12 34` (aucun en-tête) doit ressortir tel quel. Il passe avant et après : il vérifie que rien
+   d'autre n'a changé.
 
 **Quand ça arrive en vrai.** Quand un `A5` passe dans le flux de la nacelle sans être suivi de `5A`.
 
@@ -61,7 +65,7 @@ l'étape 1** et relit les octets à partir du mauvais registre. Le baromètre do
    zéro.
 2. Dans `i2cInit()` (au démarrage et à chaque réinitialisation du bus) : la même remise à zéro.
 
-**La preuve.** Tes tests A et B du 13/11 :
+**La preuve.** Tes tests A et B du 13/11 (batterie branchée, désarmé avec la radio, moteurs arrêtés) :
 1. A, sans la correction : la pression plonge toutes les 5 s ;
 2. B, avec la même remise à zéro à la fin de l'abandon simulé : la pression reste stable à 961 hPa.
 
