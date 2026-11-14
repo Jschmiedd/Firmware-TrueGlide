@@ -104,4 +104,4 @@ par défaut vérifiés le 14/11 (`git ls-remote`) ; la branche de base d'une PR 
 |---|---|---|---|---|
 | 13/11 | Chris | #590 | « Implicit. Please remove this comment. » | #590, #592, #593, branches 4 à 7 |
 | 14/11 | Chris | #592 | commentaire au-dessus de l'erreur redondant ; message à reformuler (« Gave up flashing ESC {{index}} - no progress for {{seconds}} s, check the ESC power ») | #592, #593 |
-| 14/11 | (préventif) | #592, #593 | reformulation de 3 commentaires maladroits : 30f3570 (#592), 585badd (#593), pas encore poussés, en attente du OUI de Johann | #592, #593 |
+| 14/11 | (préventif) | #592, #593 | reformulation de 3 commentaires maladroits : 30f3570 (#592), 585badd (#593), poussés le 14/11 avant le contrôle de la phase D (écart à la marche à suivre), contrôlés après coup : commentaires seulement, verif_pr.sh sans point bloquant | #592, #593 |
