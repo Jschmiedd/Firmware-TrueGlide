@@ -75,8 +75,8 @@ relevée).
 3. Débrancher la batterie.
 4. Onglet Blackbox : « Enregistrer » le journal. Noter le nom du fichier.
 
-- La ligne I2C est notée ? (Ce compteur compte seulement les blocages du bus, pas toutes les erreurs : 0 ne prouve pas
-  à lui seul qu'il n'y a eu aucune erreur ; le journal Blackbox le dira.)
+- La ligne I2C indique 0 erreur ? (Dans TRUEGLIDE, ce compteur compte les blocages du bus et les erreurs NACK, BERR,
+  ARLO et OVR. Noter le nombre, même s'il n'est pas 0.)
 
 ## À envoyer
 
