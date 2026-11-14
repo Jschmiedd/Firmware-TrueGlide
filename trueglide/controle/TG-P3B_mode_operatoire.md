@@ -80,7 +80,7 @@ relevée).
 
 ## À envoyer
 
-1. Le journal Blackbox (phase E).
+1. Le journal Blackbox (phase D).
 2. Les deux lignes I2C (phase A = référence, phase D = vol).
 3. Le % de gaz du stationnaire (phase C).
 4. La vidéo des lunettes (DVR).
