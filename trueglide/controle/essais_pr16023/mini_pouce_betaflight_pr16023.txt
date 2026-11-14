@@ -1,0 +1,269 @@
+# Mini Pouce : réglages pour Betaflight (essai PR #16023), tirés de la sauvegarde TRUEGLIDE du 08/11 (cb4e3f0).
+# Tous les noms de réglages existent dans Betaflight master (vérifié le 14/11). mcu_id et signature retirés.
+# DIFF all
+
+
+# start the command batch
+batch start
+
+# reset configuration to default settings
+defaults nosave
+
+board_name SPEEDYBEEF405MINI
+manufacturer_id SPBE
+
+# name: MINI POUCE
+
+# feature
+feature TELEMETRY
+feature OSD
+
+# serial
+serial UART1 131073 115200 57600 0 115200
+
+# aux
+aux 0 0 1 1925 2100 0 0
+aux 1 1 2 900 1075 0 0
+aux 2 2 2 1400 1600 0 0
+aux 3 3 3 1900 2100 0 0
+aux 4 49 0 1900 2100 0 0
+
+# master
+set gyro_lpf1_static_hz = 0
+set dyn_notch_q = 350
+set dyn_notch_max_hz = 650
+set gyro_lpf1_dyn_max_hz = 600
+set acc_calibration = 0,9,12,1
+set rc_smoothing_auto_factor = 25
+set fpv_mix_degrees = 21
+set motor_kv = 4000
+set dshot_bidir = ON
+set motor_pwm_protocol = DSHOT300
+set yaw_motors_reversed = ON
+set 3d_deadband_low = 1450
+set 3d_deadband_high = 1550
+set 3d_neutral = 1500
+set 3d_deadband_throttle = 20
+set small_angle = 180
+set deadband = 10
+set yaw_deadband = 15
+set alt_hold_deadband = 40
+set pid_process_denom = 2
+set simplified_gyro_filter = OFF
+set osd_vbat_pos = 2112
+set osd_rssi_pos = 2496
+set osd_tim_1_pos = 3662
+set osd_flymode_pos = 2048
+set osd_throttle_pos = 2528
+set osd_vtx_channel_pos = 3596
+set osd_crosshairs_pos = 14649
+set osd_ah_sbar_pos = 14618
+set osd_current_pos = 2560
+set osd_mah_drawn_pos = 2592
+set osd_craft_name_pos = 2679
+set osd_pilot_name_pos = 14957
+set osd_gps_speed_pos = 15364
+set osd_home_dir_pos = 14393
+set osd_home_dist_pos = 15375
+set osd_compass_bar_pos = 14357
+set osd_altitude_pos = 15406
+set osd_power_pos = 14912
+set osd_warnings_pos = 2389
+set osd_avg_cell_voltage_pos = 14368
+set osd_battery_usage_pos = 2656
+set osd_esc_tmp_pos = 7726
+set osd_sys_goggle_voltage_pos = 15982
+set craft_name = MINI POUCE
+set pilot_name = SLAYER
+
+profile 0
+
+# profile 0
+set profile_name = LAUNCH
+set dterm_lpf1_dyn_min_hz = 90
+set dterm_lpf1_dyn_max_hz = 180
+set dterm_lpf1_static_hz = 0
+set dterm_lpf2_static_hz = 180
+set anti_gravity_gain = 250
+set iterm_rotation = ON
+set iterm_relax = RPY
+set iterm_relax_type = GYRO
+set iterm_relax_cutoff = 20
+set p_pitch = 58
+set i_pitch = 95
+set d_pitch = 48
+set f_pitch = 145
+set p_roll = 55
+set i_roll = 90
+set d_roll = 45
+set f_roll = 140
+set p_yaw = 50
+set i_yaw = 95
+set f_yaw = 140
+set d_max_roll = 0
+set d_max_pitch = 0
+set thrust_linear = 25
+set feedforward_transition = 40
+set feedforward_smooth_factor = 45
+set feedforward_jitter_factor = 8
+set feedforward_boost = 18
+set dyn_idle_min_rpm = 25
+set simplified_pids_mode = OFF
+set simplified_dterm_filter = OFF
+set tpa_rate = 55
+set tpa_breakpoint = 1400
+
+profile 1
+
+# profile 1
+set profile_name = 15054S
+set anti_gravity_gain = 220
+set p_pitch = 53
+set i_pitch = 88
+set d_pitch = 46
+set f_pitch = 138
+set p_roll = 50
+set i_roll = 83
+set d_roll = 43
+set f_roll = 133
+set p_yaw = 47
+set i_yaw = 88
+set f_yaw = 133
+set d_max_roll = 0
+set d_max_pitch = 0
+set auto_profile_cell_count = 4
+set launch_trigger_throttle_percent = 75
+set launch_angle_limit = 55
+set launch_control_gain = 60
+set dyn_idle_min_rpm = 30
+set dyn_idle_d_gain = 0
+set simplified_pids_mode = OFF
+
+profile 2
+
+# profile 2
+set profile_name = 15053S
+set auto_profile_cell_count = 3
+set dyn_idle_min_rpm = 25
+
+profile 3
+
+# profile 3
+set profile_name = 15054S
+set dterm_lpf1_static_hz = 0
+set anti_gravity_gain = 250
+set iterm_relax = RPY
+set iterm_relax_type = GYRO
+set iterm_relax_cutoff = 20
+set throttle_boost = 7
+set throttle_boost_cutoff = 25
+set p_pitch = 58
+set i_pitch = 85
+set d_pitch = 65
+set f_pitch = 130
+set p_roll = 58
+set i_roll = 85
+set d_roll = 52
+set f_roll = 130
+set p_yaw = 55
+set i_yaw = 90
+set f_yaw = 130
+set d_max_roll = 0
+set d_max_pitch = 0
+set launch_trigger_throttle_percent = 55
+set launch_angle_limit = 45
+set launch_control_gain = 60
+set thrust_linear = 25
+set feedforward_transition = 40
+set feedforward_smooth_factor = 45
+set feedforward_jitter_factor = 8
+set feedforward_boost = 18
+set dyn_idle_min_rpm = 25
+set simplified_pids_mode = OFF
+set tpa_breakpoint = 1750
+
+# restore original profile selection
+profile 3
+
+rateprofile 0
+
+# rateprofile 0
+set rateprofile_name = LAUNCH
+set roll_rc_rate = 180
+set pitch_rc_rate = 180
+set yaw_rc_rate = 180
+set roll_srate = 200
+set pitch_srate = 200
+set yaw_srate = 200
+
+rateprofile 1
+
+# rateprofile 1
+set rateprofile_name = 15054S
+set thr_mid = 30
+set thr_expo = 50
+set thr_hover = 30
+set roll_rc_rate = 16
+set pitch_rc_rate = 16
+set yaw_rc_rate = 15
+set roll_expo = 15
+set pitch_expo = 20
+set yaw_expo = 15
+set roll_srate = 50
+set pitch_srate = 50
+set yaw_srate = 40
+set throttle_limit_type = SCALE
+
+rateprofile 2
+
+# rateprofile 2
+set rateprofile_name = Track
+set thr_mid = 40
+set thr_expo = 50
+set thr_hover = 40
+set roll_rc_rate = 16
+set pitch_rc_rate = 16
+set yaw_rc_rate = 15
+set roll_expo = 15
+set pitch_expo = 20
+set yaw_expo = 15
+set roll_srate = 50
+set pitch_srate = 50
+set yaw_srate = 40
+
+rateprofile 3
+
+# rateprofile 3
+set rateprofile_name = 15054S
+set thr_mid = 34
+set thr_expo = 50
+set thr_hover = 34
+set roll_rc_rate = 16
+set pitch_rc_rate = 16
+set yaw_rc_rate = 15
+set roll_expo = 15
+set pitch_expo = 20
+set yaw_expo = 15
+set roll_srate = 50
+set pitch_srate = 50
+set yaw_srate = 40
+
+battery_profile 0
+
+# battery_profile 0
+set bat_capacity = 1550
+set vbat_min_cell_voltage = 350
+set vbat_warning_cell_voltage = 370
+
+battery_profile 1
+
+battery_profile 2
+
+# restore original rateprofile selection
+rateprofile 3
+
+# restore original battery_profile selection
+battery_profile 0
+
+# save configuration
+save
