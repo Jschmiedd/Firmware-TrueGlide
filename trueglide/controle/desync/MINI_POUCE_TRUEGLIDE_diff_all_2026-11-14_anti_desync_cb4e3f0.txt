@@ -16,8 +16,6 @@ defaults nosave
 
 board_name SPEEDYBEEF405MINI
 manufacturer_id SPBE
-mcu_id 002f00363034511130353532
-signature 
 
 # name: MINI POUCE
 

@@ -1,4 +1,8 @@
 # Mini Pouce, TRUEGLIDE cb4e3f0 : fichier complet du 14/11 = sauvegarde du 08/11 + PID et rates doux XPro (profils 0 à 3)
+# Profils PID 0-3 copiés en entier depuis XPro (filtres dterm, iterm_relax, anti_gravity, feedforward, TPA, throttle_boost),
+# pas seulement P/I/D/F. feedforward_boost = 8 (XPro) au lieu de 15 (fichier anti-désync) : encore plus doux.
+# Filtres gyro et RPM : identiques entre XPro et le 08/11 (valeurs écrites ou valeurs par défaut). small_angle reste 180
+# (XPro : 25). mcu_id et signature retirés.
 # + anti-désync profil 3 : dyn_idle_min_rpm 30 (throttle_boost 5 et feedforward_boost 8 viennent déjà des PID doux).
 # Démag des ESC à régler à part, dans ESC Configurator (esc-configurator.com), réglage "Compensation Demag" = High, hélices retirées ; l'onglet ESC de TRUEGLIDE /app/ ne propose pas ce réglage. NE PAS COLLER avant le OUI de l'audit.
 # 3 réglages + démag High changés ensemble, à la demande de Johann : si les désyncs disparaissent, on ne saura pas lequel a agi ; si elles restent, revenir en arrière un réglage à la fois.
@@ -17,8 +21,6 @@ defaults nosave
 
 board_name SPEEDYBEEF405MINI
 manufacturer_id SPBE
-mcu_id 002f00363034511130353532
-signature 
 
 # name: MINI POUCE
 
