@@ -7,7 +7,7 @@
 # par Johann ; jamais volés sous TRUEGLIDE : premier vol prudent (stationnaire, ANGLE, hélices montées seulement après le
 # failsafe au sol).
 # + anti-désync profil 3 : dyn_idle_min_rpm 30 (throttle_boost 5 et feedforward_boost 8 viennent déjà des PID doux).
-# Démag des ESC à régler à part, dans ESC Configurator (esc-configurator.com), réglage "Compensation Demag" = High, hélices retirées ; l'onglet ESC de TRUEGLIDE /app/ ne propose pas ce réglage. NE PAS COLLER avant le OUI de l'audit.
+# Démag des ESC à régler à part, dans l'onglet ESC de TRUEGLIDE /app/ (« Compensation de démagnétisation » = High) ou dans ESC Configurator, hélices retirées. NE PAS COLLER avant le OUI de l'audit.
 # 3 réglages + démag High changés ensemble, à la demande de Johann : si les désyncs disparaissent, on ne saura pas lequel a agi ; si elles restent, revenir en arrière un réglage à la fois.
 # À coller seulement en TRUEGLIDE cb4e3f0, donc après la phase F de TG-PR16023.
 # DIFF all
