@@ -67,7 +67,7 @@ Johann donne le OUI écrit avant chaque envoi sur GitHub. Aucune étape n'est sa
 | Texte | anglais simple | ASD-STE100, phrases courtes (AGENTS.md) |
 | IA | — | autorisée, sans obligation de la déclarer ; l'auteur doit tout comprendre (AI_POLICY.md) |
 | Essai réel | banc | pilotes et capteurs : journal Blackbox d'un vrai vol avant « ready » (AGENTS.md) |
-| Nombre de PR ouvertes | — | limite de 2 : **non vérifiée** (absente d'AGENTS.md, du modèle de PR et d'AI_POLICY.md au 14/11) |
+| Nombre de PR ouvertes | — | App : 2 PR ouvertes au plus pour un nouveau contributeur (blckmn, #5791, 14/11 ; label « Closed - exceeds allowed PR count »). Firmware : non vérifié, rester à 2 par prudence |
 
 ## Remarques reçues (à appliquer partout)
 
@@ -75,3 +75,4 @@ Johann donne le OUI écrit avant chaque envoi sur GitHub. Aucune étape n'est sa
 |---|---|---|---|---|
 | 13/11 | Chris | #590 | « Implicit. Please remove this comment. » | #590, #592, #593, branches 4 à 7 |
 | 14/11 | Chris | #592 | commentaire au-dessus de l'erreur redondant ; message à reformuler (« Gave up flashing ESC {{index}} - no progress for {{seconds}} s, check the ESC power ») | #592, #593 |
+| 14/11 | (préventif) | #592, #593 | reformulation de 3 commentaires maladroits : 30f3570 (#592), 585badd (#593), pas encore poussés, en attente du OUI de Johann | #592, #593 |

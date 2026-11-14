@@ -18,8 +18,10 @@ diffa -U0 -- . ':(exclude)*.md' | grep -nE '^\+\s*(//|/\*|\*[^/]|#\s)' | grep -v
 echo "   -> pour CHAQUE ligne : « le code le dit-il déjà ? » Si oui : retirer. Garder seulement un pourquoi invisible."
 
 echo "== 3. Données interdites (identifiant de carte, XPRO, chemins locaux)"
-if diffa -U0 | grep -nE '^\+.*(mcu_id|DeviceUID|^\+\s*signature\b|[0-9a-fA-F]{24}|XPRO|XPro|/home/|/tmp/|scratchpad)'; then
-  echo "   BLOQUANT"; BLOQUANT=1
+T1=$(diffa -U0 | grep -nE '^\+.*(mcu_id|DeviceUID|[0-9a-fA-F]{24}|XPRO|XPro|/home/|/tmp/|scratchpad)')
+T2=$(diffa -U0 | grep -nE '^\+\s*signature(\s|$)')
+if [ -n "$T1$T2" ]; then
+  printf '%s\n%s\n' "$T1" "$T2" | grep -v '^$'; echo "   BLOQUANT"; BLOQUANT=1
 else echo "   aucune"; fi
 
 echo "== 4. Messages ajoutés (traductions, journaux) : style des messages voisins"
