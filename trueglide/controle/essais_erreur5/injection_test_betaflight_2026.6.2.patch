@@ -12,13 +12,14 @@ index 751094f..b8f41cd 100644
      state->busy = 0;
  }
  
-@@ -407,6 +410,26 @@ void i2c_ev_handler(i2cDevice_e device)
+@@ -407,6 +410,27 @@ void i2c_ev_handler(i2cDevice_e device)
          while (I2Cx->CR1 & I2C_CR1_START) {; }
      }
      else if (SReg_1 & I2C_SR1_RXNE) {                                 // Byte received - EV7
 +#ifdef I2C_TEST_INJECT
-+        // TEST ONLY (never published): every 5 s, abort a 6-byte read after its 2nd data byte, exactly as
-+        // i2c_er_handler() does for a bus error (AF/BERR): no more data, STOP, interrupts off, error flag, busy = 0.
++        // TEST ONLY (never published): every 5 s, abort a 6-byte read after its 3rd data byte, like
++        // i2c_er_handler() does for a bus error (ACK is turned off before STOP so that the bus is released cleanly):
++        // no more data, STOP, interrupts off, error flag, busy = 0.
 +        // Shows what the NEXT read does after an aborted read.
 +        static timeMs_t testNextAbortMs = 10000;
 +        if (state->reading && state->bytes == 6 && ev_state->subaddress_sent && ev_state->index == 2 && cmpTimeMs(millis(), testNextAbortMs) >= 0) {
