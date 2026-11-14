@@ -69,6 +69,23 @@ Johann donne le OUI écrit avant chaque envoi sur GitHub. Aucune étape n'est sa
 | Essai réel | banc | pilotes et capteurs : journal Blackbox d'un vrai vol avant « ready » (AGENTS.md) |
 | Nombre de PR ouvertes | — | App : 2 PR ouvertes au plus pour un nouveau contributeur (blckmn, #5791, 14/11 ; label « Closed - exceeds allowed PR count »). Firmware : non vérifié, rester à 2 par prudence |
 
+## Autres projets prévus (demande de Johann, 14/11)
+
+Les règles de chaque projet sont lues et sourcées **le jour où une contribution y commence** (CONTRIBUTING,
+AGENTS, modèle de PR, politique IA, remarques des mainteneurs). Rien n'est écrit de mémoire. Dépôts et branches
+par défaut vérifiés le 14/11 (`git ls-remote`) ; la branche de base d'une PR est à confirmer dans les règles du projet.
+
+| Projet | Dépôt officiel | Branche par défaut | Règles |
+|---|---|---|---|
+| INAV (base de TRUENAV) | iNavFlight/inav | maintenance-10.x | à lire |
+| ArduPilot | ArduPilot/ardupilot | master | à lire |
+| Mission Planner | ArduPilot/MissionPlanner | master | à lire |
+| ExpressLRS | ExpressLRS/ExpressLRS | master | à lire |
+| EdgeTX | EdgeTX/edgetx | main | à lire |
+| Bluejay | bird-sanctuary/bluejay | main | à lire |
+| AM32 | am32-firmware/AM32 | main | à lire |
+| Blackbox Explorer | betaflight/blackbox-log-viewer | master | à lire (règles Betaflight probables, à confirmer) |
+
 ## Remarques reçues (à appliquer partout)
 
 | Date | Relecteur | PR | Remarque | Appliquée à |
