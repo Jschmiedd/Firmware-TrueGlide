@@ -1,4 +1,4 @@
-# Essai TG-P3B : premier vol de TRUEGLIDE cb4e3f0, puis ALT HOLD (Mini Pouce)
+# Essai TG-P3B : premier vol de TRUEGLIDE cb4e3f0 (Mini Pouce), sans ALT HOLD
 
 Date : …… Lieu : …… Fait par : ……
 
@@ -6,16 +6,18 @@ Date : …… Lieu : …… Fait par : ……
 - Phase A : préparation, dans le logiciel (USB, batterie débranchée).
 - Phase B : failsafe au sol, avec la radio (**hélices retirées**).
 - Phase C : vol normal, avec la radio (hélices montées).
-- Phase D : ALT HOLD, avec la radio.
-- Phase E : après le vol, dans le logiciel.
+- Phase D : après le vol, dans le logiciel.
 
-Ce qu'on vérifie : `cb4e3f0` vole comme avant, le failsafe coupe les moteurs, ALT HOLD tient la hauteur sans saut.
+Pas d'ALT HOLD dans ce vol : il se fera plus tard, sur une fiche à part, avec `ap_hover_throttle` réglé d'après le % de
+gaz noté en phase C.
+
+Ce qu'on vérifie : `cb4e3f0` vole comme avant, le failsafe coupe les moteurs, le baromètre ne donne pas de valeur fausse.
 Rien d'autre n'est changé dans la configuration (sauvegarde du 08/11), sauf l'enregistrement du baromètre.
 Les fonctions TRUEGLIDE de vol (anti-surchauffe, relance moteur, Speeder) restent **désactivées** : elles seront
 essayées plus tard (TG-P3C).
 
 Interrupteurs du Mini Pouce (sauvegarde du 08/11) : ARM sur AUX1 ; AUX3 bas = ANGLE, milieu = HORIZON, haut = ACRO ;
-ALT HOLD sur AUX4 en haut. Failsafe : réglage d'origine (DROP).
+ALT HOLD sur AUX4 en haut (**non utilisé dans ce vol**). Failsafe : réglage d'origine (DROP).
 
 **Toujours armer en ANGLE (AUX3 bas) : armé en ACRO, LAUNCH CONTROL (sur AUX1) s'active.**
 
@@ -52,37 +54,18 @@ Drone posé à plat, fixé. Lunettes allumées. **45 s au plus** batterie branch
 
 ## Phase C. Vol normal (avec la radio, hélices montées)
 
-Terrain dégagé, personne autour. Batterie pleine.
+Terrain dégagé, personne autour. Batterie pleine. **Ne pas toucher AUX4 pendant tout le vol.**
 
 1. Monter les hélices. Brancher la batterie, drone posé à plat.
 2. Avec la radio, en ANGLE : armer, décoller, stationnaire à 2–3 m, **1 minute**. Noter le % de gaz affiché dans
    les lunettes pendant le stationnaire.
 3. Quelques virages doux, puis 1 minute dans ton mode habituel.
-4. Atterrir, désarmer. **Garder la batterie branchée** si elle a encore de la charge pour la phase D, et **redécoller tout
-   de suite** (sinon, batterie pleine pour la phase D, et la ligne I2C de la phase E ne compte que la phase D).
+4. Atterrir, désarmer. **Garder la batterie branchée** (le compteur I2C repart à zéro sans courant).
 
 - Le drone vole comme avec Betaflight (pas de vibration, pas d'oscillation, pas de bruit nouveau) ?
 - Moteurs tièdes après le vol (pas brûlants) ?
 
-## Phase D. ALT HOLD (avec la radio)
-
-ALT HOLD tient la hauteur avec le baromètre. ALT HOLD garde la hauteur tant que le manche des gaz reste entre 1165
-et 1565 (autour de 1275) ; au-dessus il fait monter, en dessous descendre.
-
-1. Avec la radio, en ANGLE : décoller, stationnaire stable à **3 m au moins**.
-2. Gaz à la position du stationnaire. Basculer AUX4 en haut (ALT HOLD). S'attendre à ce que le drone descende ou
-   monte pendant 1 à 2 s : garder 3 m au moins et le doigt sur AUX4.
-3. Ne plus toucher les gaz. Regarder **10 secondes** : le drone reste à la même hauteur ?
-4. Si le drone monte, descend ou saute : AUX4 en bas tout de suite, reprendre aux gaz.
-5. AUX4 en bas. Reprendre la main aux gaz, stationnaire.
-6. Recommencer les étapes 2 à 5 une fois.
-7. Atterrir, désarmer. **Garder la batterie branchée** (le compteur I2C repart à zéro sans courant).
-
-- ALT HOLD : le drone a gardé sa hauteur (à 1 m près) pendant les 10 s ?
-- Aucun saut brusque de hauteur, ni vers le haut ni vers le bas ?
-- AUX4 en bas : la main est revenue tout de suite aux gaz ?
-
-## Phase E. Après le vol (dans le logiciel)
+## Phase D. Après le vol (dans le logiciel)
 
 Faire les étapes 1 et 2 dans les 45 s après l'atterrissage ; sinon débrancher la batterie (la ligne I2C ne sera pas
 relevée).
@@ -92,12 +75,13 @@ relevée).
 3. Débrancher la batterie.
 4. Onglet Blackbox : « Enregistrer » le journal. Noter le nom du fichier.
 
-- La ligne I2C indique 0 erreur ?
+- La ligne I2C est notée ? (Ce compteur compte seulement les blocages du bus, pas toutes les erreurs : 0 ne prouve pas
+  à lui seul qu'il n'y a eu aucune erreur ; le journal Blackbox le dira.)
 
 ## À envoyer
 
 1. Le journal Blackbox (phase E).
-2. Les deux lignes I2C (phase A = référence, phase E = vol).
+2. Les deux lignes I2C (phase A = référence, phase D = vol).
 3. Le % de gaz du stationnaire (phase C).
-4. La vidéo des lunettes (DVR), surtout la phase D.
+4. La vidéo des lunettes (DVR).
 5. Ce qui t'a surpris.
