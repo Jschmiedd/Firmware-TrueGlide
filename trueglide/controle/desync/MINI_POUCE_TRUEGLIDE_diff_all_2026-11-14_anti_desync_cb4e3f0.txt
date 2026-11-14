@@ -1,5 +1,7 @@
 # Mini Pouce, TRUEGLIDE cb4e3f0 : sauvegarde du 08/11 + réglages anti-désync du 14/11 (profil 3 : dyn_idle_min_rpm 30,
 # throttle_boost 5, feedforward_boost 15). Rien d'autre ne change. NE PAS COLLER avant le OUI de l'audit.
+# 3 réglages + démag High changés ensemble, à la demande de Johann : si les désyncs disparaissent, on ne saura pas lequel a agi ; si elles restent, revenir en arrière un réglage à la fois.
+# À coller seulement en TRUEGLIDE cb4e3f0, donc après la phase F de TG-PR16023.
 # DIFF all
 
 # version

@@ -1,6 +1,8 @@
 # Mini Pouce, TRUEGLIDE cb4e3f0 : fichier complet du 14/11 = sauvegarde du 08/11 + PID et rates doux XPro (profils 0 à 3)
 # + anti-désync profil 3 : dyn_idle_min_rpm 30 (throttle_boost 5 et feedforward_boost 8 viennent déjà des PID doux).
 # Démag des ESC à régler à part (onglet ESC, hélices retirées). NE PAS COLLER avant le OUI de l'audit.
+# 3 réglages + démag High changés ensemble, à la demande de Johann : si les désyncs disparaissent, on ne saura pas lequel a agi ; si elles restent, revenir en arrière un réglage à la fois.
+# À coller seulement en TRUEGLIDE cb4e3f0, donc après la phase F de TG-PR16023.
 # DIFF all
 
 # version
