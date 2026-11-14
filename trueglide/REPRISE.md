@@ -21,6 +21,8 @@ Une conversation par phase de test. Lire ce fichier, puis seulement les fichiers
 - Rien ne change par défaut ; jamais de chiffre faux affiché ; tester en vrai avant d'annoncer.
 - Commits : `git -c user.name=TrueGlide -c user.email=jschmiedd@users.noreply.github.com commit -m "... [skip ci]"`,
   sans identifiant de modèle d'IA ni ligne Co-Authored-By. PR seulement sur demande de Johann.
+  Cette règle vaut pour le dépôt TRUEGLIDE. Pour les contributions externes (Chris, Betaflight…) : auteur Jschmiedd
+  avec une ligne « Co-Authored-By: Claude » (MARCHE_A_SUIVRE.md, F.0 bis, 14/11).
 - « Betaflight » reste volontairement dans les en-têtes blackbox et les descripteurs USB (compatibilité des outils).
 - **Essais avec Johann (règle du 07/11/2026, après TG-A1) :**
   - Aucune fiche n'est donnée avant que Claude l'ait déroulée lui-même en entier au simulateur, avec une capture de
