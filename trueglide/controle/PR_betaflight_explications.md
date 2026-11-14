@@ -65,7 +65,7 @@ l'étape 1** et relit les octets à partir du mauvais registre. Le baromètre do
    zéro.
 2. Dans `i2cInit()` (au démarrage et à chaque réinitialisation du bus) : la même remise à zéro.
 
-**La preuve.** Tes tests A et B du 13/11 (batterie branchée, désarmé avec la radio, moteurs arrêtés) :
+**La preuve.** Tes tests A et B du 13/11 (USB seul, sans batterie, donc moteurs sans courant) :
 1. A, sans la correction : la pression plonge toutes les 5 s ;
 2. B, avec la même remise à zéro à la fin de l'abandon simulé : la pression reste stable à 961 hPa.
 
