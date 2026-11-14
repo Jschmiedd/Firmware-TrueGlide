@@ -18,6 +18,7 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 - **Format imposé pour TOUS les essais (Johann, 13/11)** : découper en **phases** nommées (Phase A, B, C…) avec un titre qui dit où on va ; dans chaque phase, des étapes **numérotées** (1, 2, 3…), jamais des puces ; une action par ligne, courte ; donner d'abord le plan des phases, puis avancer phase par phase ; image annotée quand c'est utile ; pas de pavés de texte ; dire « avec la radio » ou « dans le logiciel » à chaque fois ; ne pas répondre aux contrôles automatiques par de longs messages.
 - **Jamais l'identifiant de la carte** (`mcu_id`, `signature`) dans un fichier ou un texte du dépôt (public). Historique laissé tel quel (décision de Johann, 14/11).
   Générateurs : retirent mcu_id et signature. Avant chaque commit : rechercher « mcu_id » et « signature » dans les fichiers ajoutés, ne pas pousser s'il y en a. Pour partager des réglages : `diff all bare`.
+- **Règles du 14/11 (Johann)** : question ≠ ordre, identifiant de carte, contributions externes, essais en direct, contrôles de l'auditeur : voir `trueglide/REPRISE.md`, section « Règles ».
 - **Banc, armé avec la radio (Johann)** : le VTX chauffe sans air, jamais plusieurs minutes d'affilée. Essais armés au banc : **30 s environ par passage**, pause entre deux passages (comme TG-P2C, 31,7 s).
 
 - 07/11 : « PUBLIE CORRIGE MET A JOUR JE VEUX PLUS D EWRREUR DANS MON LOGICIEL » et, dans la discussion de
