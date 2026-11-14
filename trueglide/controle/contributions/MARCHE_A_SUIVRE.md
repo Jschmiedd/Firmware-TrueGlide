@@ -49,11 +49,15 @@ Johann donne le OUI écrit avant chaque envoi sur GitHub. Aucune étape n'est sa
 5. Si besoin, Copilot Chat sur le diff, seulement pour CHERCHER des problèmes, jamais pour écrire :
    « Liste les commentaires qui répètent ce que le code dit déjà », « Ce message ressemble-t-il aux messages voisins ? ».
    Ses réponses sont vérifiées comme celles de toute IA.
+   Copilot Chat envoie le code à un service extérieur : seulement sur le diff d'une PR publique, jamais avec un
+   fichier TRUEGLIDE privé, une sauvegarde, un journal non masqué ni des données XPRO.
 6. Ne pas lancer « Copilot code review » sur une PR déjà ouverte chez Chris ou Betaflight sans leur accord.
 7. Noter les questions ; Claude y répond avant le OUI.
 
 ## Phase F. Envoi
 
+0. **Une seule discussion demande le OUI d'envoi à Johann : celle qui pousse.** L'autre contrôle avant et ne pose
+   pas la question (malentendu du 14/11 : deux demandes croisées pendant le repas).
 1. Johann donne son **OUI écrit**.
 2. Un seul envoi groupé : toutes les corrections d'un coup (chaque envoi relance une relecture).
 3. Juste après : vérifier sur GitHub que le commit affiché est le bon et que les contrôles sont verts.
