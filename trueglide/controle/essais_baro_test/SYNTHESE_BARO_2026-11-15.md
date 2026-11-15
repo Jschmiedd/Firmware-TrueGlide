@@ -83,6 +83,16 @@ armés du matin du 15/11 (batterie, hélices retirées, 10 lectures fausses en �
    master actuel (causes possibles non tranchées). Suite : essai au banc sur master (carte neuve, même config, master puis
    correctif, même durée) avant toute PR ; sinon, correctif gardé dans TRUEGLIDE seulement.
 
+9. Banc du 15/11 au soir, carte neuve, config des vols du 14/11 (en-têtes : features 272892936, bidir 1, denom 2,
+   P interval 16, debug BARO, profil 3 ; seule différence entre essais : vbatcellvoltage), master 6241cfb + sous-module 073b0fe :
+   F1 master seul (6241cfb19) : 0 faute en 421,2 s ; F2 master + #16023 (325ced761) : 46 fautes en 581,3 s ;
+   F3 master + #16023 + garde TXE (973b54c54) : 0 faute en 382,2 s. Critère : debug[1] hors 300-1200 hPa ou saut de
+   température > 10 °C. Statut après F2 : I2C 0 erreur (aucun timeout, i2cInit non rappelé). Lecture : au banc, la #16023
+   fait apparaître le défaut TXE ; la garde TXE le supprime. Mécanisme non tranché : (a) via i2c_er_handler sans timeout,
+   ou (b) effet indirect (code, timing). Limite : une seule carte, une config, au banc ; sur master seul, défaut non observé.
+   Conséquence : la #16023 ne peut pas avancer telle quelle ; décision à Johann (brouillon, fermeture avec le tableau du
+   banc puis garde TXE dans une PR séparée, ou garde ajoutée à la #16023). Rien publié.
+
 ## Non prouvé
 
 - La cause physique du décalage (pointeur du capteur à 0x01, ou 1er octet perdu avec 7 octets cadencés) : un analyseur
