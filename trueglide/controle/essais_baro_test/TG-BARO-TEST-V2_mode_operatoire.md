@@ -46,18 +46,19 @@ Règles :
    « Charger un Firmware [Local] ».
 9. Dans la fenêtre de Windows : choisir le fichier .hex v2, cliquer « Ouvrir ».
 10. Dans le logiciel : cliquer « Flasher le Firmware ». Attendre la fin.
-11. Dans le logiciel : cliquer « Connecter ». Onglet CLI : coller tout `MINI_POUCE_avant_test_v2.txt`, Entrée.
-    La carte redémarre.
-12. Dans le logiciel : cliquer « Connecter ». Onglet CLI : taper `version`, Entrée.
-13. Dans le logiciel : taper `get debug_mode`, Entrée.
-14. Dans le logiciel : taper `status`, Entrée.
+11. Dans le logiciel : cliquer « Connecter ».
+12. Dans le logiciel : onglet CLI, coller tout `MINI_POUCE_avant_test_v2.txt`, Entrée. La carte redémarre.
+13. Dans le logiciel : cliquer « Connecter ».
+14. Dans le logiciel : onglet CLI, taper `version`, Entrée.
+15. Dans le logiciel : taper `get debug_mode`, Entrée.
+16. Dans le logiciel : taper `status`, Entrée.
 
 - À l'étape 3, la ligne contient « cdd6f3844 » (test v1) ?
 - À l'étape 5, le sha256 est le bon (avant le flash) ?
-- Au collage (étape 11), aucune ligne `###ERROR` ?
-- À l'étape 12, la ligne contient « 3b418e8dd » ?
-- À l'étape 13, debug_mode = BARO ?
-- À l'étape 14, « BARO: DPS310 » (sinon : arrêt) ?
+- Au collage (étape 12), aucune ligne `###ERROR` ?
+- À l'étape 14, la ligne contient « 3b418e8dd » ?
+- À l'étape 15, debug_mode = BARO ?
+- À l'étape 16, « BARO: DPS310 » (sinon : arrêt) ?
 
 ![Onglet « Flasher le Firmware » : 1. effacement complet activé ; 2. petite flèche, « Charger un Firmware [Local] » ; 3. « Flasher le Firmware ».](flasher_local_effacement.jpg)
 
@@ -70,13 +71,15 @@ Règles :
 5. Dans le logiciel : taper `save`, Entrée. La carte redémarre.
 6. Dans le logiciel : cliquer « Connecter », puis onglet « Capteurs ».
 7. Sur le PC : rester 5 minutes au chronomètre sur l'onglet « Capteurs », sans toucher (PAS dans la CLI).
-8. Dans le logiciel : onglet CLI, taper `set blackbox_mode = NORMAL`, Entrée, puis `save`, Entrée.
-9. Dans le logiciel : cliquer « Connecter ». Onglet CLI : taper `get blackbox_mode`, Entrée.
-10. Dans le logiciel : onglet « Blackbox », cliquer « Enregistrer sous... ».
-11. Dans la fenêtre de Windows : choisir le dossier, nommer le fichier `mini_pouce_v2.bbl`, cliquer « Enregistrer ».
+8. Dans le logiciel : onglet CLI, taper `set blackbox_mode = NORMAL`, Entrée.
+9. Dans le logiciel : taper `save`, Entrée. La carte redémarre.
+10. Dans le logiciel : cliquer « Connecter ».
+11. Dans le logiciel : onglet CLI, taper `get blackbox_mode`, Entrée.
+12. Dans le logiciel : onglet « Blackbox », cliquer « Enregistrer sous... ».
+13. Dans la fenêtre de Windows : choisir le dossier, nommer le fichier `mini_pouce_v2.bbl`, cliquer « Enregistrer ».
 
 - À l'étape 7, 5 minutes au chronomètre (pas plus de 10) ?
-- À l'étape 9, blackbox_mode = NORMAL ?
+- À l'étape 11, blackbox_mode = NORMAL ?
 - Le fichier `mini_pouce_v2.bbl` est enregistré ?
 
 ## Phase C. Carte neuve : sauvegarde, flash et réglage (dans le logiciel, USB seul, rien de soudé)
@@ -110,13 +113,15 @@ Règles :
 
 1. Dans le logiciel : onglet « Capteurs ». (L'enregistrement a commencé au redémarrage de l'étape C.17.)
 2. Sur le PC : rester 5 minutes au chronomètre sur l'onglet « Capteurs », sans toucher (PAS dans la CLI).
-3. Dans le logiciel : onglet CLI, taper `set blackbox_mode = NORMAL`, Entrée, puis `save`, Entrée.
-4. Dans le logiciel : cliquer « Connecter ». Onglet CLI : taper `get blackbox_mode`, Entrée.
-5. Dans le logiciel : onglet « Blackbox », cliquer « Enregistrer sous... ».
-6. Dans la fenêtre de Windows : choisir le dossier, nommer le fichier `carte_neuve_v2.bbl`, cliquer « Enregistrer ».
+3. Dans le logiciel : onglet CLI, taper `set blackbox_mode = NORMAL`, Entrée.
+4. Dans le logiciel : taper `save`, Entrée. La carte redémarre.
+5. Dans le logiciel : cliquer « Connecter ».
+6. Dans le logiciel : onglet CLI, taper `get blackbox_mode`, Entrée.
+7. Dans le logiciel : onglet « Blackbox », cliquer « Enregistrer sous... ».
+8. Dans la fenêtre de Windows : choisir le dossier, nommer le fichier `carte_neuve_v2.bbl`, cliquer « Enregistrer ».
 
 - À l'étape 2, 5 minutes au chronomètre (pas plus de 10) ?
-- À l'étape 4, blackbox_mode = NORMAL ?
+- À l'étape 6, blackbox_mode = NORMAL ?
 - Le fichier `carte_neuve_v2.bbl` est enregistré ?
 
 ## À envoyer
