@@ -14,7 +14,8 @@ Tous sur la base de la PR #16023 (542c458), USB seul, sans batterie, moteurs arr
 armés du matin du 15/11 (batterie, hélices retirées, 10 lectures fausses en ≈ 88 s).
 
 1. Nature des 104 lectures fausses (v3 Mini Pouce) : les 6 octets sont les registres 0x01 à 0x06 au lieu de 0x00 à 0x05
-   (buf[0] ≠ 0xFE dans les 104 cas, buf[5] = 0x54 = PRS_CFG dans les 104 cas, motif exact « décalé d'un registre » dans
+   (critère : buf[0] ≠ 0xFE, 104 cas ; dans ces 104 cas buf[5] = 0x54 = PRS_CFG, description seulement, pas un critère :
+   TMP_B0 vaut 0x54 environ 1 fois sur 256 dans une lecture normale ; motif exact « décalé d'un registre » dans
    103 sur 104). Aucun drapeau d'erreur I2C sur ces lectures. Les données du capteur sont valides, lues un registre trop loin.
 2. Ce motif n'est pas le défaut corrigé par la PR #16023 (adresse de registre sautée : la lecture repartirait du pointeur
    interne, attendu à 0x06 après une lecture 0x00-0x05 ; auto-incrément non vérifié dans la fiche technique).
