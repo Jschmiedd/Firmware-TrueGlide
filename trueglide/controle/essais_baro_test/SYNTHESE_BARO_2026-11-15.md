@@ -24,7 +24,7 @@ armés du matin du 15/11 (batterie, hélices retirées, 10 lectures fausses en �
    P ≈ 2×10^-8). Lequel compte, la lecture ajoutée ou la cadence plus basse : inconnu.
 4. Même firmware v3, même cadence : Mini Pouce 104/14 188, carte neuve 0/6038 (attendu 44,3, P ≈ 6×10^-20). Le défaut est
    propre à Mini Pouce : sa carte, son câblage ou sa configuration (la carte neuve est nue et en réglages d'usine), dans
-   ces conditions (USB seul, firmware de test sur base 542c458).
+   ces conditions (USB seul, firmware de test sur base 542c458). → le point 5 montre que c'est sa configuration.
 5. Carte neuve avec la configuration de Mini Pouce collée : 33 lectures décalées sur 11 952 (motif exact), contre 0/6038 en
    configuration d'usine (P ≈ e^-16,7). Journal attribué à la carte neuve par empreinte de l'identifiant (calculée par
    l'auditeur, comparée en local). Le défaut suit la configuration de Mini Pouce, pas la carte ni le montage. Le réglage en
