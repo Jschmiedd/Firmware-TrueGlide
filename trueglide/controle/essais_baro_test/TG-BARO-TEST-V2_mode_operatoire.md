@@ -32,31 +32,32 @@ Règles :
    P interval 4, boucle PID à 4 kHz, soit 1000 cadres par seconde, 7,8 Mo en 189 s. Avec 1/16 : 250 cadres par
    seconde, mémoire de 8 Mo pleine vers 12 minutes.)
 7. Les journaux ne sont rangés dans un dépôt que masqués (ligne « H DeviceUID » retirée).
-8. Onglet Blackbox : je n'ai pas encore de capture de cet onglet. Quand tu y arrives la première fois, envoie-moi une
-   capture : je t'indique où cliquer avant que tu cliques.
 
 ## Phase A. Mini Pouce : sauvegarde et flash (dans le logiciel)
 
-1. Dans le logiciel : brancher l'USB, cliquer « Connecter ».
-2. Dans le logiciel : onglet « Ligne de commande (CLI) », taper `version`, Entrée.
-3. Dans le logiciel : taper `diff all`, Entrée. Copier tout le texte dans `MINI_POUCE_avant_test_v2.txt` sur le PC.
-4. Dans le logiciel : cliquer « Déconnecter », puis onglet « Flasher le Firmware ».
-5. Dans le logiciel : activer « Effacement complet de la puce » (interrupteur jaune).
-6. Dans le logiciel : petite flèche à droite du bouton jaune « Charger un Firmware [Online] », choisir
-   « Charger un Firmware [Local] », puis le fichier .hex v2.
-7. Dans le logiciel : cliquer « Flasher le Firmware ». Attendre la fin.
-8. Dans le logiciel : cliquer « Connecter ». Onglet CLI : coller tout `MINI_POUCE_avant_test_v2.txt`, Entrée.
-   La carte redémarre.
-9. Dans le logiciel : cliquer « Connecter ». Onglet CLI : taper `version`, Entrée.
-10. Dans le logiciel : taper `get debug_mode`, Entrée.
-11. Dans le logiciel : taper `status`, Entrée.
+1. Sur le PC : brancher Mini Pouce en USB (sans batterie).
+2. Dans le logiciel : cliquer « Connecter ».
+3. Dans le logiciel : onglet « Ligne de commande (CLI) », taper `version`, Entrée.
+4. Dans le logiciel : taper `diff all`, Entrée. Copier tout le texte dans `MINI_POUCE_avant_test_v2.txt` sur le PC.
+5. Dans PowerShell : `Get-FileHash <fichier .hex>`. Comparer au sha256 de la fiche (règle 4). S'il diffère : arrêt.
+6. Dans le logiciel : cliquer « Déconnecter », puis onglet « Flasher le Firmware ».
+7. Dans le logiciel : activer « Effacement complet de la puce » (interrupteur jaune).
+8. Dans le logiciel : petite flèche à droite du bouton jaune « Charger un Firmware [Online] », choisir
+   « Charger un Firmware [Local] ».
+9. Dans la fenêtre de Windows : choisir le fichier .hex v2, cliquer « Ouvrir ».
+10. Dans le logiciel : cliquer « Flasher le Firmware ». Attendre la fin.
+11. Dans le logiciel : cliquer « Connecter ». Onglet CLI : coller tout `MINI_POUCE_avant_test_v2.txt`, Entrée.
+    La carte redémarre.
+12. Dans le logiciel : cliquer « Connecter ». Onglet CLI : taper `version`, Entrée.
+13. Dans le logiciel : taper `get debug_mode`, Entrée.
+14. Dans le logiciel : taper `status`, Entrée.
 
-- À l'étape 2, la ligne contient « cdd6f3844 » (test v1) ?
-- Le sha256 du fichier (règle 4) est le bon ?
-- Au collage (étape 8), aucune ligne `###ERROR` ?
-- À l'étape 9, la ligne contient « 3b418e8dd » ?
-- À l'étape 10, debug_mode = BARO ?
-- À l'étape 11, « BARO: DPS310 » (sinon : arrêt) ?
+- À l'étape 3, la ligne contient « cdd6f3844 » (test v1) ?
+- À l'étape 5, le sha256 est le bon (avant le flash) ?
+- Au collage (étape 11), aucune ligne `###ERROR` ?
+- À l'étape 12, la ligne contient « 3b418e8dd » ?
+- À l'étape 13, debug_mode = BARO ?
+- À l'étape 14, « BARO: DPS310 » (sinon : arrêt) ?
 
 ![Onglet « Flasher le Firmware » : 1. effacement complet activé ; 2. petite flèche, « Charger un Firmware [Local] » ; 3. « Flasher le Firmware ».](flasher_local_effacement.jpg)
 
@@ -68,7 +69,7 @@ Règles :
 4. Dans le logiciel : taper `set blackbox_mode = ALWAYS`, Entrée.
 5. Dans le logiciel : taper `save`, Entrée. La carte redémarre.
 6. Dans le logiciel : cliquer « Connecter », puis onglet « Capteurs ».
-7. Rester 5 minutes au chronomètre sur l'onglet « Capteurs », sans toucher (PAS dans la CLI).
+7. Sur le PC : rester 5 minutes au chronomètre sur l'onglet « Capteurs », sans toucher (PAS dans la CLI).
 8. Dans le logiciel : onglet CLI, taper `set blackbox_mode = NORMAL`, Entrée, puis `save`, Entrée.
 9. Dans le logiciel : cliquer « Connecter ». Onglet CLI : taper `get blackbox_mode`, Entrée.
 10. Dans le logiciel : onglet « Blackbox », cliquer « Enregistrer sous... ».
@@ -80,29 +81,35 @@ Règles :
 
 ## Phase C. Carte neuve : sauvegarde, flash et réglage (dans le logiciel, USB seul, rien de soudé)
 
-1. Dans le logiciel : débrancher Mini Pouce, brancher la carte neuve en USB, cliquer « Connecter ».
-2. Dans le logiciel : onglet CLI, taper `version`, Entrée. Noter la ligne (firmware d'usine).
-3. Dans le logiciel : taper `diff all`, Entrée. Copier tout le texte dans `CARTE_NEUVE_usine.txt` sur le PC.
-4. Dans le logiciel : cliquer « Déconnecter », onglet « Flasher le Firmware ».
-5. Dans le logiciel : activer « Effacement complet de la puce », choisir « Charger un Firmware [Local] », le même
-   .hex v2, cliquer « Flasher le Firmware ». Attendre la fin.
-6. Dans le logiciel : cliquer « Connecter ». Onglet « Blackbox » : « Effacer la mémoire interne », puis
-   « Oui, effacer la mémoire interne ».
-7. Dans le logiciel : onglet CLI, taper `set debug_mode = BARO`, Entrée.
-8. Dans le logiciel : taper `set blackbox_sample_rate = 1/16`, Entrée.
-9. Dans le logiciel : taper `set blackbox_mode = ALWAYS`, Entrée.
-10. Dans le logiciel : taper `save`, Entrée. La carte redémarre.
-11. Dans le logiciel : cliquer « Connecter ». Onglet CLI : taper `version`, Entrée.
-12. Dans le logiciel : taper `status`, Entrée.
+1. Dans le logiciel : cliquer « Déconnecter ».
+2. Sur le PC : débrancher Mini Pouce, brancher la carte neuve en USB.
+3. Dans le logiciel : cliquer « Connecter ».
+4. Dans le logiciel : onglet CLI, taper `version`, Entrée. Noter la ligne (firmware d'usine).
+5. Dans le logiciel : taper `diff all`, Entrée. Copier tout le texte dans `CARTE_NEUVE_usine.txt` sur le PC.
+6. Dans le logiciel : cliquer « Déconnecter », puis onglet « Flasher le Firmware ».
+7. Dans le logiciel : activer « Effacement complet de la puce » (interrupteur jaune).
+8. Dans le logiciel : petite flèche à droite du bouton jaune, choisir « Charger un Firmware [Local] ».
+9. Dans la fenêtre de Windows : choisir le même fichier .hex v2, cliquer « Ouvrir ».
+10. Dans le logiciel : cliquer « Flasher le Firmware ». Attendre la fin. Si le flash ne démarre pas ou s'arrête en
+    erreur : ne pas insister, prévenir.
+11. Dans le logiciel : cliquer « Connecter », puis onglet « Blackbox ».
+12. Dans le logiciel : cliquer « Effacer la mémoire interne ».
+13. Dans le logiciel : confirmer avec « Oui, effacer la mémoire interne ». Attendre la fin.
+14. Dans le logiciel : onglet CLI, taper `set debug_mode = BARO`, Entrée.
+15. Dans le logiciel : taper `set blackbox_sample_rate = 1/16`, Entrée.
+16. Dans le logiciel : taper `set blackbox_mode = ALWAYS`, Entrée.
+17. Dans le logiciel : taper `save`, Entrée. La carte redémarre.
+18. Dans le logiciel : cliquer « Connecter ». Onglet CLI : taper `version`, Entrée.
+19. Dans le logiciel : taper `status`, Entrée.
 
-- À l'étape 11, la ligne contient « 3b418e8dd » ?
-- À l'étape 12, « BARO: DPS310 » (sinon : arrêt) ?
-- À l'étape 12, une ligne « FLASH: » ?
+- À l'étape 18, la ligne contient « 3b418e8dd » ?
+- À l'étape 19, « BARO: DPS310 » (sinon : arrêt) ?
+- À l'étape 19, une ligne « FLASH: » ?
 
 ## Phase D. Carte neuve : enregistrement de 5 minutes (dans le logiciel)
 
-1. Dans le logiciel : onglet « Capteurs ». (L'enregistrement a commencé au redémarrage de l'étape C.10.)
-2. Rester 5 minutes au chronomètre sur l'onglet « Capteurs », sans toucher (PAS dans la CLI).
+1. Dans le logiciel : onglet « Capteurs ». (L'enregistrement a commencé au redémarrage de l'étape C.17.)
+2. Sur le PC : rester 5 minutes au chronomètre sur l'onglet « Capteurs », sans toucher (PAS dans la CLI).
 3. Dans le logiciel : onglet CLI, taper `set blackbox_mode = NORMAL`, Entrée, puis `save`, Entrée.
 4. Dans le logiciel : cliquer « Connecter ». Onglet CLI : taper `get blackbox_mode`, Entrée.
 5. Dans le logiciel : onglet « Blackbox », cliquer « Enregistrer sous... ».
