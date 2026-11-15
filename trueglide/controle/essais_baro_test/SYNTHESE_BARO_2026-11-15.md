@@ -9,6 +9,7 @@
 | v2 | 3b418e8 | carte neuve | usine, PID 8 kHz | 2538 + 151 | 10,6/s | 0 |
 | v3 | a87822b (octets bruts, aucun accès bus ajouté) | Mini Pouce | Mini Pouce, PID 4 kHz | 14 188 | 19,85/s | 104 (0,733 %) |
 | v3 | a87822b | carte neuve | usine, PID 8 kHz | 6038 | 19,9/s | 0 |
+| v3 | a87822b | carte neuve | Mini Pouce collée (MINI_POUCE_avant_test_v2.txt), PID 4 kHz | 11 952 | 19,87/s | 33 (0,28 %), toutes hors plage, debug[3] = 0 |
 
 Tous sur la base de la PR #16023 (542c458), USB seul, sans batterie, moteurs arrêtés. Hors tableau : les 3 journaux v1
 armés du matin du 15/11 (batterie, hélices retirées, 10 lectures fausses en ≈ 88 s).
@@ -24,6 +25,11 @@ armés du matin du 15/11 (batterie, hélices retirées, 10 lectures fausses en �
 4. Même firmware v3, même cadence : Mini Pouce 104/14 188, carte neuve 0/6038 (attendu 44,3, P ≈ 6×10^-20). Le défaut est
    propre à Mini Pouce : sa carte, son câblage ou sa configuration (la carte neuve est nue et en réglages d'usine), dans
    ces conditions (USB seul, firmware de test sur base 542c458).
+5. Carte neuve avec la configuration de Mini Pouce collée : 33 lectures décalées sur 11 952 (motif exact), contre 0/6038 en
+   configuration d'usine (P ≈ e^-16,7). Journal attribué à la carte neuve par empreinte de l'identifiant (calculée par
+   l'auditeur, comparée en local). Le défaut suit la configuration de Mini Pouce, pas la carte ni le montage. Le réglage en
+   cause n'est pas identifié. Taux plus bas que sur Mini Pouce (0,28 % contre 0,73 %) : non expliqué. Essai fait sans
+   fiche, à la demande de Johann.
 
 ## Non prouvé
 
@@ -39,6 +45,7 @@ armés du matin du 15/11 (batterie, hélices retirées, 10 lectures fausses en �
   v3 sont hors de cette plage. Une lecture fausse peut toutefois tomber dans la plage (828 hPa le 14/11) : seul le filtre
   des sauts (l.444) peut alors l'écarter, non vérifié pour ce cas. La température n'est pas filtrée (−132,80 °C le 14/11) :
   son effet sur la correction de température de l'altitude est à vérifier.
-- Prochain essai qui départage, plus tard : diff all de Mini Pouce collé sur la carte neuve, 5 minutes, v3. Si le défaut
-  apparaît : configuration ; sinon : carte ou montage de Mini Pouce.
+- Prochain essai, plus tard, avec une fiche courte contrôlée : trouver le réglage en cause, sur la carte neuve, une moitié
+  du diff à la fois. Candidats différents de l'usine : pid_process_denom 2, dshot_bidir ON + DShot300, OSD/VTX MSP sur
+  UART1, feature TELEMETRY.
 - Mini Pouce garde le firmware de test v3 : ne pas voler avant le retour à TRUEGLIDE cb4e3f0 (fiche à part).
