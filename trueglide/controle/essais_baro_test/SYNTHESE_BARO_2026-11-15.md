@@ -13,6 +13,7 @@
 | v3, essai B | a87822b | carte neuve | Mini Pouce + dshot_bidir OFF (en-tête bidir 0, denom 2) | 6508 | 19,83/s | 40 (0,61 %) |
 | v3, essai C | a87822b | carte neuve | Mini Pouce recollée + UART1 vidé, télémétrie coupée (en-tête bidir 1, bit TELEMETRY absent) | 6065 | 19,91/s | 10 (0,165 %) |
 | v3, essai A' | a87822b | carte neuve | Mini Pouce + modifications de B, C (télémétrie prouvée, UART1 non vérifié) et A' (en-tête bidir 0, denom 1, looptime 125) | 8291 | 19,88/s | 20 (0,24 %) |
+| v3, essai -OSD | a87822b | carte neuve | état A' + feature -OSD (en-tête : features 272629768, OSD absent) | 765 (2 journaux courts) | 20,0/s | 7 (0,9 %) |
 
 Tous sur la base de la PR #16023 (542c458), USB seul, sans batterie, moteurs arrêtés. Hors tableau : les 3 journaux v1
 armés du matin du 15/11 (batterie, hélices retirées, 10 lectures fausses en ≈ 88 s).
@@ -48,6 +49,18 @@ armés du matin du 15/11 (batterie, hélices retirées, 10 lectures fausses en �
    Effacement de la mémoire établi par le fichier (seuls les 2 journaux A' présents, mémoire pleine). 20/8291 (0,24 %),
    motif décalé exact 20/20, debug[3] = 0. Avec bidir OFF + denom 1 + télémétrie OFF ensemble, le défaut reste (0,24 %
    contre 0,28 % de référence) : aucun des 3 groupes n'est la cause.
+   Essai -OSD (A' + feature -OSD ; seul le bit 18 change) : 7/765, motif 7/7, debug[3] = 0 ; attendu 1,85 au taux de A',
+   P(≥ 7) ≈ 0,3 % : l'OSD n'est pas le déclencheur. (L'OSD de cette config passe par displayport MSP, pas par le MAX7456 :
+   la piste « DMA SPI de l'OSD » tombe.) Pas d'effet démarrage dans les journaux longs (1 faute dans les 3 premières
+   secondes contre ≈ 1,05 attendue, 174 fautes) ; l'excès vu dans les journaux courts est fragile (critère choisi après coup).
+
+7. Mécanisme candidat (lecture de code, confirmé par l'auditeur ; déclencheur non prouvé) : bus_i2c_stm32f4xx.c, branche TXE
+   de i2c_ev_handler : « if (index != -1) DR = write_p[index++] » ne teste pas l'écriture ; en lecture write_p = buf. Une
+   entrée TXE après l'envoi du sous-registre et avant BTF envoie buf[0] (0xFE) comme donnée ; si le DPS310 auto-incrémente
+   (non vérifié), la lecture suivante part de 0x01 : exactement le motif observé, sans erreur. Firmware de test v4 (4f38441,
+   hors PR, jamais en vol) : garde dans cette branche + compteur dans debug[3]. Premier essai v4 inutilisable : le flash a
+   remis la config d'usine (« config reset: EMPTY », mal lu), debug_mode NONE. À refaire avec la config Mini Pouce collée ;
+   en-tête attendu : features 272892936, bidir 1, denom 2, P interval 16, debug BARO ; base de comparaison 33/11952.
 
 ## Non prouvé
 
