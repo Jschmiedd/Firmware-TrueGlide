@@ -59,5 +59,7 @@ armés du matin du 15/11 (batterie, hélices retirées, 10 lectures fausses en �
   son effet sur la correction de température de l'altitude est à vérifier.
 - Prochain essai, plus tard, seulement si Johann le veut : A' (carte neuve, config Mini Pouce, dshot_bidir OFF +
   pid_process_denom 1), 5 minutes, avec une fiche courte contrôlée.
+  A' se compare à B : seul pid_process_denom change (bidir OFF dans les deux). 0 faute en A' désignerait denom 2 ;
+  sinon, le réglage est ailleurs dans le diff.
 - Mini Pouce remis en TRUEGLIDE cb4e3f0 le 15/11 (version cb4e3f0f2, fichier complet PID doux + anti-desync collé, status :
   CONFIGURED, GYRO ICM42688P, I2C 0 erreur). La carte neuve garde le firmware de test v3 (montée sur aucun drone).
