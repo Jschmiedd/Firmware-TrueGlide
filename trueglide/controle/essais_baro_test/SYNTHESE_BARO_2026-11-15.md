@@ -10,6 +10,8 @@
 | v3 | a87822b (octets bruts, aucun accès bus ajouté) | Mini Pouce | Mini Pouce, PID 4 kHz | 14 188 | 19,85/s | 104 (0,733 %) |
 | v3 | a87822b | carte neuve | usine, PID 8 kHz | 6038 | 19,9/s | 0 |
 | v3 | a87822b | carte neuve | Mini Pouce collée (MINI_POUCE_avant_test_v2.txt), PID 4 kHz | 11 952 | 19,87/s | 33 (0,28 %), toutes hors plage, debug[3] = 0 |
+| v3, essai B | a87822b | carte neuve | Mini Pouce + dshot_bidir OFF (en-tête bidir 0, denom 2) | 6508 | 19,83/s | 40 (0,61 %) |
+| v3, essai C | a87822b | carte neuve | Mini Pouce recollée + UART1 vidé, télémétrie coupée (en-tête bidir 1, bit TELEMETRY absent) | 6065 | 19,91/s | 10 (0,165 %) |
 
 Tous sur la base de la PR #16023 (542c458), USB seul, sans batterie, moteurs arrêtés. Hors tableau : les 3 journaux v1
 armés du matin du 15/11 (batterie, hélices retirées, 10 lectures fausses en ≈ 88 s).
@@ -31,6 +33,16 @@ armés du matin du 15/11 (batterie, hélices retirées, 10 lectures fausses en �
    cause n'est pas identifié. Taux plus bas que sur Mini Pouce (0,28 % contre 0,73 %) : non expliqué. Essai fait sans
    fiche, à la demande de Johann.
 
+6. Recherche du réglage (carte neuve, config Mini Pouce, une modification à la fois, essais faits sans fiche complète, à la
+   demande de Johann). Essai A (pid_process_denom 1) impossible : avec dshot_bidir sur F4, Betaflight force
+   pid_process_denom ≥ 2 (config/config.c l.669-686, l.683). Essai B (dshot_bidir OFF) : 40/6508, le défaut reste ; les 5
+   journaux d'avant (bidir 1) sont écartés. Essai C (osd_uart, vtx_type, vtx_uart, msp_3_uart = NONE, feature -TELEMETRY,
+   sur la config Mini Pouce recollée, bidir ON) : 10/6065, le défaut reste. Réserves : seule la télémétrie est prouvée
+   par l'en-tête (bit 10) ; les 4 réglages UART1 n'y figurent pas (tapés à la main après un collage raté) : non vérifiés.
+   10 observés contre ≈ 16,7 attendus (P(≤10) ≈ 5 %) : ni effet ni absence d'effet de C à conclure. Conclusion : ni
+   dshot_bidir seul ni la télémétrie ne suppriment le défaut. Restent : pid_process_denom 2 (essai A' = bidir OFF +
+   denom 1) ou un autre réglage hors des 3 groupes.
+
 ## Non prouvé
 
 - La cause physique du décalage (pointeur du capteur à 0x01, ou 1er octet perdu avec 7 octets cadencés) : un analyseur
@@ -45,8 +57,7 @@ armés du matin du 15/11 (batterie, hélices retirées, 10 lectures fausses en �
   v3 sont hors de cette plage. Une lecture fausse peut toutefois tomber dans la plage (828 hPa le 14/11) : seul le filtre
   des sauts (l.444) peut alors l'écarter, non vérifié pour ce cas. La température n'est pas filtrée (−132,80 °C le 14/11) :
   son effet sur la correction de température de l'altitude est à vérifier.
-- Prochain essai, plus tard, avec une fiche courte contrôlée : trouver le réglage en cause, sur la carte neuve, une moitié
-  du diff à la fois. Candidats différents de l'usine : pid_process_denom 2, dshot_bidir ON + DShot300, OSD/VTX MSP sur
-  UART1, feature TELEMETRY.
+- Prochain essai, plus tard, seulement si Johann le veut : A' (carte neuve, config Mini Pouce, dshot_bidir OFF +
+  pid_process_denom 1), 5 minutes, avec une fiche courte contrôlée.
 - Mini Pouce remis en TRUEGLIDE cb4e3f0 le 15/11 (version cb4e3f0f2, fichier complet PID doux + anti-desync collé, status :
   CONFIGURED, GYRO ICM42688P, I2C 0 erreur). La carte neuve garde le firmware de test v3 (montée sur aucun drone).
