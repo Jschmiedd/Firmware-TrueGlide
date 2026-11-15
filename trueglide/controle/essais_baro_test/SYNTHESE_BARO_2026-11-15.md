@@ -12,6 +12,7 @@
 | v3 | a87822b | carte neuve | Mini Pouce collée (MINI_POUCE_avant_test_v2.txt), PID 4 kHz | 11 952 | 19,87/s | 33 (0,28 %), toutes hors plage, debug[3] = 0 |
 | v3, essai B | a87822b | carte neuve | Mini Pouce + dshot_bidir OFF (en-tête bidir 0, denom 2) | 6508 | 19,83/s | 40 (0,61 %) |
 | v3, essai C | a87822b | carte neuve | Mini Pouce recollée + UART1 vidé, télémétrie coupée (en-tête bidir 1, bit TELEMETRY absent) | 6065 | 19,91/s | 10 (0,165 %) |
+| v3, essai A' | a87822b | carte neuve | Mini Pouce + modifications de B, C (télémétrie prouvée, UART1 non vérifié) et A' (en-tête bidir 0, denom 1, looptime 125) | 8291 | 19,88/s | 20 (0,24 %) |
 
 Tous sur la base de la PR #16023 (542c458), USB seul, sans batterie, moteurs arrêtés. Hors tableau : les 3 journaux v1
 armés du matin du 15/11 (batterie, hélices retirées, 10 lectures fausses en ≈ 88 s).
@@ -42,6 +43,11 @@ armés du matin du 15/11 (batterie, hélices retirées, 10 lectures fausses en �
    10 observés contre ≈ 16,7 attendus (P(≤10) ≈ 5 %) : ni effet ni absence d'effet de C à conclure. Conclusion : ni
    dshot_bidir seul ni la télémétrie ne suppriment le défaut. Restent : pid_process_denom 2 (essai A' = bidir OFF +
    denom 1) ou un autre réglage hors des 3 groupes.
+   Essai A' (fait pas à pas dans la discussion) : config = Mini Pouce + modifications de B, C (télémétrie prouvée, UART1
+   non vérifié) et A' (pid_process_denom 1, dshot_bidir OFF, prouvés par l'en-tête), sans affirmer de recollage du diff.
+   Effacement de la mémoire établi par le fichier (seuls les 2 journaux A' présents, mémoire pleine). 20/8291 (0,24 %),
+   motif décalé exact 20/20, debug[3] = 0. Avec bidir OFF + denom 1 + télémétrie OFF ensemble, le défaut reste (0,24 %
+   contre 0,28 % de référence) : aucun des 3 groupes n'est la cause.
 
 ## Non prouvé
 
@@ -57,9 +63,9 @@ armés du matin du 15/11 (batterie, hélices retirées, 10 lectures fausses en �
   v3 sont hors de cette plage. Une lecture fausse peut toutefois tomber dans la plage (828 hPa le 14/11) : seul le filtre
   des sauts (l.444) peut alors l'écarter, non vérifié pour ce cas. La température n'est pas filtrée (−132,80 °C le 14/11) :
   son effet sur la correction de température de l'altitude est à vérifier.
-- Prochain essai, plus tard, seulement si Johann le veut : A' (carte neuve, config Mini Pouce, dshot_bidir OFF +
-  pid_process_denom 1), 5 minutes, avec une fiche courte contrôlée.
-  A' se compare à B : seul pid_process_denom change (bidir OFF dans les deux). 0 faute en A' désignerait denom 2 ;
-  sinon, le réglage est ailleurs dans le diff.
+- Essai A' fait (point 6) : le réglage en cause est ailleurs dans le diff. Restent surtout, par rapport à l'usine : feature
+  OSD (+ positions osd_*), filtres gyro (gyro_lpf1_static_hz 0, dyn_notch, simplified_gyro_filter OFF), 3D, small_angle,
+  motor_kv, aux, profils, rates. Plus plausibles par le mécanisme (défaut lié au temps) : feature OSD et filtres gyro
+  (hypothèses non vérifiées). Méthode la plus sûre : coller la moitié du diff à la fois. Plus tard, seulement si Johann le veut.
 - Mini Pouce remis en TRUEGLIDE cb4e3f0 le 15/11 (version cb4e3f0f2, fichier complet PID doux + anti-desync collé, status :
   CONFIGURED, GYRO ICM42688P, I2C 0 erreur). La carte neuve garde le firmware de test v3 (montée sur aucun drone).
