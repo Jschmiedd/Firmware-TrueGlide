@@ -15,6 +15,8 @@
 | v3, essai A' | a87822b | carte neuve | Mini Pouce + modifications de B, C (télémétrie prouvée, UART1 non vérifié) et A' (en-tête bidir 0, denom 1, looptime 125) | 8291 | 19,88/s | 20 (0,24 %) |
 | v3, essai -OSD | a87822b | carte neuve | état A' + feature -OSD (en-tête : features 272629768, OSD absent) | 765 (2 journaux courts) | 20,0/s | 7 (0,9 %) |
 | v4, garde TXE | 4f38441 | carte neuve | features 272891912, bidir 0, denom 1, P interval 16, profil actif 0 (A' : 3) | 6497 (J6, 327,8 s) | 19,82/s | 0 ; garde déclenchée 56 fois |
+| vol, master 6241cfb19 (sans correctif) | betaflight master | Mini Pouce | config du vol du 14/11 + debug BARO ; bidir 1, P interval 4 | 2 vols, 66,3 s | ≥ 595 changements | 0 |
+| vol, master + correctif bef059a1d | betaflight master | Mini Pouce | même config (en-têtes identiques) | 3 vols, 89,7 s | ≥ 955 changements | 0 |
 
 Tous sur la base de la PR #16023 (542c458), USB seul, sans batterie, moteurs arrêtés. Hors tableau : les 3 journaux v1
 armés du matin du 15/11 (batterie, hélices retirées, 10 lectures fausses en ≈ 88 s).
@@ -60,8 +62,9 @@ armés du matin du 15/11 (batterie, hélices retirées, 10 lectures fausses en �
    entrée TXE après l'envoi du sous-registre et avant BTF envoie l'ancien contenu de buf[0] (en général 0xFE, valeur de la lecture précédente) comme donnée ; si le DPS310 auto-incrémente
    (non vérifié), après le restart, cette même lecture part de 0x01 : exactement le motif observé, sans erreur. Firmware de test v4 (4f38441,
    hors PR, jamais en vol) : garde dans cette branche + compteur dans debug[3]. Premier essai v4 inutilisable : le flash a
-   remis la config d'usine (« config reset: EMPTY », mal lu), debug_mode NONE. À refaire avec la config Mini Pouce collée ;
-   Essai v4 refait (fichier 174141) avec la config de la carte neuve recollée + feature -TELEMETRY, -LED_STRIP.
+   remis la config d'usine (« config reset: EMPTY », mal lu), debug_mode NONE.
+   Essai v4 refait (fichier 174141) avec la config de la carte neuve recollée + feature -TELEMETRY, feature -LED_STRIP
+   (dshot_bidir OFF et pid_process_denom 1 = valeurs par défaut, non tapées ; confirmées par l'en-tête).
    Prédiction vérifiée : garde déclenchée 56 fois, 0 lecture décalée sur 6497 (J6, 327,8 s). Au taux de A', 15,7
    attendues, P(0) ≈ 1,5×10⁻⁷. Base non comparable au sens strict (profil actif 0 contre 3). 0 erreur 0x200, 0 trou
    d'échantillon. 56 gardes pour ≈ 16 fautes attendues : toutes les entrées TXE parasites ne donnaient pas une faute.
@@ -72,6 +75,13 @@ armés du matin du 15/11 (batterie, hélices retirées, 10 lectures fausses en �
    TXE parasite plus fréquente (usine : 0/6038 ; 0 garde sur 145 échantillons, trop court pour conclure). La v4 reste un
    firmware de test, jamais en vol. Une correction pour Betaflight serait une PR séparée de #16023, avec un journal de vol
    réel avant « ready » : à décider avec Johann plus tard.
+
+8. Vols du 15/11 au soir sur Betaflight master (6241cfb, sous-module config 073b0fe), Mini Pouce, mêmes en-têtes :
+   sans correctif 0 faute en 66,3 s ; avec correctif (bef059a1d) 0 faute en 89,7 s (critère : debug[1] hors 300-1200 hPa
+   ou saut de température > 10 °C). Les vols ne montrent pas l'effet du correctif. Prouvé : le chemin de code (branche TXE
+   identique dans master) et l'effet de la garde au banc sur la base 542c458. Non prouvé : que le défaut se produit sur
+   master actuel (causes possibles non tranchées). Suite : essai au banc sur master (carte neuve, même config, master puis
+   correctif, même durée) avant toute PR ; sinon, correctif gardé dans TRUEGLIDE seulement.
 
 ## Non prouvé
 
