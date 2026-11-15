@@ -48,4 +48,5 @@ armés du matin du 15/11 (batterie, hélices retirées, 10 lectures fausses en �
 - Prochain essai, plus tard, avec une fiche courte contrôlée : trouver le réglage en cause, sur la carte neuve, une moitié
   du diff à la fois. Candidats différents de l'usine : pid_process_denom 2, dshot_bidir ON + DShot300, OSD/VTX MSP sur
   UART1, feature TELEMETRY.
-- Mini Pouce garde le firmware de test v3 : ne pas voler avant le retour à TRUEGLIDE cb4e3f0 (fiche à part).
+- Mini Pouce remis en TRUEGLIDE cb4e3f0 le 15/11 (version cb4e3f0f2, fichier complet PID doux + anti-desync collé, status :
+  CONFIGURED, GYRO ICM42688P, I2C 0 erreur). La carte neuve garde le firmware de test v3 (montée sur aucun drone).
