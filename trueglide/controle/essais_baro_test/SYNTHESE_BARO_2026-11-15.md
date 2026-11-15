@@ -51,13 +51,13 @@ armés du matin du 15/11 (batterie, hélices retirées, 10 lectures fausses en �
    contre 0,28 % de référence) : aucun des 3 groupes n'est la cause.
    Essai -OSD (A' + feature -OSD ; seul le bit 18 change) : 7/765, motif 7/7, debug[3] = 0 ; attendu 1,85 au taux de A',
    P(≥ 7) ≈ 0,3 % : l'OSD n'est pas le déclencheur. (L'OSD de cette config passe par displayport MSP, pas par le MAX7456 :
-   la piste « DMA SPI de l'OSD » tombe.) Pas d'effet démarrage dans les journaux longs (1 faute dans les 3 premières
-   secondes contre ≈ 1,05 attendue, 174 fautes) ; l'excès vu dans les journaux courts est fragile (critère choisi après coup).
+   la piste « DMA SPI de l'OSD » tombe.) Pas d'effet démarrage dans les journaux longs (207 fautes, 1 dans les 3 premières
+   secondes contre ≈ 1,2 attendue) ; l'excès vu dans les journaux courts est fragile (critère choisi après coup).
 
-7. Mécanisme candidat (lecture de code, confirmé par l'auditeur ; déclencheur non prouvé) : bus_i2c_stm32f4xx.c, branche TXE
+7. Mécanisme candidat (lecture de code, chemin de code confirmé par l'auditeur ; déclencheur non prouvé) : bus_i2c_stm32f4xx.c, branche TXE
    de i2c_ev_handler : « if (index != -1) DR = write_p[index++] » ne teste pas l'écriture ; en lecture write_p = buf. Une
-   entrée TXE après l'envoi du sous-registre et avant BTF envoie buf[0] (0xFE) comme donnée ; si le DPS310 auto-incrémente
-   (non vérifié), la lecture suivante part de 0x01 : exactement le motif observé, sans erreur. Firmware de test v4 (4f38441,
+   entrée TXE après l'envoi du sous-registre et avant BTF envoie l'ancien contenu de buf[0] (en général 0xFE, valeur de la lecture précédente) comme donnée ; si le DPS310 auto-incrémente
+   (non vérifié), après le restart, cette même lecture part de 0x01 : exactement le motif observé, sans erreur. Firmware de test v4 (4f38441,
    hors PR, jamais en vol) : garde dans cette branche + compteur dans debug[3]. Premier essai v4 inutilisable : le flash a
    remis la config d'usine (« config reset: EMPTY », mal lu), debug_mode NONE. À refaire avec la config Mini Pouce collée ;
    en-tête attendu : features 272892936, bidir 1, denom 2, P interval 16, debug BARO ; base de comparaison 33/11952.
