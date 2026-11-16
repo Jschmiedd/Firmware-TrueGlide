@@ -576,3 +576,27 @@ mis en majuscules par l'onglet Configuration hors ligne ; cadres « À envoyer �
   (`sauvegarde_complete_Betaflight_2026-10-14-19-27-09.bin`, 1 Mo, Betaflight 2025.12.2 79065c96b, SPEEDYBEEF405MINI,
   réglages KarRmen ; sha256 b72c9a56…d919) à flasher avec XPRO ; contrôle : `version` puis `diff all` = diff du 14/10
   (`DP_4000kv_BTFL_cli_KARRMEN_20261014_110629`). Fichiers chez Johann, hors dépôt.
+
+## 16/11/2026 — PR Betaflight et garde TXE au banc (nouvelle discussion de développement)
+
+- **PR** : betaflight-configurator #5789 fusionnée (première contribution acceptée dans betaflight-configurator) ; #5790 fusionnée le 17/11 (blckmn,
+  après les approbations de haslinghuis et blckmn) ; #5791 ouverte, réponse à nerdCopter publiée par Johann (texte audité OUI). Détail : ETAT.md, section 2 bis.
+- **Garde TXE (betaflight#16023) dans TRUEGLIDE**, demande de Johann : branche LOCALE `essai/i2c-garde-txe`, commit
+  2555b914a (bus_i2c_stm32f4xx.c, branche TXE de i2c_ev_handler, +4 −1), non poussée : elle disparaît avec ce conteneur si
+  elle n'est pas poussée (OUI de Johann nécessaire). .hex d'essai SPEEDYBEEF405MINI sha256 766ea772…2667, OUI audit pour
+  le banc seulement, jamais en vol.
+- **Compilation** : developer.arm.com refusé par le proxy ; xpack arm-none-eabi-gcc 13.3.1-1.1 depuis GitHub (archive
+  sha256 006c8933…b959 = .sha publié). Contrôle : cb4e3f0 recompilé = .hex en ligne à 14 octets près (date et heure).
+  Sous-module src/config à initialiser (`git submodule update --init --depth 1 src/config`).
+- **Banc carte neuve** (ETAT.md section 5) : garde 0/694 s, témoin cb4e3f0 0/738 s → non concluant. La carte neuve ne
+  montre pas le défaut avec TRUEGLIDE. Aucune faute connue avec un TRUEGLIDE qui a les memsets (les fautes des 28-29/10,
+  1791465 et f9fc6d5, sont antérieures aux memsets du 31/10). Option proposée à Johann, non lancée : Mini Pouce + sa
+  config, témoin cb4e3f0 ≥ 600 s, puis la garde seulement si le témoin donne des fautes.
+- **Lecture du critère dans TRUEGLIDE** (barometer.c l.528-566) : le rejet ne modifie pas baro.pressure et
+  DEBUG_SET(1, pression brute) est écrit à chaque cycle → le critère voit les fautes ; debug[4] = cycles abandonnés sur
+  erreur I2C, debug[5] = mesures rejetées d'affilée (pas les mêmes cases que Betaflight master).
+- **Logiciel** : la sauvegarde avant flash (AutoBackup.js) fait un `diff all`, propose « Enregistrer sous »
+  (cli_backup_<date>.txt) et garde une copie en mémoire jusqu'au prochain flash ou au rechargement de la page. Ce fichier
+  contient mcu_id : jamais dans un dépôt.
+- **Pièges vus** : un `diff all` collé par Johann contenait mcu_id (non recopié) : toujours demander `diff all bare`.
+  Un fichier ne passe pas par send_message (64 Kio) : demander à Johann de l'envoyer directement ici.

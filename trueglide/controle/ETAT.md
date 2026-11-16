@@ -1,6 +1,6 @@
 # État de TRUEGLIDE — à lire en premier dans chaque discussion (développement et audit)
 
-Mis à jour le 13/11/2026. Modes d'emploi (hors ligne, mise en route depuis Betaflight, Studio, plan de vol) corrigés le 07/11 et donnés à Johann (hors dépôt). À mettre à jour à chaque changement (version en ligne, règle, défaut, audit, essai).
+Mis à jour le 16/11/2026 (PR Betaflight, essai de la garde TXE au banc). Modes d'emploi (hors ligne, mise en route depuis Betaflight, Studio, plan de vol) corrigés le 07/11 et donnés à Johann (hors dépôt). À mettre à jour à chaque changement (version en ligne, règle, défaut, audit, essai).
 Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.md`.
 
 ## 1. En ligne aujourd'hui
@@ -11,7 +11,8 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 | Logiciel /test/ | 25f82b1 (= 7dc6865 + onglet ESC v25 f646695, OUI de l'audit pour /test/ seulement) | gh-pages 797de81 | 11/11/2026 |
 | Firmwares en ligne (catalogue de /app/ et /test/) | **cb4e3f0f2** (code = 5e246cc), 33 cartes, modèle TRUEGLIDE, version d'essai (seule SPEEDYBEEF405MINI essayée sur une vraie carte, révisions précédentes ; cb4e3f0 en essai TG-A1-7) ; précédente 4b3d47cba | gh-pages 674ceca (notes, flasheur, accueil) | 08/11/2026 |
 | Onglet ESC | /app/ : onglet/v24 (34244fe) ; /test/ : onglet/v25 (f646695 : ESC en FLASH*FAILED sauté à l'écriture), /app/ après essai au banc et « OUI V25 SUR APP » de Johann | TrueGlide-ESC-Configurator | 11/11/2026 |
-| Firmware sur le Mini Pouce de Johann | TRUEGLIDE cb4e3f0f2 depuis le 13/11 (flash /app/, `version` relu par Johann ; sauvegarde TRUEGLIDE du 08/11 cb4e3f0 à recoller, vérifiée identique à celle du 31/10 sauf nom et calibration acc) | — | 13/11/2026 |
+| Firmware sur le Mini Pouce de Johann | **À vérifier par `version`** : TRUEGLIDE cb4e3f0 remis le 15/11 (SYNTHESE_BARO), puis vol du 16/11 au matin avec le Betaflight de la PR #16023 (d'après la passation, non relu). Avant tout essai TRUEGLIDE : retour cb4e3f0 + sauvegarde TRUEGLIDE du 08/11 | — | 16/11/2026 |
+| Carte neuve (SpeedyBee F405 Mini, banc, montée sur aucun drone) | TRUEGLIDE cb4e3f0f2 (version et `diff all bare` relus le 16/11) + BANC_reglages_carte_neuve.txt (debug BARO, blackbox ALWAYS 1/16) | — | 16/11/2026 |
 
 ## 2. Règles permanentes de Johann
 
@@ -57,10 +58,18 @@ la précédente.
 Candidats (13/11) : pilote I2C sans remise à zéro après erreur (prouvé au banc le 13/11 par injection, A/B) ; intensité MSP_BATTERY_STATE lue sans signe ; GM3
 `&&` ; molette ; page cachée. Pas de confirmation de betaflight#15533 : le Mini Pouce n'utilise pas le DShot bitbang.
 
+État des PR de Johann au 17/11 au matin (preuves : emails GitHub et captures envoyés par Johann ; auditeur pour #5791) :
+- betaflight-configurator **#5789** (MSP_BATTERY_STATE signé) : **fusionnée** dans master le 16/11 (haslinghuis), approuvée par blckmn, haslinghuis, nerdCopter ; RN: BUGFIX, projet et jalon 2026.12.
+- betaflight-configurator **#5790** (molette) : **fusionnée** dans master le 17/11 à 08 h 58 (blckmn, email « Merged #5790 into master »), approuvée par haslinghuis et blckmn ; nerdCopter préfère le survol mais s'en remet à ses collègues (aucune réponse, décision de Johann).
+- betaflight-configurator **#5791** (page cachée) : ouverte, RN: BUGFIX, 3 approbations requises. nerdCopter : « tab-exit by design ». Réponse de Johann publiée le 16/11 (texte audité) : quitter l'onglet Moteurs arrête déjà les moteurs sur master ; la PR ne réagit qu'à la page cachée.
+- betaflight **#16023** (I2C F4, af3a9bc) : Ready for review depuis le 16/11 (vérifié par l'audit, API GitHub, 15:20 UTC). Ne pas cliquer « Update branch » ni « Resolve ». **#16022** (GM3) : non revue le 16/11.
+
 ## 3. Défauts encore ouverts
 
 | Gravité | Défaut | Où |
 |---|---|---|
+| À décider (16/11) | Pilote I2C F4 : TRUEGLIDE a les 2 memsets mais pas la garde TXE de betaflight#16023. Garde ajoutée sur la branche LOCALE `essai/i2c-garde-txe` (2555b914a, +4 −1, non poussée, OUI audit pour le banc seulement). Banc du 16/11 non concluant (section 5) : la garde est justifiée par le code et par les essais Betaflight, sans effet mesuré dans TRUEGLIDE. Seul banc candidat : Mini Pouce + sa config, témoin cb4e3f0 ≥ 600 s | firmware |
+| D'origine Betaflight (16/11, CodeRabbit sur #16023) | i2cInit() sort tout de suite si les broches sont déjà prises : la réinitialisation après timeout et son memset ne s'exécutent qu'au démarrage (bus_i2c_stm32f4xx.c l.457 et l.464). Non touché | firmware |
 | Choix gardé (audit F9) | Retour batterie : si le GPS Rescue revient après un état « retour impossible », le retour part tout de suite (batterie déjà basse, pilote déjà prévenu ; le manche l'annule) | firmware |
 | Dit dans les notes (08/11) | power_guard_current 1 à 9 A sans minimum au firmware (banc) ; relance moteur sans limite de coupures ; retour batterie (F9) ; test moteurs arrêté après 1 s sans renvoi (logiciel du 08/11 requis) ; aucune fonction TrueGlide essayée en vol (TG-P3B) | firmware |
 | À surveiller | Relance moteur : vérifiée seulement sans fausse alerte (TG-A1-4), pas sur un vrai moteur calé : garder désactivée par défaut | firmware |
@@ -110,5 +119,6 @@ Candidats (13/11) : pilote I2C sans remise à zéro après erreur (prouvé au ba
 | 14/11 | ESC Mini Pouce : Compensation de démagnétisation Low → High (onglet ESC de /app/, 0.33.0-dev 34244fe), écrite sur les 4 ESC puis relue | 4 × J-H-40 Bluejay 0.19 24 kHz | Relu : High ; timing 30° (High), démarrage 1025/1100, rampe 9x, sens Reversed inchangés. Carte alors sous le firmware de la PR #16023 |
 | 14/11 | Vol PR #16023 (firmware built locally from 542c458, debug BARO), Mini Pouce | Betaflight 2026.12.0 (542c45840) | Vol normal ~38 s. 4 lectures baro fausses isolées (0,05 s chacune) : log 2 t=2,033 s P −4551 hPa ; log 3 t=6,502 s P 7931 hPa, t=26,954 s T −132,80 °C, t=33,111 s P 828 hPa. status : I2C 0 errors (le compteur de master ne compte que les blocages). Cause NON établie ; PR reste en brouillon. Journal (UID masqué) et CSV : essais_pr16023/. TRUEGLIDE cb4e3f0, vérifié dans barometer.c : cycle rejeté sur erreur de bus (l.458-477), plage de pression plausible (l.175, 530), filtre des sauts d'altitude (l.444) |
 | 15/11 | Synthèse vibration 244 Hz (Mini Pouce), journaux de Johann analysés (orangebox, gyro brut au pic des moteurs). Hors dépôt : journaux non masqués (DeviceUID) | vol PR 542c458 ; tests B et C TRUEGLIDE cb4e3f0 + fichier PID doux / anti-désync | Vibration de rotation, pas un choc : présente tout le vol, suit la vitesse des moteurs (238-256 Hz), retirée par le filtre (1,02 → 0,008). Roulis ÷ tangage : vol PR 5,2 ; test B (nouvelle sangle, l'ancienne touchait la carte côté droit) 3,0 ; test C (hélices 2 ↔ 3 remontées) 2,4, pic 3,23 → 1,66. Même roulis dominant sur châssis 135 mm (KarRmen, BF 2025.12.2) et 122 mm (moteurs 1404, BF 4.4.2) : châssis et moteurs écartés. Tests au banc (TrueGlide à 1300, puis Betaflight à 2000) contradictoires (moteur 1 puis 3) : non fiables. Cause la plus probable, non prouvée : hélices montées avec jeu (trou 2 mm, axe 1,5 mm). À faire : hélices à trou de 1,5 mm, puis un vol. Désyncs : 0 aux tests B et C ; celles de KarRmen (moteur 2, ancien ESC) non reproduites. ESC 2 à 32-33 °C au repos (autres 22-28 °C) : cause non vérifiée |
+| 16/11 | Garde TXE dans TRUEGLIDE, carte neuve, USB seul, BANC_reglages_carte_neuve.txt (4 erreurs CLI attendues : osd_uart, vtx_type, vtx_uart, msp_3_uart absents de TRUEGLIDE), flash_erase → save → débrancher/rebrancher, onglet Capteurs. Règle écrite avant avec l'audit : témoin > 0 et garde 0 = la garde marche ; témoin 0 = non concluant ; garde > 0 = arrêt | essai 2555b914a (local, .hex sha256 766ea772…2667) ; témoin cb4e3f0 publié (.hex sha256 ee1d1dfe…2d82) | Garde : 694,4 s + 50,0 s, 0 mauvaise mesure, debug[4] et [5] = 0, status 0 errors (journal sha256 54935dc0…d919, script exécuté par la discussion d'appoint). Témoin : 737,7 s + 4,8 s, 0 mauvaise mesure, debug[4] et [5] = 0, status 0 errors (journal sha256 71cdcc9c…05e7, recompté ici). En-têtes identiques (features 272892936, debug 55, P interval 16, denom 2, bidir 1, même carte). **NON CONCLUANT** (audit). Compilateur contrôlé : cb4e3f0 recompilé = fichier en ligne à 14 octets près (date) |
 | — | TG-P3B (premier vol cb4e3f0 + ALT HOLD, Mini Pouce ; fiche auditée OUI 4083ce1) | cb4e3f0 | PAS FAIT |
 | — | TG-P3C (fonctions TrueGlide en vol, ancien TG-P3B, à réécrire) | — | PAS FAIT |
