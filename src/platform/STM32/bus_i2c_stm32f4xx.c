@@ -424,7 +424,10 @@ void i2c_ev_handler(i2cDevice_e device)
             ev_state->index++;                                                    // to show job is complete
     }
     else if (SReg_1 & I2C_SR1_TXE) {                                  // Byte transmitted EV8 / EV8_1
-        if (ev_state->index != -1) {                                              // we dont have a subaddress to send
+        if (ev_state->index != -1 && state->reading) {                            // a read never sends data bytes:
+            I2C_ITConfig(I2Cx, I2C_IT_BUF, DISABLE);                    // ignore a late TXE, wait for BTF to restart
+        }
+        else if (ev_state->index != -1) {                                         // we dont have a subaddress to send
             I2Cx->DR = state->write_p[ev_state->index++];
             if (state->bytes == ev_state->index)                                         // we have sent all the data
                 I2C_ITConfig(I2Cx, I2C_IT_BUF, DISABLE);                // disable TXE to allow the buffer to flush
