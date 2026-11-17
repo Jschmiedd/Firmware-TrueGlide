@@ -36,6 +36,7 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
   `trueglide/MISE_A_JOUR_BETAFLIGHT.md`. Prochaine : TRUEGLIDE 2026.12 (février 2027).
 - 11/11 : tout contrôler avant de proposer quoi que ce soit à Johann (contexte, liens, cohérence, pièces jointes) et donner une version finale du premier coup : pas de corrections en plusieurs fois.
 - 14/11 : nouvel auditeur indépendant : discussion session_01VvqUCsZQ7mCBZTnmA6F2FT. Les anciennes (session_01VvqUCt5QANL2A4NKbRdzyx, session_01VvqUCsD9iRLVMzii8FW6NM) ne donnent plus d'OK. Passation : PASSATION_AUDIT_2026-11-14.md.
+- 17/11 : **exception unique** à la règle salle blanche du 27/10 (REPRISE, Décisions), décidée par Johann : les 2 fichiers `trueglide/controle/desync/MINI_POUCE_TRUEGLIDE_complet_2026-11-14_PID_doux_anti_desync_cb4e3f0.txt` et `trueglide/controle/pid_doux/MINI_POUCE_TRUEGLIDE_PID_doux_cb4e3f0.txt` (PID et rates venant d'XPRO) restent dans le dépôt. Ses mots : « pas grave c est juste une base rien de grave elle va changer », « c est une exception mais ca sera la seul ». Aucune autre valeur XPRO n'entre dans le dépôt.
 - Toujours : essais sans hélices ; aucun secret affiché ; rien d'un autre produit dans TRUEGLIDE ; commits avec
   `[skip ci]`, sans identifiant de modèle d'IA ; un .hex donné à Johann garde son nom standard ; vérifier la révision
   dans le fichier avant de le donner.
