@@ -38,6 +38,18 @@ Une conversation par phase de test. Lire ce fichier, puis seulement les fichiers
   - **Contributions externes (conseils de Chris et règles Betaflight)** : une petite correction par sujet, dans le style du code existant ; pas de commentaire quand le code le montre déjà (Chris, #590 : « Implicit. Please remove this comment. »), un commentaire seulement pour un pourquoi invisible ; un test automatique qui échoue sans la correction ; toujours un essai au banc ; PR à jour sur la branche actuelle, sans code déjà fusionné ni « Depends on » inutile ; lint sans erreur ni avertissement nouveau ; lire AGENTS.md / CONTRIBUTING avant d'ouvrir une PR (Betaflight : 2 PR ouvertes au plus pour un nouveau contributeur, en-tête GPL dans chaque nouveau fichier) ; avant de dire « terminé », capture de la zone de relecture de chaque PR ; ne jamais résoudre soi-même un fil de robot, répondre dedans ; un essai fait avec un firmware compilé localement s'écrit « built locally from <commit> ».
   - **Essais en direct** : la fiche contient toutes les étapes, vérifiées à l'avance dans le code de la version utilisée, avec une image par clic et les textes à copier-coller (ex. `#16023`). On propose d'abord la solution la plus directe (ex. .hex compilé plutôt que le cloud build). Ne jamais deviner l'état d'un écran (ex. « pending ») : le vérifier dans le code avant de répondre.
   - **Contrôles de l'auditeur (objectif 0 faute)** : chaque affirmation porte sa preuve (ligne de code ou exécution), sinon « non vérifié » ; vérifier le produit concerné (Betaflight ≠ TRUEGLIDE) avant de reprendre une phrase ; relire le diff all ou le status réel avant tout réglage matériel (VTX HD, OSD) ; rechercher mcu_id et signature dans chaque fichier contrôlé ; diff complet contre la dernière version auditée, qui ne doit contenir que les changements annoncés ; contrôler le Word et le PDF contre le .md ; relire son propre retour (chiffres, noms, numéros) ; tout point non vérifiable est écrit tel quel dans la réponse, avec ce qu'il faudrait pour le vérifier ; répondre OUI ou NON, avec les corrections exactes.
+- **Organisation (Johann, 18/11, « oui règle »)**, après les ratés des 16-17/11 (OUI d'envoi donné dans la discussion de
+  l'auditeur, journal envoyé à une autre discussion, état de PR tiré d'une vieille capture, « première contribution » faux) :
+  1. Une seule source de vérité : `trueglide/controle/ETAT.md`. Ce qui n'y est pas écrit n'est pas acquis. Chaque
+     discussion le lit en entrant et le met à jour en sortant, contrôlé par l'auditeur.
+  2. Une discussion par chantier. Fichiers, journaux et OUI vont directement à la discussion qui travaille sur le sujet ;
+     un OUI donné ailleurs ne compte pas. Les messages entre discussions informent, ils ne transmettent pas de décision.
+  3. Chaque affirmation porte une étiquette : « vérifié » (avec la preuve : sortie de carte, ligne de code, journal),
+     « relayé » (venant d'une autre discussion, à revérifier) ou « non vérifié ». Jamais d'état de carte sans une sortie
+     envoyée par Johann.
+  4. Trois contrôles avant que quelque chose parvienne à Johann : l'essai de la discussion (compilation, tests,
+     recomptage), puis l'auditeur, puis le réel (banc, puis vol ; jamais en vol avec un firmware d'essai). Une erreur trouvée : on reprend le contrôle au début.
+  5. Une règle de décision écrite avant chaque essai (comme pour la garde TXE le 16/11), jamais d'interprétation après coup.
 
 ## Firmware
 

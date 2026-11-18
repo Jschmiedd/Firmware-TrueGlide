@@ -37,6 +37,7 @@ Détail et historique : `trueglide/REPRISE.md` et `trueglide/controle/RESULTATS.
 - 11/11 : tout contrôler avant de proposer quoi que ce soit à Johann (contexte, liens, cohérence, pièces jointes) et donner une version finale du premier coup : pas de corrections en plusieurs fois.
 - 14/11 : nouvel auditeur indépendant : discussion session_01VvqUCsZQ7mCBZTnmA6F2FT. Les anciennes (session_01VvqUCt5QANL2A4NKbRdzyx, session_01VvqUCsD9iRLVMzii8FW6NM) ne donnent plus d'OK. Passation : PASSATION_AUDIT_2026-11-14.md.
 - 17/11 : **exception unique** à la règle salle blanche du 27/10 (REPRISE, Décisions), décidée par Johann : les 2 fichiers `trueglide/controle/desync/MINI_POUCE_TRUEGLIDE_complet_2026-11-14_PID_doux_anti_desync_cb4e3f0.txt` et `trueglide/controle/pid_doux/MINI_POUCE_TRUEGLIDE_PID_doux_cb4e3f0.txt` (PID et rates venant d'XPRO) restent dans le dépôt. Ses mots : « pas grave c est juste une base rien de grave elle va changer », « c est une exception mais ca sera la seul ». Aucune autre valeur XPRO n'entre dans le dépôt.
+- 18/11 : discussions en cours : « développement TRUEGLIDE » ; « demande de matériel » (mails aux fabricants ; elle transfère sans demander le message de Johann au contact qu'indique une réponse automatique, et l'en informe ensuite) ; « préparation de l'appel Orqa » du 20/11. Organisation : REPRISE.md, Règles, « Organisation (18/11) ».
 - Toujours : essais sans hélices ; aucun secret affiché ; rien d'un autre produit dans TRUEGLIDE ; commits avec
   `[skip ci]`, sans identifiant de modèle d'IA ; un .hex donné à Johann garde son nom standard ; vérifier la révision
   dans le fichier avant de le donner.
@@ -62,7 +63,7 @@ Candidats (13/11) : pilote I2C sans remise à zéro après erreur (prouvé au ba
 État des PR de Johann au 17/11 au matin (preuves : emails GitHub et captures envoyés par Johann ; auditeur pour #5791) :
 - betaflight-configurator **#5789** (MSP_BATTERY_STATE signé) : **fusionnée** dans master le 16/11 (haslinghuis), approuvée par blckmn, haslinghuis, nerdCopter ; RN: BUGFIX, projet et jalon 2026.12.
 - betaflight-configurator **#5790** (molette) : **fusionnée** dans master le 17/11 à 08 h 58 (blckmn, email « Merged #5790 into master »), approuvée par haslinghuis et blckmn ; nerdCopter préfère le survol mais s'en remet à ses collègues (aucune réponse, décision de Johann).
-- betaflight-configurator **#5791** (page cachée) : ouverte, RN: BUGFIX, 3 approbations requises. nerdCopter : « tab-exit by design ». Réponse de Johann publiée le 16/11 (texte audité) : quitter l'onglet Moteurs arrête déjà les moteurs sur master ; la PR ne réagit qu'à la page cachée.
+- betaflight-configurator **#5791** (page cachée) : ouverte, RN: BUGFIX, 3 approbations requises ; approuvée par haslinghuis le 17/11 vers 20 h 22 (notification GitHub du 17/11, capture de Johann ; non revérifiée sur GitHub). nerdCopter : « tab-exit by design ». Réponse de Johann publiée le 16/11 (texte audité) : quitter l'onglet Moteurs arrête déjà les moteurs sur master ; la PR ne réagit qu'à la page cachée.
 - betaflight **#16023** (I2C F4, af3a9bc) : Ready for review depuis le 16/11 (vérifié par l'audit, API GitHub, 15:20 UTC). Ne pas cliquer « Update branch » ni « Resolve ». **#16022** (GM3) : non revue le 16/11.
 
 ## 3. Défauts encore ouverts
