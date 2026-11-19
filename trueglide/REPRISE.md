@@ -50,6 +50,9 @@ Une conversation par phase de test. Lire ce fichier, puis seulement les fichiers
   4. Trois contrôles avant que quelque chose parvienne à Johann : l'essai de la discussion (compilation, tests,
      recomptage), puis l'auditeur, puis le réel (banc, puis vol ; jamais en vol avec un firmware d'essai). Une erreur trouvée : on reprend le contrôle au début.
   5. Une règle de décision écrite avant chaque essai (comme pour la garde TXE le 16/11), jamais d'interprétation après coup.
+  6. (19/11, Johann) Document pour Johann (fiche, mode d'emploi) : d'abord le texte, puis le contrôle de l'auditeur,
+     et seulement ensuite le PDF et le Word, envoyés en une seule version. Jamais de document donné avant le contrôle. Une correction après le
+     contrôle repasse par l'auditeur avant le nouveau PDF/Word.
 
 ## Firmware
 
