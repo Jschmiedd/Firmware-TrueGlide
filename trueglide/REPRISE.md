@@ -53,6 +53,13 @@ Une conversation par phase de test. Lire ce fichier, puis seulement les fichiers
   6. (19/11, Johann) Document pour Johann (fiche, mode d'emploi) : d'abord le texte, puis le contrôle de l'auditeur,
      et seulement ensuite le PDF et le Word, envoyés en une seule version. Jamais de document donné avant le contrôle. Une correction après le
      contrôle repasse par l'auditeur avant le nouveau PDF/Word.
+  7. (19/11, Johann) Phase de test sans son autorisation : code, tests, push des branches de travail, fiche d'essai et
+     règle de décision, publication sur /test/. Tout passe quand même par l'auditeur (code, fiche, contrôle en ligne).
+     La discussion de développement annonce seulement « C'est sur /test/, l'essai peut commencer », avec la fiche validée.
+     Inchangé, avec le OUI écrit de Johann : /app/, main, toute PR ou tout commentaire chez un tiers (Chris,
+     Betaflight…), tout mail aux fabricants, toute réécriture d'historique ou tout force-push. Toujours en vigueur :
+     identité noreply, aucun UID, mcu_id ni signature, rien sur XPro, essai au banc fait par Johann, jamais en vol avec
+     un firmware d'essai. La phase sans autorisation couvre seulement les branches de travail TrueGlide et /test/.
 
 ## Firmware
 
