@@ -67,6 +67,11 @@ Candidats (13/11) : pilote I2C sans remise à zéro après erreur (prouvé au ba
 - betaflight-configurator **#5791** (page cachée) : ouverte, RN: BUGFIX, 3 approbations requises ; approuvée par haslinghuis le 17/11 vers 20 h 22 (notification GitHub du 17/11, capture de Johann ; non revérifiée sur GitHub). nerdCopter : « tab-exit by design ». Réponse de Johann publiée le 16/11 (texte audité) : quitter l'onglet Moteurs arrête déjà les moteurs sur master ; la PR ne réagit qu'à la page cachée.
   - **Mise à jour du 21/11 : #5791 fusionnée** dans master le 21/11 à 15:19 UTC par haslinghuis (email « Merged #5791 into master » envoyé par Johann ; date de fusion confirmée par la recherche GitHub). Étapes : relecture de haslinghuis le 20/11 (un seul gestionnaire, une seule liste d'événements) appliquée dans ed19801 ; essai au banc PR5791-BANC n° 2 du 20/11 (lien PWA de la PR, Betaflight 2026.6.2, USB, hélices retirées) : toutes les réponses OUI ; approbation de blckmn le 21/11 à 03:21 (heure locale, notification GitHub) ; étiquette « Ready to Merge ». Pas dans Betaflight App 2026.6.2 (091127c) ; prochaine version, jalon à vérifier (2026.12 probable).
 - betaflight **#16023** (I2C F4, af3a9bc) : Ready for review depuis le 16/11 (vérifié par l'audit, API GitHub, 15:20 UTC). Ne pas cliquer « Update branch » ni « Resolve ». **#16022** (GM3) : non revue le 16/11.
+  - Au 21/11 (recherche GitHub) : **#16022 et #16023 toujours ouvertes**, non fusionnées.
+
+État des PR de Johann chez stylesuxx/esc-configurator au 21/11 (recherche GitHub, dates de fusion en UTC) :
+- **Fusionnées (6)** : #588 flash, rejet quand une relance lève une erreur (11/11 15:55) ; #589 délai de commande démarré à l'envoi (11/11 13:59) ; #590 journal de débogage gardé après l'enregistrement (14/11 17:47) ; #591 seuls les réglages communs décrits recopiés, jamais d'écriture sur FLASH*FAILED (11/11 16:37) ; #592 flash abandonné après 30 s sans progrès (16/11 19:28) ; #593 déconnexion propre et connexion plus robuste (19/11 20:34).
+- **Ouvertes (2), ouvertes le 19/11, en attente de relecture de Chris** : #594 sortie du passthrough quand aucun ESC ne répond (correction v27) ; #595 seuls les réglages communs recopiés vers les autres ESC.
 
 ## 3. Défauts encore ouverts
 
