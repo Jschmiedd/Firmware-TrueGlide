@@ -9,6 +9,7 @@ Johann donne le OUI écrit avant chaque envoi sur GitHub. Aucune étape n'est sa
 2. Chercher les doublons : PR et issues ouvertes et fermées sur le même sujet.
 3. Délimiter **un seul sujet**. S'il y en a plusieurs, prévoir plusieurs PR.
 4. Écrire le test qui **échoue** sur la branche de base, et le garder.
+5. **Chercher une fonction qui existe déjà** pour chaque calcul nouveau (`src/utils/helpers`, `src/sources`, et les fonctions ajoutées par nos PR déjà fusionnées) : la réutiliser au lieu de refaire le même calcul.
 
 ## Phase B. Écrire
 
@@ -31,6 +32,7 @@ Johann donne le OUI écrit avant chaque envoi sur GitHub. Aucune étape n'est sa
 1. Refaire la correction ou la relire ligne par ligne, sur la même base.
 2. Relancer tests, lint et `verif_pr.sh` lui-même.
 3. Pour chaque commentaire ajouté : « le code le dit-il déjà ? ». Si oui : NON.
+3 bis. Pour chaque calcul nouveau : « une fonction du dépôt le fait-elle déjà ? » (chercher son nom et ce qu'elle renvoie dans `src/utils/helpers` et `src/sources`). Si oui : NON, avec le nom de la fonction à utiliser.
 4. Pour chaque message ajouté : comparer aux messages voisins.
 5. Relire le texte de la PR : chaque chiffre a sa preuve (journal, test, ligne de code), sinon « non vérifié ».
 6. Répondre OUI ou NON, avec les corrections exactes.
@@ -40,7 +42,7 @@ Johann donne le OUI écrit avant chaque envoi sur GitHub. Aucune étape n'est sa
 1. Une fiche en français : le défaut, chaque ligne changée, la preuve.
 2. Johann la lit et doit pouvoir expliquer la PR **sans outil** (règle Betaflight, AI_POLICY).
 
-## Phase E bis. Johann relit le diff dans VS Code (guidé par Claude)
+## Phase E bis. Johann relit le diff dans VS Code (guidé par la discussion qui écrit)
 
 1. VS Code, extension « GitHub Pull Requests » : ouvrir la branche ou la PR, onglet des fichiers changés.
 2. Pour chaque fichier, lire chaque ligne verte (ajoutée) et rouge (retirée), avec la fiche d'explication à côté.
@@ -52,13 +54,14 @@ Johann donne le OUI écrit avant chaque envoi sur GitHub. Aucune étape n'est sa
    Copilot Chat envoie le code à un service extérieur : seulement sur le diff d'une PR publique, jamais avec un
    fichier TRUEGLIDE privé, une sauvegarde, un journal non masqué ni des données XPRO.
 6. Ne pas lancer « Copilot code review » sur une PR déjà ouverte chez Chris ou Betaflight sans leur accord.
-7. Noter les questions ; Claude y répond avant le OUI.
+7. Noter les questions ; la discussion qui écrit y répond avant le OUI.
 
 ## Phase F. Envoi
 
-0 bis. **Auteur de chaque commit : Jschmiedd** (règle de Johann, 14/11), avec une ligne « Co-Authored-By: Claude » à la fin
-   du message. `verif_pr.sh` bloque un autre auteur. Les 4 commits « Claude » de la #592 et de la #593 (d7939cc, 30f3570,
-   6e58f9f, 585badd) restent tels quels : Chris les avait déjà lus.
+0 bis. **Auteur et committer de chaque commit : Jschmiedd <242924782+Jschmiedd@users.noreply.github.com>** (règles de Johann,
+   14/11 et 21/11). **Aucune ligne « Co-Authored-By », aucun lien de session, aucune mention d'IA** dans les commits, le code,
+   les textes de PR et les réponses. `verif_pr.sh` bloque un autre auteur, une ligne « Co-Authored-By » et un lien de session. Les commits anciens
+   de la #588 à la #595 restent tels quels (« on ne modifie pas les anciennes, ce sera fait à partir des prochaines »).
 0. **Une seule discussion demande le OUI d'envoi à Johann : celle qui pousse.** L'autre contrôle avant et ne pose
    pas la question (malentendu du 14/11 : deux demandes croisées pendant le repas).
 1. Johann donne son **OUI écrit**.
@@ -122,3 +125,4 @@ Source : reviews et commentaires de code de stylesuxx lus sur GitHub le 19/11 (P
 | 14/11 | (préventif) | #592, #593 | reformulation de 3 commentaires maladroits : 30f3570 (#592), 585badd (#593), poussés le 14/11 vers 19 h 25 UTC avec le OUI de Johann (donné dans la discussion de l'auditeur), avant le contrôle indépendant de la phase D ; contrôlés après coup : commentaires seulement, verif_pr.sh sans point bloquant | #592, #593 |
 | 14/11 | Johann (mail à Chris) | #593 | Règle comprise de #590 et #592 : un commentaire seulement quand le code ne peut pas montrer le pourquoi ; 3 commentaires qui répétaient le code retirés | #593 (191203a) ; à appliquer partout |
 | 16/11 19:33 (rédigés le 14/11) | Chris | #593 | Review « changes requested ». Code, `src/utils/Serial.js` l. 215 : « The assignment does not really protect anything, nicer to read would be: `await this.writer.releaseLock(); this.writer = null` […] not sure it is really needed here, code is pretty self explanatory. » Code, `src/Containers/App/index.jsx` l. 272 : « The passthrough recovery a few lines below still uses the old behaviour. […] Can you please use `exitFourWayInterface(true)` and `this.getApiVersion()` there too? » → **Règles : pas de variable intermédiaire qui ne protège rien ; appliquer la même correction partout où le même cas existe** [Serial.js](https://github.com/stylesuxx/esc-configurator/pull/593#discussion_r4575013978), [App/index.jsx](https://github.com/stylesuxx/esc-configurator/pull/593#discussion_r4575022520) | #593 (68681f3, 4aa1608, réponse du 16/11 20:50 UTC). **État au 19/11 : toujours « changes requested » → demander une nouvelle relecture (« Re-request review »)** |
+| 22/11 | Chris | #595 | Review « changes requested ». Code, `src/Components/Flash/CommonSettings/index.jsx` : « I think this is the same what `getCommonSettingNames(master)` from `utils/helpers/Settings` does. Could you please use that instead? Computing it inside `onSettingsUpdate` (or adding it to the `useCallback` deps) would also make the ref unnecessary. » → **Règle : réutiliser une fonction qui existe déjà au lieu de refaire le même calcul (ici, une fonction ajoutée par notre propre #591) ; contrôle ajouté aux phases A.5 et D.3 bis** [commentaire](https://github.com/stylesuxx/esc-configurator/pull/595#discussion_r4658620797) | #595 (commit « refactor(settings): use getCommonSettingNames… ») ; PR du fichier de réglages ; à appliquer partout |

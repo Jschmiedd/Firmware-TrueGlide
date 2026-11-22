@@ -74,7 +74,7 @@ const doc = new Document({
       table([["Erreur", 3], ["Cause", 3], ["Parade (règle et contrôle)", 4]], [
         ["Commentaires inutiles retrouvés par Chris dans la #592, après la #590", "Remarque appliquée à une seule ligne, pas à toutes les PR", "Phase G : toute remarque est appliquée à toutes les PR ouvertes et aux branches prêtes. Tableau « remarques reçues »"],
         ["Code écrit et contrôlé par la même discussion", "Pas de regard extérieur", "Une discussion écrit, l'autre contrôle (phase D)"],
-        ["Commits au nom de « Claude » (#592, #593)", "Identité par défaut de la discussion", "Auteur = Jschmiedd + ligne « Co-Authored-By: Claude ». verif_pr.sh bloque"],
+        ["Commits au nom d'un autre auteur (#592, #593)", "Identité par défaut de la discussion", "Auteur = Jschmiedd, sans ligne « Co-Authored-By ». verif_pr.sh bloque"],
         ["Envoi avant le contrôle, malentendu pendant le repas", "Deux discussions demandaient le OUI en même temps", "Une seule discussion demande le OUI : celle qui pousse (F.0)"],
         ["Identifiant de la carte dans des fichiers et dans le journal Blackbox", "Sauvegardes complètes ; en-tête DeviceUID", "diff all bare ; journal masqué ; verif_pr.sh bloque mcu_id, signature, DeviceUID"],
         ["Mauvais réglage OSD (MAX7456 au lieu de MSP)", "Matériel supposé, pas vérifié", "Relire diff all et status réels avant tout réglage matériel"],
@@ -100,7 +100,7 @@ const doc = new Document({
         ["XPRO, chemins locaux (/home/, /tmp/, scratchpad)", "BLOQUANT"],
         ["Espaces en fin de ligne", "BLOQUANT"],
         ["Auteur d'un commit autre que Jschmiedd (sauf 4 anciens commits laissés)", "BLOQUANT"],
-        ["Ligne « Co-Authored-By: Claude » absente", "ATTENTION"],
+        ["Ligne « Co-Authored-By » présente", "BLOQUANT"],
         ["Liste des commentaires et des messages ajoutés", "À juger par l'humain"],
         ["Plus d'un commit (Betaflight)", "ATTENTION"],
       ]),

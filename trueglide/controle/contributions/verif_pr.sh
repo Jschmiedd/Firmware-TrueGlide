@@ -32,8 +32,8 @@ echo "== 5. Auteurs et messages des commits"
 git log --format='   %h | %an <%ae> | %s' "$BASE"..HEAD
 git log --format='%B' "$BASE"..HEAD | grep -nE '#[0-9]+' | sed 's/^/   référence : /' || true
 echo "   -> un « #numéro » dans un message de commit crée un renvoi visible dans cette PR-là."
-# Règle de Johann (14/11) : l'auteur de chaque commit est Jschmiedd ; l'aide de l'IA est dite par une ligne
-# « Co-Authored-By: Claude » à la fin du message. 4 commits anciens laissés tels quels (décision du 14/11).
+# Règles de Johann (14/11 et 21/11) : l'auteur de chaque commit est Jschmiedd, sans ligne « Co-Authored-By ».
+# 4 commits anciens laissés tels quels (décision du 14/11).
 EXCEPTIONS="d7939cc 30f3570 6e58f9f 585badd"
 for c in $(git rev-list "$BASE"..HEAD); do
   court=$(git rev-parse --short=7 "$c")
@@ -42,7 +42,9 @@ for c in $(git rev-list "$BASE"..HEAD); do
   if [ "$auteur" != "Jschmiedd" ]; then
     echo "   BLOQUANT : $court a pour auteur « $auteur », pas Jschmiedd"; BLOQUANT=1
   fi
-  git log -1 --format='%B' "$c" | grep -q '^Co-Authored-By: Claude' || echo "   ATTENTION : $court sans ligne « Co-Authored-By: Claude »"
+  if git log -1 --format='%B' "$c" | grep -qiE '^Co-Authored-By:|^Claude-Session:|claude\.ai/code'; then
+    echo "   BLOQUANT : $court contient une ligne « Co-Authored-By » ou un lien de session"; BLOQUANT=1
+  fi
 done
 
 echo "== 6. Espaces en fin de ligne"
