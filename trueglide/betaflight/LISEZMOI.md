@@ -13,5 +13,11 @@ Vérifié sur la SPEEDYBEE F405 MINI de KarRmen : après chargement de son `diff
 est identique à celui de la vraie carte (992 réglages sur 992, toutes les autres lignes ; seul le numéro de puce
 diffère, remplacé par celui de la vraie carte dans le logiciel).
 
+Betaflight 2026.6.2 (`betaflight-2026.6.2.patch`, ligne `SPEEDYBEEF405MINI_KARRMEN_2026`) : vérifié sur la même
+carte le 22/11/2026, carte simulée acceptée (`dump all` identique). Le cloud de Betaflight ajoute `USE_SERIALRX`,
+`USE_TELEMETRY` et `USE_TELEMETRY_CRSF` avec CRSF sans les afficher dans « Options » : ils sont dans la ligne.
+Construit avec Emscripten 7.0.1 (une version 3.x ne connaît pas `STACK_SIZE`) ; avec arm-none-eabi-gcc 13.2,
+ajouter `GCC_REQUIRED_VERSION=13.2.1` (Betaflight 2026.6.2 attend 13.3.1).
+
 Ensuite : `node scripts/sync-trueglide-simulee.mjs <DOSSIER>/obj/vraie_carte/<CARTE>/wasm` dans le Configurator.
 Licence : GPL-3.0, comme Betaflight.
