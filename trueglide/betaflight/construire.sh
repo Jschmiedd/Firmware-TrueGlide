@@ -2,7 +2,7 @@
 # TrueGlide : carte simulée Betaflight (firmware Betaflight exact d'une carte, pour la carte hors ligne du
 # TrueGlide Configurator). Récupère Betaflight et sa configuration de carte, applique betaflight-<VERSION>.patch
 # (carte simulée : src/platform/STM32/simulee/ et trueglide/vraie_carte.py), puis construit.
-# Usage : trueglide/betaflight/construire.sh DOSSIER CARTE [natif|wasm]
+# Usage : trueglide/betaflight/construire.sh DOSSIER CARTE [natif|wasm|betaflight]
 #   DOSSIER : où récupérer Betaflight (créé s'il n'existe pas) ; CARTE : ligne de options.txt
 #   (arm-none-eabi-gcc dans le PATH pour lire la vraie construction ; emcc pour wasm)
 set -euo pipefail

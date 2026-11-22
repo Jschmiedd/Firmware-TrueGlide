@@ -283,10 +283,10 @@ index 000000000..396cf602b
 +}
 diff --git a/src/platform/STM32/simulee/carte_simulee.h b/src/platform/STM32/simulee/carte_simulee.h
 new file mode 100644
-index 000000000..80ca43fda
+index 000000000..02fb65b08
 --- /dev/null
 +++ b/src/platform/STM32/simulee/carte_simulee.h
-@@ -0,0 +1,57 @@
+@@ -0,0 +1,63 @@
 +/*
 + * TrueGlide - carte simulée : le firmware d'une vraie carte STM32F4, compilé pour l'ordinateur ou le navigateur.
 + * Free software under the GPL-3.0 license, WITHOUT ANY WARRANTY; see the LICENSE file.
@@ -344,6 +344,12 @@ index 000000000..80ca43fda
 +#undef DBGMCU_BASE
 +#define DBGMCU_BASE        TG_COEUR(0xE0042000UL)
 +
++// messages du journal : en anglais pour l'application Betaflight (cible « betaflight » de vraie_carte.py)
++#ifdef SIM_BETAFLIGHT
++#define SIM_TEXT(fr, en) en
++#else
++#define SIM_TEXT(fr, en) fr
++#endif
 diff --git a/src/platform/STM32/simulee/cmsis_hote.h b/src/platform/STM32/simulee/cmsis_hote.h
 new file mode 100644
 index 000000000..2de959f48
@@ -478,7 +484,7 @@ index 000000000..2de959f48
 +#include "simulee/carte_simulee.h"
 diff --git a/src/platform/STM32/simulee/config.c b/src/platform/STM32/simulee/config.c
 new file mode 100644
-index 000000000..917e285d6
+index 000000000..02278e778
 --- /dev/null
 +++ b/src/platform/STM32/simulee/config.c
 @@ -0,0 +1,64 @@
@@ -513,7 +519,7 @@ index 000000000..917e285d6
 +    if (f) {
 +        const size_t n = fread(tgConfigZone, 1, sizeof(tgConfigZone), f);
 +        fclose(f);
-+        printf("[carte] réglages lus : %u octets\n", (unsigned)n);
++        printf(SIM_TEXT("[carte] réglages lus : %u octets\n", "[board] settings read: %u bytes\n"), (unsigned)n);
 +    }
 +}
 +
@@ -619,10 +625,10 @@ index 000000000..4f839da2b
 +#endif
 diff --git a/src/platform/STM32/simulee/liaison.c b/src/platform/STM32/simulee/liaison.c
 new file mode 100644
-index 000000000..52b45cee3
+index 000000000..edb74ec2d
 --- /dev/null
 +++ b/src/platform/STM32/simulee/liaison.c
-@@ -0,0 +1,185 @@
+@@ -0,0 +1,211 @@
 +/*
 + * TrueGlide - carte simulée : liaison avec l'extérieur.
 + * Free software under the GPL-3.0 license, WITHOUT ANY WARRANTY; see the LICENSE file.
@@ -702,17 +708,28 @@ index 000000000..52b45cee3
 +
 +#ifdef __EMSCRIPTEN__
 +
-+EM_JS(void, tgSortieJs, (int port, const uint8_t *octets, int nombre), {
++#ifdef SIM_BETAFLIGHT
++// application Betaflight : noms anglais
++EM_JS(void, simOutputJs, (int port, const uint8_t *octets, int nombre), {
++    if (Module.onOutput) Module.onOutput(port, HEAPU8.slice(octets, octets + nombre));
++});
++
++EM_JS(void, simRestartJs, (void), {
++    if (Module.onRestart) Module.onRestart();
++});
++#else
++EM_JS(void, simOutputJs, (int port, const uint8_t *octets, int nombre), {
 +    if (Module.tgSortie) Module.tgSortie(port, HEAPU8.slice(octets, octets + nombre));
 +});
 +
-+EM_JS(void, tgRedemarrageJs, (void), {
++EM_JS(void, simRestartJs, (void), {
 +    if (Module.tgRedemarrage) Module.tgRedemarrage();
 +});
++#endif
 +
 +void tgEcrire(int port, const uint8_t *octets, int nombre)
 +{
-+    tgSortieJs(port, octets, nombre);
++    simOutputJs(port, octets, nombre);
 +}
 +
 +void tgRelever(void)
@@ -722,7 +739,7 @@ index 000000000..52b45cee3
 +void tgRedemarrer(void)
 +{
 +    emscripten_cancel_main_loop();
-+    tgRedemarrageJs();
++    simRestartJs();
 +    exit(0);
 +}
 +
@@ -738,11 +755,11 @@ index 000000000..52b45cee3
 +    setsockopt(serveur, SOL_SOCKET, SO_REUSEADDR, &oui, sizeof(oui));
 +    struct sockaddr_in a = { .sin_family = AF_INET, .sin_port = htons(5761), .sin_addr.s_addr = htonl(INADDR_LOOPBACK) };
 +    if (bind(serveur, (struct sockaddr *)&a, sizeof(a)) || listen(serveur, 1)) {
-+        fprintf(stderr, "[carte] port TCP 5761 indisponible\n");
++        fprintf(stderr, SIM_TEXT("[carte] port TCP 5761 indisponible\n", "[board] TCP port 5761 unavailable\n"));
 +        exit(1);
 +    }
 +    fcntl(serveur, F_SETFL, O_NONBLOCK);
-+    fprintf(stderr, "[carte] port USB sur TCP 5761\n");
++    fprintf(stderr, SIM_TEXT("[carte] port USB sur TCP 5761\n", "[board] USB port on TCP 5761\n"));
 +}
 +
 +void tgRelever(void)
@@ -799,7 +816,7 @@ index 000000000..52b45cee3
 +
 +// identifiant unique de la puce simulée : la page peut donner celui de la carte récoltée, pour que l'envoi des
 +// réglages préparés reconnaisse la même carte
-+#ifdef __EMSCRIPTEN__
++#if defined(__EMSCRIPTEN__) && !defined(SIM_BETAFLIGHT)
 +EMSCRIPTEN_KEEPALIVE
 +#endif
 +void tg_definir_uid(uint32_t uid0, uint32_t uid1, uint32_t uid2)
@@ -808,6 +825,21 @@ index 000000000..52b45cee3
 +    tgIdentifiantUnique[1] = uid1;
 +    tgIdentifiantUnique[2] = uid2;
 +}
++
++#if defined(__EMSCRIPTEN__) && defined(SIM_BETAFLIGHT)
++// noms anglais de la carte simulée pour l'application Betaflight (cible « betaflight » de vraie_carte.py)
++EMSCRIPTEN_KEEPALIVE
++void sim_input(int port, uint8_t *data, int count)
++{
++    tg_entree(port, data, count);
++}
++
++EMSCRIPTEN_KEEPALIVE
++void sim_set_uid(uint32_t uid0, uint32_t uid1, uint32_t uid2)
++{
++    tg_definir_uid(uid0, uid1, uid2);
++}
++#endif
 diff --git a/src/platform/STM32/simulee/liaison.h b/src/platform/STM32/simulee/liaison.h
 new file mode 100644
 index 000000000..14b56a3fb
@@ -1362,7 +1394,7 @@ index 000000000..cc687c848
 +#endif
 diff --git a/src/platform/STM32/simulee/systeme.c b/src/platform/STM32/simulee/systeme.c
 new file mode 100644
-index 000000000..4821eadea
+index 000000000..c3543db95
 --- /dev/null
 +++ b/src/platform/STM32/simulee/systeme.c
 @@ -0,0 +1,194 @@
@@ -1504,14 +1536,14 @@ index 000000000..4821eadea
 +// redémarrage : la page relance la carte avec sa mémoire des réglages (comme un redémarrage de la vraie carte)
 +void systemReset(void)
 +{
-+    printf("[carte] redémarrage\n");
++    printf(SIM_TEXT("[carte] redémarrage\n", "[board] restart\n"));
 +    tgRedemarrer();
 +}
 +
 +void systemResetToBootloader(bootloaderRequestType_e requestType)
 +{
 +    UNUSED(requestType);
-+    printf("[carte] mode chargeur de démarrage : pas dans la carte simulée, redémarrage\n");
++    printf(SIM_TEXT("[carte] mode chargeur de démarrage : pas dans la carte simulée, redémarrage\n", "[board] bootloader mode: not in the simulated board, restart\n"));
 +    tgRedemarrer();
 +}
 +
@@ -1529,7 +1561,7 @@ index 000000000..4821eadea
 +void indicateFailure(failureMode_e mode, int codeRepeatsRemaining)
 +{
 +    UNUSED(codeRepeatsRemaining);
-+    printf("[carte] défaut %d\n", mode);
++    printf(SIM_TEXT("[carte] défaut %d\n", "[board] failure %d\n"), mode);
 +}
 +
 +void failureMode(failureMode_e mode)
@@ -1884,25 +1916,100 @@ index 000000000..97ce8f2be
 +        carte._free(p);
 +    }
 +});
+diff --git a/trueglide/simulated-board-worker.js b/trueglide/simulated-board-worker.js
+new file mode 100644
+index 000000000..d4de998c5
+--- /dev/null
++++ b/trueglide/simulated-board-worker.js
+@@ -0,0 +1,68 @@
++// Simulated board (simulated-board.js + simulated-board.wasm): the board's firmware runs in this Web Worker.
++// Messages from the page: { type: 'start', eeprom, uid } (eeprom: Uint8Array or null; uid: the chip unique ID,
++// 3 numbers, or null); { type: 'input', bytes }; { type: 'read' } (settings memory as saved).
++// Messages to the page: { type: 'ready' }; { type: 'output', port, bytes }; { type: 'restart', eeprom };
++// { type: 'memory', eeprom } (answer to "read"; eeprom is null while nothing is saved yet).
++/* global SimulatedBoard */
++importScripts('simulated-board.js');
++
++let board = null;
++
++// The firmware writes bytes one at a time: they are grouped and sent to the page once per loop turn.
++const pending = new Map();
++function output(port, bytes) {
++    if (!pending.size) {
++        queueMicrotask(flush);
++    }
++    const list = pending.get(port) || [];
++    list.push(bytes);
++    pending.set(port, list);
++}
++function flush() {
++    for (const [port, list] of pending) {
++        const bytes = new Uint8Array(list.reduce((n, b) => n + b.length, 0));
++        let i = 0;
++        for (const b of list) {
++            bytes.set(b, i);
++            i += b.length;
++        }
++        self.postMessage({ type: 'output', port, bytes }, [bytes.buffer]);
++    }
++    pending.clear();
++}
++
++self.addEventListener('message', async (e) => {
++    const m = e.data;
++    if (!m || typeof m !== 'object') {
++        return; // Emscripten's own messages ("setimmediate")
++    }
++    if (m.type === 'start') {
++        board = await SimulatedBoard({
++            print: () => {},
++            printErr: () => {},
++            arguments: [],
++            preRun: [(M) => { if (m.eeprom) M.FS.writeFile('/eeprom.bin', m.eeprom); }],
++            // Before the firmware starts: the unique ID of the harvested board (real board only).
++            onRuntimeInitialized() {
++                if (m.uid && this._sim_set_uid) this._sim_set_uid(m.uid[0] >>> 0, m.uid[1] >>> 0, m.uid[2] >>> 0);
++            },
++            onOutput: output,
++            onRestart: () => {
++                flush();
++                const eeprom = board.FS.readFile('/eeprom.bin');
++                board = null;
++                self.postMessage({ type: 'restart', eeprom }, [eeprom.buffer]);
++            },
++        });
++        self.postMessage({ type: 'ready' });
++    } else if (m.type === 'read' && board) {
++        // Saved without a reboot (MSP_EEPROM_WRITE): the page reads the settings memory back.
++        const eeprom = board.FS.analyzePath('/eeprom.bin').exists ? board.FS.readFile('/eeprom.bin') : null;
++        self.postMessage({ type: 'memory', eeprom }, eeprom ? [eeprom.buffer] : []);
++    } else if (m.type === 'input' && board) {
++        const p = board._malloc(m.bytes.length);
++        board.HEAPU8.set(m.bytes, p);
++        board._sim_input(0, p, m.bytes.length);
++        board._free(p);
++    }
++});
 diff --git a/trueglide/vraie_carte.py b/trueglide/vraie_carte.py
 new file mode 100644
-index 000000000..a589dea62
+index 000000000..d9136106f
 --- /dev/null
 +++ b/trueglide/vraie_carte.py
-@@ -0,0 +1,145 @@
+@@ -0,0 +1,154 @@
 +#!/usr/bin/env python3
 +# TrueGlide : construit la carte simulée « vraie carte » : le firmware exact d'une carte STM32F4 (mêmes fichiers, même
 +# config.h, mêmes tables de broches, timers et DMA), compilé pour l'ordinateur (natif, pour les essais) ou pour le
 +# navigateur (WebAssembly). Seuls les fichiers qui touchent directement au matériel sont remplacés par ceux de
 +# src/platform/STM32/simulee/ (démarrage, horloge, mémoire des réglages, USB, interruptions).
 +#
-+# Usage : python3 trueglide/essai_navigateur/vraie_carte.py [CARTE] [natif|wasm]
++# Usage : python3 trueglide/essai_navigateur/vraie_carte.py [CARTE] [natif|wasm|betaflight]
 +#         (arm-none-eabi-gcc dans le PATH pour lire la vraie construction ; emcc pour wasm)
 +
 +import concurrent.futures
 +import fnmatch
 +import os
 +import re
++import shutil
 +import shlex
 +import subprocess
 +import sys
@@ -1988,8 +2095,10 @@ index 000000000..a589dea62
 +
 +    sortie = os.path.join(RACINE, 'obj/vraie_carte', carte, cible)
 +    os.makedirs(sortie, exist_ok=True)
-+    if cible == 'wasm':
++    if cible in ('wasm', 'betaflight'):
 +        cc = ['emcc', '-O2', '-Wno-incompatible-pointer-types']
++        if cible == 'betaflight':
++            cc.append('-DSIM_BETAFLIGHT')
 +    else:
 +        cc = ['gcc', '-O1', '-g', '-fno-pie']
 +    commun = drapeaux + ['-DTG_CARTE_SIMULEE', '-include', os.path.join(simulee, 'cmsis_hote.h'), '-Wno-error']
@@ -2013,12 +2122,18 @@ index 000000000..a589dea62
 +    if erreurs:
 +        sys.exit(1)
 +
-+    if cible == 'wasm':
++    # betaflight : la même carte pour l'application Betaflight, avec des noms anglais (simulated-board.js,
++    # SimulatedBoard, sim_input, sim_set_uid) et son worker
++    nom, exports, fichier = 'TrueGlideCarte', '_tg_entree,_tg_definir_uid', 'carte.js'
++    if cible == 'betaflight':
++        nom, exports, fichier = 'SimulatedBoard', '_sim_input,_sim_set_uid', 'simulated-board.js'
++        shutil.copy(os.path.join(RACINE, 'trueglide', 'simulated-board-worker.js'), sortie)
++    if cible in ('wasm', 'betaflight'):
 +        lien = ['emcc', '-O2'] + objets + ['-lm', '-Wl,--allow-multiple-definition', '-sSTACK_SIZE=1048576', '-sALLOW_MEMORY_GROWTH', '-sMODULARIZE',
-+                                           '-sEXPORT_NAME=TrueGlideCarte',
-+                                           '-sEXPORTED_FUNCTIONS=_main,_tg_entree,_tg_definir_uid,_malloc,_free',
++                                           f'-sEXPORT_NAME={nom}',
++                                           f'-sEXPORTED_FUNCTIONS=_main,{exports},_malloc,_free',
 +                                           '-sEXPORTED_RUNTIME_METHODS=FS,HEAPU8', '-sENVIRONMENT=web,worker,node',
-+                                           '-sEXIT_RUNTIME=0', '-o', os.path.join(sortie, 'carte.js')]
++                                           '-sEXIT_RUNTIME=0', '-o', os.path.join(sortie, fichier)]
 +    else:
 +        lien = ['gcc', '-no-pie', '-Wl,--gc-sections'] + objets + ['-lm', '-Wl,-T,src/platform/SIMULATOR/link/sitl.ld',
 +                                              '-o', os.path.join(sortie, 'carte')]

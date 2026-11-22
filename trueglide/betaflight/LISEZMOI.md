@@ -19,5 +19,11 @@ carte le 22/11/2026, carte simulée acceptée (`dump all` identique). Le cloud d
 Construit avec Emscripten 7.0.1 (une version 3.x ne connaît pas `STACK_SIZE`) ; avec arm-none-eabi-gcc 13.2,
 ajouter `GCC_REQUIRED_VERSION=13.2.1` (Betaflight 2026.6.2 attend 13.3.1).
 
+Cible `betaflight` (22/11/2026) : la même carte pour l'application Betaflight, avec des noms anglais
+(`simulated-board.js`, `simulated-board.wasm`, `simulated-board-worker.js`, `SimulatedBoard`, `sim_input`,
+`sim_set_uid`, messages `start`/`input`/`read`/`ready`/`output`/`restart`/`memory`). La cible `wasm` (noms
+TrueGlide) ne change pas. Même firmware : `dump all` identique à la cible `wasm` (2025.12.2 et 2026.6.2).
+Messages du journal en anglais avec cette cible (`SIM_TEXT`, `simulee/carte_simulee.h`).
+
 Ensuite : `node scripts/sync-trueglide-simulee.mjs <DOSSIER>/obj/vraie_carte/<CARTE>/wasm` dans le Configurator.
 Licence : GPL-3.0, comme Betaflight.
