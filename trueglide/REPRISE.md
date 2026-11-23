@@ -4,6 +4,17 @@
 
 Une conversation par phase de test. Lire ce fichier, puis seulement les fichiers utiles à la phase.
 
+## Comment répondre à Johann (à respecter dans toute discussion)
+
+- Phrases courtes. Français simple.
+- Seulement ce qui est important. Pas de détails en trop.
+- D'abord la réponse. Puis, si besoin, ce que je dois faire.
+- 5 lignes maximum, sauf si je demande plus.
+- Un mot = un seul sens. Pas de jargon sans l'expliquer.
+- Pas de répétitions, pas de rappels, pas de dramatisation.
+- Une seule question à la fois.
+- Faire le travail toi-même. Ne pas me demander de réfléchir à ta place.
+
 ## Produits et dépôts
 
 - Firmware : `Jschmiedd/Firmware-TrueGlide` (public), base Betaflight 2026.6.2.
