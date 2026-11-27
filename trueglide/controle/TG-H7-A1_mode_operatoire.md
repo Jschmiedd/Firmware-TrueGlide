@@ -29,3 +29,13 @@ Une seule réponse NON = on s'arrête. On remet le firmware d'usine.
 1. Envoyer : la sortie de `status` (n° 1 et n° 7) et une capture du graphe d'altitude (onglet Capteurs).
 2. Pour partager les réglages : `diff all bare` seulement. Les `status` et réglages restent privés, jamais sur GitHub.
 3. Aucun ESC ni moteur avec ce firmware : il faudra d'abord un firmware construit en CI.
+
+## Résultat (27/11, fait par Johann)
+- N° 1 : firmware d'usine Betaflight 4.5.0, `status` après 300 s : 9 erreurs I2C, déjà 9 après 14 s (toutes au démarrage). OUI.
+- N° 2, 3 : flash réussi (mode DFU), TRUEGLIDE 2026.6.2, SEQUREH7V2, construit le 26/11 19:28. OUI.
+- N° 4 : ICM42688P, DPS310, FLASH 16M. OUI.
+- N° 5 : modèle suit la carte (constat de Johann). OUI.
+- N° 6 : altitude stable à la main sur 60 s (constat de Johann) ; vidéos 30 s et 17 s : altitude entre −1,2 et +0,6 m, sans saut. OUI.
+- N° 7 : `status` après 296 s : 0 erreur I2C (usine : 9). OUI.
+- Remarque : 1er démarrage après le flash, gyro au repos à −2,9 / −6,6 / +3,2 °/s et lacet −21° en 26 s ; après débranchement et rebranchement carte immobile : 0,00 / 0,24 / 0,98 °/s, lacet −3° en 15 s. Calibrage du 1er démarrage faussé, pas de défaut de carte (à confirmer aux prochains démarrages).
+- Verdict : TG-H7-A1 réussi. Suite : binaire construit en CI (GCC 13.3.1) avant tout essai avec ESC ou moteurs.
