@@ -70,7 +70,7 @@ limite power_guard), `msp/msp.c` (garde moteur, MSP_SET_MOTOR), `fc/core.c` (arm
 
 1. **Branche** : `maj-betaflight-<version>` (firmware et logiciel), partie de `main`.
 2. **Fusion** de l'étiquette Betaflight (par exemple `2026.12.0`). Résoudre chaque conflit en gardant le comportement
-   Betaflight ET l'ajout TRUEGLIDE. Noter chaque conflit dans `REPRISE.md`.
+   Betaflight ET l'ajout TRUEGLIDE. Noter chaque conflit dans le suivi privé du projet.
 3. **Relire les notes de version de Betaflight** : un changement qui touche une fonction TRUEGLIDE (moteurs, mixer, MSP,
    failsafe, GPS Rescue, OSD) est vérifié à la main.
 4. **Construire** : firmware `make EXTRA_FLAGS=-Werror` pour les 33 cartes (et SITL), logiciel `npm run build`.
