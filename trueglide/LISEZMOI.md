@@ -390,11 +390,11 @@ moteur. Les outils lisent tous les moteurs du journal (hexacoptère, octocoptèr
 ### Mesures de vol pour le calculateur (`--retour`)
 
 ```
-python3 trueglide/outils/analyse_blackbox.py mon_vol.bbl [autres.bbl] --retour KarRmen_retour_trueglide.json [--nom KarRmen]
+python3 trueglide/outils/analyse_blackbox.py mon_vol.bbl [autres.bbl] --retour mon_drone_retour_trueglide.json [--nom mon_drone]
 ```
 
 Écrit un fichier au format `talktrue-trueglide-retour` (version 2 = version 1 + bloc `centrage`), lu par le calculateur TALKTRUE FPV XRIG. Ce format
-est séparé de celui de XPro. Il ne contient que des mesures faites en vol, jamais d'estimation. Une valeur non
+est un format propre à TrueGlide. Il ne contient que des mesures faites en vol, jamais d'estimation. Une valeur non
 mesurée, ou hors limites, vaut `null`.
 
 | Mesure (`mesures.…`) | Unité, type | Limites | Comment |

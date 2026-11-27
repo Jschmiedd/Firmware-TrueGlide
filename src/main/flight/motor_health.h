@@ -25,7 +25,7 @@
  *    valid eRPM forever when frames are lost, so the RPM filter and dynamic
  *    idle work on a frozen speed. Here, while a motor's telemetry is stale,
  *    its last valid speed is scaled by how much the other motors sped up or
- *    slowed down since the loss. Replayed on real logs (KarRmen, 400 000
+ *    slowed down since the loss. Replayed on real flight logs (400 000
  *    samples): after 60 ms of loss, 90 % of the errors are below 9 % instead
  *    of 21 % with the frozen value.
  *

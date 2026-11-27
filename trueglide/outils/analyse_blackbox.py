@@ -12,7 +12,7 @@ Pour chaque vol : configuration (firmware, carte, protocole DShot, boucle PID), 
 Usage : python3 trueglide/outils/analyse_blackbox.py journal.bbl [autres.bbl] [-o rapport.md]
         [--retour nom_retour_trueglide.json]
 --retour écrit les mesures faites en vol pour le calculateur TALKTRUE FPV XRIG (format talktrue-trueglide-retour,
-séparé de celui de XPro) : voir LISEZMOI.md, « Mesures de vol pour le calculateur ».
+format propre à TrueGlide) : voir LISEZMOI.md, « Mesures de vol pour le calculateur ».
 Dépendances : orangebox (pip install orangebox), numpy, gcc (pour la détection de désynchronisation).
 """
 import argparse, datetime, json, os, sys

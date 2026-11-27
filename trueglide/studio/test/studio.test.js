@@ -394,11 +394,11 @@ test('la base connaît tous les réglages du firmware, textes et tableaux compri
 });
 
 test('la conversion garde les noms, l\'étalonnage et les réglages radio', () => {
-  const diff = '# Betaflight / STM32F405 (S405) 2025.12.2\nset acc_calibration = 0,9,12,1\nset craft_name = KarRmen\n' +
+  const diff = '# Betaflight / STM32F405 (S405) 2025.12.2\nset acc_calibration = 0,9,12,1\nset craft_name = Drone1\n' +
     'set pilot_name = SLAYER\nset expresslrs_uid = 1,2,3,4,5,6\nprofile 0\nset profile_name = LAUNCH';
   const r = A.migrer(diff, DB);
   assert.deepEqual(r.retires, []);
-  for (const l of ['set acc_calibration = 0,9,12,1', 'set craft_name = KarRmen', 'set pilot_name = SLAYER',
+  for (const l of ['set acc_calibration = 0,9,12,1', 'set craft_name = Drone1', 'set pilot_name = SLAYER',
     'set expresslrs_uid = 1,2,3,4,5,6', 'set profile_name = LAUNCH']) assert.ok(r.lignes.includes(l), l);
 });
 
@@ -520,7 +520,7 @@ test('fichier du calculateur (talktrue-trueglide-studio) : champs repris, inconn
   assert.deepEqual(faux.drone, {});
   assert.ok(faux.messages.some(m => m.niveau === 'alerte' && /helice_pouces = 40/.test(m.texte) && /disposition/.test(m.texte)));
   assert.throws(() => P.ouvrir(JSON.stringify({ format: 'talktrue-trueglide-studio', version: 2 })));
-  assert.throws(() => P.ouvrir(JSON.stringify({ format: 'talktrue-xpro-drone', version: 1 })));   // format XPro : refusé
+  assert.throws(() => P.ouvrir(JSON.stringify({ format: 'autre-format-drone', version: 1 })));   // format de fichier non pris en charge : refusé
 });
 
 test('réglage avec les données du calculateur : PID inchangés, gaz de stationnaire et contrôles', () => {

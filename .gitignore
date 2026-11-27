@@ -62,7 +62,5 @@ eeprom.bin
 
 # Ignore AI Agent files for now in favour of
 # contributors being able to roll their own
-.claude
 AGENTS.md
-CLAUDE.md
 /tasks

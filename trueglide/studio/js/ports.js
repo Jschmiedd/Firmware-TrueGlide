@@ -243,7 +243,7 @@
     return JSON.stringify({ format: FORMAT, version: 1, date: o.date || new Date().toISOString(), carte: o.carte || '',
       drone: o.drone || {}, ports: o.ports || {}, configuration: o.configuration || '' }, null, 2);
   }
-  // Format du calculateur TALKTRUE FPV XRIG pour Studio (format propre à TrueGlide, séparé de celui de XPro).
+  // Format du calculateur TALKTRUE FPV XRIG pour Studio (format propre à TrueGlide).
   // Une donnée inconnue vaut null : le champ de Studio est alors laissé tel quel.
   var FORMAT_CALCULATEUR = 'talktrue-trueglide-studio';
   var CHAMPS_CALCULATEUR = [

@@ -88,7 +88,7 @@ TEST(MotorHealthTest, StalledMotorIsCutThenRampedBack)
     motorHealthState_t s;
     motorHealthStateReset(&s);
     float scale[MOTOR_HEALTH_MAX_MOTORS];
-    // motor 2 commanded 100 % but nearly stopped (as in the KarRmen logs)
+    // motor 2 commanded 100 % but nearly stopped (as in real flight logs)
     const motorHealthInput_t stalled = quad(0.15f, 1.0f, 0.15f, 0.15f, 11000, 250, 11400, 10900);
 
     runFor(&s, &stalled, 0.009f, scale);

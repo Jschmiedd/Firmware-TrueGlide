@@ -42,7 +42,7 @@ d'Internet ; sans connexion, le tableau des points fonctionne seul.
   On l'enregistre, on le rouvre plus tard sans la carte ; un `diff all` enregistré depuis le Configurator s'ouvre
   aussi (carte et nombre de pôles repris). Les commandes se collent ensuite dans l'onglet CLI, drone branché.
 - **Fichier du calculateur TALKTRUE FPV XRIG** : le calculateur exporte un `.json` au format propre à TrueGlide
-  `talktrue-trueglide-studio` (séparé du format de XPro, qui est refusé). Studio l'ouvre comme un fichier drone et
+  `talktrue-trueglide-studio` (format propre à TrueGlide ; un autre format de fichier n'est pas pris en charge). Studio l'ouvre comme un fichier drone et
   remplit le formulaire (voir « Format du calculateur » plus bas).
 - **Navigation GPS** : mission par points (mode AUTOPILOT de Betaflight 2026.6), retour GPS, barrière virtuelle.
   Il produit les commandes `waypoint` exactes du firmware (altitudes converties au-dessus du niveau de la mer).
