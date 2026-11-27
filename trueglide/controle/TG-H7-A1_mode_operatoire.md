@@ -39,3 +39,4 @@ Une seule réponse NON = on s'arrête. On remet le firmware d'usine.
 - N° 7 : `status` après 296 s : 0 erreur I2C (usine : 9). OUI.
 - Remarque : 1er démarrage après le flash, gyro au repos à −2,9 / −6,6 / +3,2 °/s et lacet −21° en 26 s ; après débranchement et rebranchement carte immobile : 0,00 / 0,24 / 0,98 °/s, lacet −3° en 15 s. Calibrage du 1er démarrage faussé, pas de défaut de carte (à confirmer aux prochains démarrages).
 - Verdict : TG-H7-A1 réussi. Suite : binaire construit en CI (GCC 13.3.1) avant tout essai avec ESC ou moteurs.
+- Complément (27/11) : carte chaude (cœur 42 → 54 °C), lacet −259° en 8 min environ (gyro Z 0,73 °/s). Rebranchée à chaud et immobile : gyro Z 0,00 °/s, lacet 359° → 0° en 92 s environ (≈ 1°/min). Cause : dérive thermique du zéro du gyro calibré à froid. Pas de défaut.
